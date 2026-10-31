@@ -179,6 +179,21 @@ short glossary.
 
 | Document | What it explains |
 | --- | --- |
+| [docs/README.md](docs/README.md) | Index, reading routes and a short glossary |
+| [docs/glossary.md](docs/glossary.md) | Technical words in plain English |
+| [docs/installer.md](docs/installer.md) | Browser disc checks, packaging, updates and GitHub Pages |
+| [docs/editions.md](docs/editions.md) | USA requirements and optional European content and languages |
+| [docs/building.md](docs/building.md) | Switch dependencies, code generation, NRO builds and PGO |
+| [docs/toolchain.md](docs/toolchain.md) | How the translated game is compiled and optimized |
+| [docs/native-renderer.md](docs/native-renderer.md) | How Aurora and deko3d draw the game |
+| [docs/HowToDeko3d.md](docs/HowToDeko3d.md) | A practical guide to building and checking the renderer |
+| [docs/shaders.md](docs/shaders.md) | Browser compilation, cache identities and console fallback |
+| [docs/platform-notes.md](docs/platform-notes.md) | Horizon memory, threads, file reads and presentation |
+| [docs/switch-audio.md](docs/switch-audio.md) | Switch sound and the thunder crackling fix |
+| [docs/measuring.md](docs/measuring.md) | How to measure console performance fairly |
+| [docs/performance-history.md](docs/performance-history.md) | The dated path to about 30 FPS at stock clocks |
+| [docs/deko3d-devlog.md](docs/deko3d-devlog.md) | Renderer development and measured console results |
+| [docs/porting-another-game.md](docs/porting-another-game.md) | Reusable parts and checks for another GameCube port |
 | [docs/BUILDING_SWITCH.md](docs/BUILDING_SWITCH.md) | How to build the NRO, step by step |
 | [docs/RECOMPILER.md](docs/RECOMPILER.md) | How the game's code is recompiled |
 | [docs/RENDERING.md](docs/RENDERING.md) | How the game's graphics are drawn |
