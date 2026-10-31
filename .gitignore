@@ -35,5 +35,5 @@ installer/release/*.nro
 installer/node_modules/
 
 # Third-party sources the build expects (see docs/BUILDING_SWITCH.md); not part of the repository
-/extern/fuentes/
-/extern/descargas/
+/extern/fuentes
+/extern/descargas
