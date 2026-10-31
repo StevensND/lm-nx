@@ -54,6 +54,8 @@ const TEXTS = {
       `<p><strong>Official sources:</strong> only this page and the ${link(LMNX_REPO, 'lm-nx')} repository on GitHub. ` +
       `Any other download doesn't come from this project.</p>`,
     menuAbout: 'About',
+    navHowto: 'How to use the installer',
+    helpButton: 'Help',
     navRequirements: 'Requirements',
     navControls: 'Controls',
     navFaq: 'FAQ',
@@ -61,6 +63,18 @@ const TEXTS = {
     navReport: 'Report a bug',
     navNews: 'Changelog',
     navMedia: 'Screenshots & videos',
+    pageHowto:
+      `<h3>Before you start</h3><ul>` +
+      `<li>Use a computer with an up-to-date browser: the package is made on your computer, and it is big.</li>` +
+      `<li>Your own copy of <strong>Luigi's Mansion (USA)</strong>, dumped from your disc, is <strong>required</strong>. The <strong>European</strong> disc (first release) is optional: it adds the Hidden Mansion and more languages.</li>` +
+      `<li>Check the free space you need in <a href="#requirements">Requirements</a>.</li></ul>` +
+      `<h3>1. Choose your discs</h3><p>Press <strong>Choose disc images</strong> and pick your <code>.iso</code>, <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> or <code>.ciso</code>. You can pick both discs at once, or one after the other. Each disc says <strong>found, ready to use</strong> when it is accepted. If a disc is not accepted, the message under it tells you why.</p>` +
+      `<h3>2. Create the package</h3><p>Installing for the first time? Press <strong>Create lm-nx.zip</strong>. Already installed? Press <strong>Create lm-nx-update.zip</strong>: your discs and saves stay as they are.</p>` +
+      `<p>The page downloads the game, checks it, compiles the shaders and, with the European disc, builds the Hidden Mansion. This can take a few minutes. <strong>Keep this tab open</strong> until it says <strong>Done</strong>. If the browser asks where to save the file, choose a folder.</p>` +
+      `<h3>3. Copy it to the Switch</h3><p>Extract the <code>.zip</code> and copy the <code>LM-NX</code> folder inside it into <code>sdmc:/switch/</code> on your SD card. You should end up with <code>sdmc:/switch/LM-NX/LM-NX.nro</code>.</p>` +
+      `<h3>4. Start the game</h3><p>Hold <strong>R</strong> while you launch any game: the Homebrew Menu opens. Choose <strong>LM-NX</strong> there. You can also make a forwarder with ${SPHAIRA}. Don't start it from the Album: it does not have enough memory.</p>` +
+      `<h3>5. Change the game's language</h3><p>The USA version is in English. For Spanish, German, French or Italian, add the European disc when you make the package. Then, while playing:</p><ol><li>Press <strong>L3 + R3</strong> (both sticks at once) to open the settings and go to the <strong>Game</strong> tab.</li><li>In <strong>Version to play</strong>, choose <strong>Europe</strong> and press <strong>Exit to change version</strong>.</li><li>Start LM-NX again, open the settings and choose your language in <strong>Language (European version)</strong>.</li></ol><p>The language is used for a new save. An existing save keeps its own language, which you can change in the game's Options.</p>` +
+      `<p>Still stuck? See <a href="#troubleshooting">Troubleshooting</a> or <a href="#report">Report a bug</a>.</p>`,
     pageRequirements:
       `<h3>What you need</h3><ul>` +
       `<li>A Nintendo Switch that can run homebrew, with custom firmware such as <strong>Atmosphère</strong>.</li>` +
@@ -99,7 +113,8 @@ const TEXTS = {
       `start only loads them, in a few seconds.</p>` +
       `<h3>Why is my console compiling shaders?</h3><p>It happens once, with a progress bar, when the ` +
       `<code>cache/</code> folder is missing or damaged, or when you updated <code>LM-NX.nro</code> by hand instead of ` +
-      `with <code>lm-nx-update.zip</code>. The shaders are saved and later starts load them in seconds.</p>`,
+      `with <code>lm-nx-update.zip</code>. The shaders are saved and later starts load them in seconds.</p>` +
+      `<h3>How do I change the game's language?</h3><p>The USA version is in English. For Spanish, German, French or Italian, add the European disc when you make the package. Then, while playing:</p><ol><li>Press <strong>L3 + R3</strong> (both sticks at once) to open the settings and go to the <strong>Game</strong> tab.</li><li>In <strong>Version to play</strong>, choose <strong>Europe</strong> and press <strong>Exit to change version</strong>.</li><li>Start LM-NX again, open the settings and choose your language in <strong>Language (European version)</strong>.</li></ol><p>The language is used for a new save. An existing save keeps its own language, which you can change in the game's Options.</p>`,
     pageTrouble:
       `<h3>The game closes or the screen stays black when it starts</h3><p>Check that the folder is ` +
       `<code>sdmc:/switch/LM-NX/</code> with <code>LM-NX.nro</code> inside, and start it in title takeover mode (hold ` +
@@ -255,6 +270,8 @@ const TEXTS = {
       `<p><strong>Fuentes oficiales:</strong> solo esta página y el repositorio ${link(LMNX_REPO, 'lm-nx')} de ` +
       `GitHub. Cualquier otra descarga no viene de este proyecto.</p>`,
     menuAbout: 'Sobre LM-NX',
+    navHowto: 'Cómo usar el instalador',
+    helpButton: 'Ayuda',
     navRequirements: 'Requisitos',
     navControls: 'Controles',
     navFaq: 'Preguntas frecuentes',
@@ -262,6 +279,18 @@ const TEXTS = {
     navReport: 'Informar de un fallo',
     navNews: 'Registro de cambios',
     navMedia: 'Capturas y vídeos',
+    pageHowto:
+      `<h3>Antes de empezar</h3><ul>` +
+      `<li>Usa un ordenador con un navegador actualizado: el paquete se crea en tu ordenador y ocupa bastante.</li>` +
+      `<li>Tu propia copia de <strong>Luigi's Mansion (USA)</strong>, extraída de tu disco, es <strong>obligatoria</strong>. El disco <strong>europeo</strong> (primera edición) es opcional: añade la Mansión oculta y más idiomas.</li>` +
+      `<li>Comprueba el espacio libre que necesitas en <a href="#requirements">Requisitos</a>.</li></ul>` +
+      `<h3>1. Elige tus discos</h3><p>Pulsa <strong>Elegir imágenes de disco</strong> y escoge tu <code>.iso</code>, <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> o <code>.ciso</code>. Puedes elegir los dos discos a la vez o uno detrás de otro. Cuando un disco es válido, aparece <strong>encontrado, listo para usar</strong>. Si no lo es, el mensaje que aparece debajo te dice por qué.</p>` +
+      `<h3>2. Crea el paquete</h3><p>¿Lo instalas por primera vez? Pulsa <strong>Crear lm-nx.zip</strong>. ¿Ya lo tienes instalado? Pulsa <strong>Crear lm-nx-update.zip</strong>: tus discos y tus partidas guardadas no se tocan.</p>` +
+      `<p>La página descarga el juego, lo comprueba, compila los shaders y, si añadiste el disco europeo, crea la Mansión oculta. Puede tardar unos minutos. <strong>No cierres esta pestaña</strong> hasta que ponga <strong>Terminado</strong>. Si el navegador te pregunta dónde guardar el archivo, elige una carpeta.</p>` +
+      `<h3>3. Cópialo a la Switch</h3><p>Descomprime el <code>.zip</code> y copia la carpeta <code>LM-NX</code> que hay dentro en <code>sdmc:/switch/</code> de tu tarjeta SD. Debe quedar <code>sdmc:/switch/LM-NX/LM-NX.nro</code>.</p>` +
+      `<h3>4. Inicia el juego</h3><p>Mantén pulsado <strong>R</strong> mientras abres cualquier juego: se abrirá el Homebrew Menu. Elige <strong>LM-NX</strong>. También puedes crear un forwarder con ${SPHAIRA}. No lo abras desde el Álbum: no tiene memoria suficiente.</p>` +
+      `<h3>5. Cambia el idioma del juego</h3><p>La versión USA está en inglés. Para jugar en español, alemán, francés o italiano, añade el disco europeo al crear el paquete. Después, durante la partida:</p><ol><li>Pulsa <strong>L3 + R3</strong> (los dos sticks a la vez) para abrir los ajustes y entra en la pestaña <strong>Game</strong>.</li><li>En <strong>Version to play</strong>, elige <strong>Europe</strong> y pulsa <strong>Exit to change version</strong>.</li><li>Vuelve a abrir LM-NX, abre los ajustes y elige tu idioma en <strong>Language (European version)</strong>.</li></ol><p>El idioma se aplica a una partida nueva. Una partida guardada mantiene su idioma, que puedes cambiar en las Opciones del juego.</p>` +
+      `<p>¿Sigues con problemas? Mira <a href="#troubleshooting">Solución de problemas</a> o <a href="#report">Informar de un fallo</a>.</p>`,
     pageRequirements:
       `<h3>Qué necesitas</h3><ul>` +
       `<li>Una Nintendo Switch que pueda ejecutar homebrew, con un firmware personalizado como <strong>Atmosphère</strong>.</li>` +
@@ -302,7 +331,8 @@ const TEXTS = {
       `primer arranque solo los carga, en unos segundos.</p>` +
       `<h3>¿Por qué mi consola está compilando shaders?</h3><p>Pasa una sola vez, con una barra de progreso, cuando ` +
       `falta la carpeta <code>cache/</code> o está dañada, o cuando actualizaste <code>LM-NX.nro</code> a mano en vez ` +
-      `de con <code>lm-nx-update.zip</code>. Los shaders se guardan y los siguientes arranques los cargan en segundos.</p>`,
+      `de con <code>lm-nx-update.zip</code>. Los shaders se guardan y los siguientes arranques los cargan en segundos.</p>` +
+      `<h3>¿Cómo cambio el idioma del juego?</h3><p>La versión USA está en inglés. Para jugar en español, alemán, francés o italiano, añade el disco europeo al crear el paquete. Después, durante la partida:</p><ol><li>Pulsa <strong>L3 + R3</strong> (los dos sticks a la vez) para abrir los ajustes y entra en la pestaña <strong>Game</strong>.</li><li>En <strong>Version to play</strong>, elige <strong>Europe</strong> y pulsa <strong>Exit to change version</strong>.</li><li>Vuelve a abrir LM-NX, abre los ajustes y elige tu idioma en <strong>Language (European version)</strong>.</li></ol><p>El idioma se aplica a una partida nueva. Una partida guardada mantiene su idioma, que puedes cambiar en las Opciones del juego.</p>`,
     pageTrouble:
       `<h3>El juego se cierra o la pantalla se queda en negro al arrancar</h3><p>Comprueba que la carpeta es ` +
       `<code>sdmc:/switch/LM-NX/</code> con <code>LM-NX.nro</code> dentro, y ábrelo en modo title takeover (mantén ` +
@@ -459,6 +489,8 @@ const TEXTS = {
       `<p><strong>Sources officielles${NB}:</strong> uniquement cette page et le dépôt ${link(LMNX_REPO, 'lm-nx')} ` +
       `sur GitHub. Tout autre téléchargement ne vient pas de ce projet.</p>`,
     menuAbout: 'À propos',
+    navHowto: 'Comment utiliser l\'installateur',
+    helpButton: 'Aide',
     navRequirements: 'Configuration requise',
     navControls: 'Commandes',
     navFaq: 'FAQ',
@@ -466,6 +498,18 @@ const TEXTS = {
     navReport: 'Signaler un bug',
     navNews: 'Journal des modifications',
     navMedia: 'Captures et vidéos',
+    pageHowto:
+      `<h3>Avant de commencer</h3><ul>` +
+      `<li>Utilisez un ordinateur avec un navigateur à jour${NB}: le paquet est créé sur votre ordinateur et il est volumineux.</li>` +
+      `<li>Votre propre copie de <strong>Luigi's Mansion (USA)</strong>, extraite de votre disque, est <strong>obligatoire</strong>. Le disque <strong>européen</strong> (première édition) est facultatif${NB}: il ajoute le Manoir caché et d'autres langues.</li>` +
+      `<li>Vérifiez l'espace libre nécessaire dans <a href="#requirements">Configuration requise</a>.</li></ul>` +
+      `<h3>1. Choisissez vos disques</h3><p>Appuyez sur <strong>Choisir les images disque</strong> et sélectionnez votre <code>.iso</code>, <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> ou <code>.ciso</code>. Vous pouvez choisir les deux disques en même temps ou l'un après l'autre. Un disque accepté indique <strong>trouvé, prêt à l'emploi</strong>. Sinon, le message en dessous en explique la raison.</p>` +
+      `<h3>2. Créez le paquet</h3><p>Première installation${NB}? Appuyez sur <strong>Créer lm-nx.zip</strong>. Déjà installé${NB}? Appuyez sur <strong>Créer lm-nx-update.zip</strong>${NB}: vos disques et vos sauvegardes restent intacts.</p>` +
+      `<p>La page télécharge le jeu, le vérifie, compile les shaders et, avec le disque européen, construit le Manoir caché. Cela peut prendre quelques minutes. <strong>Gardez cet onglet ouvert</strong> jusqu'à ce qu'il affiche <strong>Terminé</strong>. Si le navigateur demande où enregistrer le fichier, choisissez un dossier.</p>` +
+      `<h3>3. Copiez-le sur la Switch</h3><p>Extrayez le <code>.zip</code> et copiez le dossier <code>LM-NX</code> qu'il contient dans <code>sdmc:/switch/</code> sur votre carte SD. Vous devez obtenir <code>sdmc:/switch/LM-NX/LM-NX.nro</code>.</p>` +
+      `<h3>4. Lancez le jeu</h3><p>Maintenez <strong>R</strong> en lançant n'importe quel jeu${NB}: le Homebrew Menu s'ouvre. Choisissez <strong>LM-NX</strong>. Vous pouvez aussi créer un forwarder avec ${SPHAIRA}. Ne le lancez pas depuis l'Album${NB}: il n'a pas assez de mémoire.</p>` +
+      `<h3>5. Changez la langue du jeu</h3><p>La version USA est en anglais. Pour jouer en français, espagnol, allemand ou italien, ajoutez le disque européen en créant le paquet. Ensuite, en jeu${NB}:</p><ol><li>Appuyez sur <strong>L3 + R3</strong> (les deux sticks en même temps) pour ouvrir les réglages et allez dans l'onglet <strong>Game</strong>.</li><li>Dans <strong>Version to play</strong>, choisissez <strong>Europe</strong> et appuyez sur <strong>Exit to change version</strong>.</li><li>Relancez LM-NX, ouvrez les réglages et choisissez votre langue dans <strong>Language (European version)</strong>.</li></ol><p>La langue s'applique à une nouvelle sauvegarde. Une sauvegarde existante garde sa langue, que vous pouvez changer dans les Options du jeu.</p>` +
+      `<p>Toujours bloqué${NB}? Consultez <a href="#troubleshooting">Dépannage</a> ou <a href="#report">Signaler un bug</a>.</p>`,
     pageRequirements:
       `<h3>Ce qu'il vous faut</h3><ul>` +
       `<li>Une Nintendo Switch capable de lancer des homebrews, avec un firmware personnalisé comme ` +
@@ -509,7 +553,8 @@ const TEXTS = {
       `<h3>Pourquoi ma console compile-t-elle des shaders${NB}?</h3><p>Cela n'arrive qu'une fois, avec une barre de ` +
       `progression, quand le dossier <code>cache/</code> manque ou est endommagé, ou quand vous avez mis à jour ` +
       `<code>LM-NX.nro</code> à la main au lieu d'utiliser <code>lm-nx-update.zip</code>. Les shaders sont enregistrés ` +
-      `et les démarrages suivants les chargent en quelques secondes.</p>`,
+      `et les démarrages suivants les chargent en quelques secondes.</p>` +
+      `<h3>Comment changer la langue du jeu${NB}?</h3><p>La version USA est en anglais. Pour jouer en français, espagnol, allemand ou italien, ajoutez le disque européen en créant le paquet. Ensuite, en jeu${NB}:</p><ol><li>Appuyez sur <strong>L3 + R3</strong> (les deux sticks en même temps) pour ouvrir les réglages et allez dans l'onglet <strong>Game</strong>.</li><li>Dans <strong>Version to play</strong>, choisissez <strong>Europe</strong> et appuyez sur <strong>Exit to change version</strong>.</li><li>Relancez LM-NX, ouvrez les réglages et choisissez votre langue dans <strong>Language (European version)</strong>.</li></ol><p>La langue s'applique à une nouvelle sauvegarde. Une sauvegarde existante garde sa langue, que vous pouvez changer dans les Options du jeu.</p>`,
     pageTrouble:
       `<h3>Le jeu se ferme ou l'écran reste noir au démarrage</h3><p>Vérifiez que le dossier est ` +
       `<code>sdmc:/switch/LM-NX/</code> avec <code>LM-NX.nro</code> dedans, et lancez-le en mode title takeover ` +
@@ -669,6 +714,8 @@ const TEXTS = {
       `<p><strong>Offizielle Quellen:</strong> nur diese Seite und das Repository ${link(LMNX_REPO, 'lm-nx')} auf ` +
       `GitHub. Jeder andere Download stammt nicht von diesem Projekt.</p>`,
     menuAbout: 'Über LM-NX',
+    navHowto: 'So benutzt du den Installer',
+    helpButton: 'Hilfe',
     navRequirements: 'Voraussetzungen',
     navControls: 'Steuerung',
     navFaq: 'FAQ',
@@ -676,6 +723,18 @@ const TEXTS = {
     navReport: 'Fehler melden',
     navNews: 'Änderungsprotokoll',
     navMedia: 'Bilder und Videos',
+    pageHowto:
+      `<h3>Bevor du anfängst</h3><ul>` +
+      `<li>Nutze einen Computer mit einem aktuellen Browser: Das Paket wird auf deinem Computer erstellt und ist groß.</li>` +
+      `<li>Deine eigene Kopie von <strong>Luigi's Mansion (USA)</strong>, von deiner Disc ausgelesen, ist <strong>erforderlich</strong>. Die <strong>europäische</strong> Disc (erste Auflage) ist optional: Sie bringt die Versteckte Villa und weitere Sprachen.</li>` +
+      `<li>Den nötigen freien Speicher findest du unter <a href="#requirements">Voraussetzungen</a>.</li></ul>` +
+      `<h3>1. Wähle deine Discs</h3><p>Drücke <strong>Disc-Images wählen</strong> und wähle deine <code>.iso</code>, <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> oder <code>.ciso</code>. Du kannst beide Discs zusammen oder nacheinander wählen. Eine passende Disc zeigt <strong>gefunden, bereit</strong>. Wenn nicht, steht darunter der Grund.</p>` +
+      `<h3>2. Erstelle das Paket</h3><p>Erste Installation? Drücke <strong>lm-nx.zip erstellen</strong>. Schon installiert? Drücke <strong>lm-nx-update.zip erstellen</strong>: Deine Discs und Spielstände bleiben, wie sie sind.</p>` +
+      `<p>Die Seite lädt das Spiel herunter, prüft es, kompiliert die Shader und baut mit der europäischen Disc die Versteckte Villa. Das kann ein paar Minuten dauern. <strong>Lass diesen Tab offen</strong>, bis <strong>Fertig</strong> erscheint. Fragt der Browser, wo die Datei gespeichert werden soll, wähle einen Ordner.</p>` +
+      `<h3>3. Auf die Switch kopieren</h3><p>Entpacke die <code>.zip</code> und kopiere den Ordner <code>LM-NX</code> darin nach <code>sdmc:/switch/</code> auf deiner SD-Karte. Am Ende gibt es <code>sdmc:/switch/LM-NX/LM-NX.nro</code>.</p>` +
+      `<h3>4. Spiel starten</h3><p>Halte <strong>R</strong> gedrückt, während du ein beliebiges Spiel startest: Das Homebrew Menu öffnet sich. Wähle dort <strong>LM-NX</strong>. Du kannst auch einen Forwarder mit ${SPHAIRA} erstellen. Starte es nicht über das Album: Dort reicht der Speicher nicht.</p>` +
+      `<h3>5. Sprache des Spiels ändern</h3><p>Die USA-Version ist auf Englisch. Für Deutsch, Spanisch, Französisch oder Italienisch füge beim Erstellen des Pakets die europäische Disc hinzu. Dann im Spiel:</p><ol><li>Drücke <strong>L3 + R3</strong> (beide Sticks gleichzeitig), um die Einstellungen zu öffnen, und gehe zum Reiter <strong>Game</strong>.</li><li>Wähle bei <strong>Version to play</strong> die Option <strong>Europe</strong> und drücke <strong>Exit to change version</strong>.</li><li>Starte LM-NX erneut, öffne die Einstellungen und wähle deine Sprache bei <strong>Language (European version)</strong>.</li></ol><p>Die Sprache gilt für einen neuen Spielstand. Ein vorhandener Spielstand behält seine Sprache, die du in den Optionen des Spiels ändern kannst.</p>` +
+      `<p>Klappt es noch nicht? Sieh unter <a href="#troubleshooting">Fehlerbehebung</a> nach oder <a href="#report">melde einen Fehler</a>.</p>`,
     pageRequirements:
       `<h3>Was du brauchst</h3><ul>` +
       `<li>Eine Nintendo Switch, die Homebrew ausführen kann, mit einer Custom Firmware wie <strong>Atmosphère</strong>.</li>` +
@@ -719,7 +778,8 @@ const TEXTS = {
       `<h3>Warum kompiliert meine Konsole Shader?</h3><p>Das passiert nur einmal, mit einem Fortschrittsbalken, wenn ` +
       `der Ordner <code>cache/</code> fehlt oder beschädigt ist oder wenn du <code>LM-NX.nro</code> von Hand statt mit ` +
       `<code>lm-nx-update.zip</code> aktualisiert hast. Die Shader werden gespeichert und spätere Starts laden sie in ` +
-      `Sekunden.</p>`,
+      `Sekunden.</p>` +
+      `<h3>Wie ändere ich die Sprache des Spiels?</h3><p>Die USA-Version ist auf Englisch. Für Deutsch, Spanisch, Französisch oder Italienisch füge beim Erstellen des Pakets die europäische Disc hinzu. Dann im Spiel:</p><ol><li>Drücke <strong>L3 + R3</strong> (beide Sticks gleichzeitig), um die Einstellungen zu öffnen, und gehe zum Reiter <strong>Game</strong>.</li><li>Wähle bei <strong>Version to play</strong> die Option <strong>Europe</strong> und drücke <strong>Exit to change version</strong>.</li><li>Starte LM-NX erneut, öffne die Einstellungen und wähle deine Sprache bei <strong>Language (European version)</strong>.</li></ol><p>Die Sprache gilt für einen neuen Spielstand. Ein vorhandener Spielstand behält seine Sprache, die du in den Optionen des Spiels ändern kannst.</p>`,
     pageTrouble:
       `<h3>Das Spiel schließt sich oder der Bildschirm bleibt beim Start schwarz</h3><p>Prüfe, dass der Ordner ` +
       `<code>sdmc:/switch/LM-NX/</code> ist und <code>LM-NX.nro</code> enthält, und starte es im Title-Takeover-Modus ` +
@@ -878,6 +938,8 @@ const TEXTS = {
       `<p><strong>Fonti ufficiali:</strong> solo questa pagina e il repository ${link(LMNX_REPO, 'lm-nx')} su ` +
       `GitHub. Qualsiasi altro download non proviene da questo progetto.</p>`,
     menuAbout: 'Info su LM-NX',
+    navHowto: 'Come usare l\'installer',
+    helpButton: 'Aiuto',
     navRequirements: 'Requisiti',
     navControls: 'Comandi',
     navFaq: 'Domande frequenti',
@@ -885,6 +947,18 @@ const TEXTS = {
     navReport: 'Segnala un bug',
     navNews: 'Registro delle modifiche',
     navMedia: 'Immagini e video',
+    pageHowto:
+      `<h3>Prima di iniziare</h3><ul>` +
+      `<li>Usa un computer con un browser aggiornato: il pacchetto viene creato sul tuo computer ed è grande.</li>` +
+      `<li>La tua copia di <strong>Luigi's Mansion (USA)</strong>, estratta dal tuo disco, è <strong>obbligatoria</strong>. Il disco <strong>europeo</strong> (prima edizione) è facoltativo: aggiunge la Villa Nascosta e altre lingue.</li>` +
+      `<li>Controlla lo spazio libero necessario in <a href="#requirements">Requisiti</a>.</li></ul>` +
+      `<h3>1. Scegli i dischi</h3><p>Premi <strong>Scegli le immagini disco</strong> e seleziona il tuo <code>.iso</code>, <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> o <code>.ciso</code>. Puoi scegliere entrambi i dischi insieme o uno dopo l'altro. Un disco accettato mostra <strong>trovato, pronto all'uso</strong>. Altrimenti il messaggio sotto spiega il motivo.</p>` +
+      `<h3>2. Crea il pacchetto</h3><p>Prima installazione? Premi <strong>Crea lm-nx.zip</strong>. Già installato? Premi <strong>Crea lm-nx-update.zip</strong>: i tuoi dischi e i salvataggi restano come sono.</p>` +
+      `<p>La pagina scarica il gioco, lo controlla, compila gli shader e, con il disco europeo, costruisce la Villa Nascosta. Può richiedere qualche minuto. <strong>Tieni aperta questa scheda</strong> finché non compare <strong>Fatto</strong>. Se il browser chiede dove salvare il file, scegli una cartella.</p>` +
+      `<h3>3. Copialo sulla Switch</h3><p>Estrai il <code>.zip</code> e copia la cartella <code>LM-NX</code> al suo interno in <code>sdmc:/switch/</code> sulla scheda SD. Alla fine deve esserci <code>sdmc:/switch/LM-NX/LM-NX.nro</code>.</p>` +
+      `<h3>4. Avvia il gioco</h3><p>Tieni premuto <strong>R</strong> mentre avvii un gioco qualsiasi: si apre l'Homebrew Menu. Scegli <strong>LM-NX</strong>. Puoi anche creare un forwarder con ${SPHAIRA}. Non avviarlo dall'Album: non ha memoria sufficiente.</p>` +
+      `<h3>5. Cambia la lingua del gioco</h3><p>La versione USA è in inglese. Per giocare in italiano, spagnolo, tedesco o francese, aggiungi il disco europeo quando crei il pacchetto. Poi, durante il gioco:</p><ol><li>Premi <strong>L3 + R3</strong> (entrambe le levette insieme) per aprire le impostazioni e vai alla scheda <strong>Game</strong>.</li><li>In <strong>Version to play</strong>, scegli <strong>Europe</strong> e premi <strong>Exit to change version</strong>.</li><li>Riavvia LM-NX, apri le impostazioni e scegli la lingua in <strong>Language (European version)</strong>.</li></ol><p>La lingua vale per un nuovo salvataggio. Un salvataggio esistente mantiene la sua lingua, che puoi cambiare nelle Opzioni del gioco.</p>` +
+      `<p>Ancora problemi? Vedi <a href="#troubleshooting">Risoluzione dei problemi</a> o <a href="#report">Segnala un bug</a>.</p>`,
     pageRequirements:
       `<h3>Cosa ti serve</h3><ul>` +
       `<li>Una Nintendo Switch in grado di avviare homebrew, con un firmware personalizzato come <strong>Atmosphère</strong>.</li>` +
@@ -927,7 +1001,8 @@ const TEXTS = {
       `<h3>Perché la mia console sta compilando gli shader?</h3><p>Succede una sola volta, con una barra di ` +
       `avanzamento, quando la cartella <code>cache/</code> manca o è danneggiata, oppure quando hai aggiornato ` +
       `<code>LM-NX.nro</code> a mano invece che con <code>lm-nx-update.zip</code>. Gli shader vengono salvati e gli ` +
-      `avvii successivi li caricano in pochi secondi.</p>`,
+      `avvii successivi li caricano in pochi secondi.</p>` +
+      `<h3>Come cambio la lingua del gioco?</h3><p>La versione USA è in inglese. Per giocare in italiano, spagnolo, tedesco o francese, aggiungi il disco europeo quando crei il pacchetto. Poi, durante il gioco:</p><ol><li>Premi <strong>L3 + R3</strong> (entrambe le levette insieme) per aprire le impostazioni e vai alla scheda <strong>Game</strong>.</li><li>In <strong>Version to play</strong>, scegli <strong>Europe</strong> e premi <strong>Exit to change version</strong>.</li><li>Riavvia LM-NX, apri le impostazioni e scegli la lingua in <strong>Language (European version)</strong>.</li></ol><p>La lingua vale per un nuovo salvataggio. Un salvataggio esistente mantiene la sua lingua, che puoi cambiare nelle Opzioni del gioco.</p>`,
     pageTrouble:
       `<h3>Il gioco si chiude o lo schermo resta nero all'avvio</h3><p>Controlla che la cartella sia ` +
       `<code>sdmc:/switch/LM-NX/</code> con dentro <code>LM-NX.nro</code>, e avvialo in modalità title takeover (tieni ` +

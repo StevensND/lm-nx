@@ -128,6 +128,18 @@
     button:disabled { background: #2a2d36; border-color: #2a2d36; color: #7d828f; cursor: default; }
     input[type=file] { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .hint { margin: calc(var(--pad) * .5) 0 0; }
+    /* the Help button on the title line of step 1, under the end of the introduction and clear of the cobweb:
+       it opens "How to use the installer" */
+    #step1 h2 { padding-right: calc(140px + 7em); }
+    #step1 .help-link { position: absolute; z-index: 1; top: calc(var(--pad) * 1.6 + 10px); right: 140px; }
+    @media (max-width: 700px) { #step1 h2 { padding-right: calc(72px + 7em); } #step1 .help-link { right: 72px; } }
+    .help-link { display: inline-flex; align-items: center; gap: .4em; padding: .35em .85em; border-radius: 999px;
+      background: #3c404d; border: 1px solid #3c404d; color: #fff; font-weight: 700; text-decoration: none;
+      transition: background .12s, border-color .12s; }
+    .help-link:hover { background: #434856; border-color: #5b6273; }
+    .help-link:focus-visible { outline: none; border-color: #8a91a3; }
+    .help-link svg { width: 1.15em; height: 1.15em; color: var(--accent); }
+    .help-link span { text-transform: uppercase; letter-spacing: .03em; }
     /* the button and its hint on one line, so step 1 takes less height */
     .pick { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; }
     .pick label.button { margin: 0; }
@@ -206,7 +218,7 @@
     .page-text h3 { margin: 14px 0 4px; font-size: 1em; }
     .page-text h3:first-child { margin-top: 0; }
     .page-text p { margin: 0 0 8px; }
-    .page-text ul { margin: 0 0 8px; padding-left: 20px; }
+    .page-text ul, .page-text ol { margin: 0 0 8px; padding-left: 20px; }
     .page-text li { margin: 3px 0; }
     .keys { border-collapse: collapse; margin: 4px auto 10px; }
     .keys th, .keys td { padding: 4px 14px 4px 0; text-align: left; border-bottom: 1px solid var(--line); }
@@ -386,6 +398,7 @@
   <div class="menu-head"><span data-i18n="menuTitle">Menu</span><button class="menu-close" id="menuClose" type="button" aria-label="Close menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg></button></div>
   <a class="menu-group" href="#step1" data-i18n="menuInstaller">Installer</a>
   <p class="menu-group" data-i18n="menuHelp">Help</p>
+  <a href="#howto" data-i18n="navHowto">How to use the installer</a>
   <a href="#requirements" data-i18n="navRequirements">Requirements</a>
   <a href="#controls" data-i18n="navControls">Controls</a>
   <a href="#faq" data-i18n="navFaq">FAQ</a>
@@ -415,6 +428,7 @@
 
   <section id="step1">
     <h2 data-i18n="step1">1. Choose your disc images</h2>
+    <a class="help-link" href="#howto"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.2" fill="currentColor"/></svg><span data-i18n="helpButton">Help</span></a>
     <div class="pick">
       <label class="button" for="discs" data-i18n="chooseIso">Choose disc images</label>
       <input id="discs" type="file" accept=".iso,.gcm,.rvz,.wia,.gcz,.ciso" multiple>
@@ -499,6 +513,11 @@
   </section>
 
   <!-- the help and about pages: opened from the menu, like the Discord page -->
+  <section id="howto" class="page" hidden>
+    <div class="page-text" data-i18n-html="pageHowto"></div>
+    <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
   <section id="requirements" class="page" hidden>
     <div class="page-text" data-i18n-html="pageRequirements"><h3>What you need</h3><ul><li>A Nintendo Switch that can run homebrew, with custom firmware such as <strong>Atmosphère</strong>.</li><li>Your own copy of <strong>Luigi's Mansion (USA)</strong> for GameCube, dumped from your disc. The <strong>European</strong> disc (first release) is optional: it adds the Hidden Mansion and four more languages.</li><li>Free space on the SD card: about <strong>1.7 GB</strong> with the USA disc, about <strong>3.2 GB</strong> with both discs. Your computer needs the same space for the zip.</li><li>A computer with an up-to-date browser to make the package.</li></ul><h3>How to start it</h3><p>Start <code>LM-NX.nro</code> in title takeover mode: hold <strong>R</strong> while you launch any game and the Homebrew Menu opens with all the memory of the console. From the Album the game does not have enough memory.</p></div>
     <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
