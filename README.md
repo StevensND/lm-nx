@@ -24,7 +24,6 @@ game's original **30 FPS at the console's stock clocks** with no overclock.
 |---|---|---|
 | `GLME01` | Luigi's Mansion (USA) | **Required**: it is the game the port runs |
 | `GLMP01`, revision 0 | Luigi's Mansion (Europe), first release | Optional: adds the European **Hidden Mansion** and Spanish, German, French and Italian |
-| `GLMP01`, revision 1 | Luigi's Mansion (Europe), second release | Not supported |
 
 </div>
 
