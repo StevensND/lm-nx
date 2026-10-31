@@ -1,8 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- the page has its own languages (flags): a browser translating it on top mixes two languages -->
+  <meta name="google" content="notranslate">
   <title>LM-NX Installer</title>
   <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
@@ -130,9 +132,10 @@
     .hint { margin: calc(var(--pad) * .5) 0 0; }
     /* the Help button on the title line of step 1, under the end of the introduction and clear of the cobweb:
        it opens "How to use the installer" */
-    #step1 h2 { padding-right: calc(140px + 7em); }
+    /* the title and the first row keep clear of the button: a longer text (French, German) wraps before it */
+    #step1 h2, #step1 .pick { padding-right: calc(140px + 7em - var(--pad) - 4px); }
     #step1 .help-link { position: absolute; z-index: 1; top: calc(var(--pad) * 1.6 + 10px); right: 140px; }
-    @media (max-width: 700px) { #step1 h2 { padding-right: calc(72px + 7em); } #step1 .help-link { right: 72px; } }
+    @media (max-width: 700px) { #step1 h2, #step1 .pick { padding-right: calc(72px + 7em - var(--pad) - 4px); } #step1 .help-link { right: 72px; } }
     .help-link { display: inline-flex; align-items: center; gap: .4em; padding: .35em .85em; border-radius: 999px;
       background: #3c404d; border: 1px solid #3c404d; color: #fff; font-weight: 700; text-decoration: none;
       transition: background .12s, border-color .12s; }
@@ -151,7 +154,7 @@
     /* the button and its hint on one line, so step 1 takes less height */
     .pick { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; }
     .pick label.button { margin: 0; }
-    .pick .hint { margin: 4px 0; }
+    .pick .hint { margin: 4px 0; flex: 1 1 14em; }
     .note { margin: calc(var(--pad) * .6) 0 0; padding: calc(var(--pad) * .45) calc(var(--pad) * .6); background: var(--inset);
       border: 1px solid var(--line); border-radius: 10px; }
     /* one row per disc: what it is for, and what was found */
