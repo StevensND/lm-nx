@@ -1,0 +1,160 @@
+// LM_TEST_STATE=<preset>[+<preset>...] (testing): once the game is in gameplay, keeps
+// Luigi in a known equipment state, the way the story's event commands would, so features
+// that need the Poltergust or an element can be tested from a new game (opening foyer,
+// LM_START_MAP=<n>, the debug warps). Applied every gameplay frame from the GBH HUD update
+// hook (unused_content.cpp).
+//
+// Presets:
+//   poltergust  Poltergust 3000 + Game Boy Horror: Luigi flags +0x792 |= 4|8, the same bits
+//               the <WEAPON> event command sets (Luigi message handler at 0x800B0040). The
+//               player record mirrors them every frame (+0x55 = flag 8 -> GBH HUD shown).
+//   fire|water|ice  poltergust + that element (Luigi +0x1184 = 2/3/4), meter kept full
+//               (Luigi +0x1188 = 100.0; the record's +0x52 meter level is derived from it).
+#include "recomp/hle.h"
+#include "recomp/runtime.h"
+#include "recomp/version.h"
+
+#include <algorithm>
+#include <bit>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <string>
+#include <vector>
+
+namespace recomp {
+namespace {
+
+#define kActorSlots VA(0x803D48A0)  // lbl_803D48A0[0] = Luigi
+constexpr u32 kLuigiFlags = 0x792;       // u16: 4 = Poltergust, 8 = Game Boy Horror
+constexpr u32 kLuigiElement = 0x1184;    // 1 none (L blows air), 2 fire, 3 water, 4 ice
+constexpr u32 kLuigiElemAmount = 0x1188; // f32 0..100 (meter level = amount / 10)
+
+struct State {
+    bool poltergust = false;
+    int element = -1;
+};
+
+State parse() {
+    State s;
+    const char* env = std::getenv("LM_TEST_STATE");
+    if (!env) return s;
+    std::string spec = env;
+    size_t p = 0;
+    while (p <= spec.size()) {
+        const size_t e = spec.find('+', p);
+        const std::string name = spec.substr(p, e == std::string::npos ? std::string::npos : e - p);
+        if (name == "poltergust") s.poltergust = true;
+        else if (name == "fire") s.poltergust = true, s.element = 2;
+        else if (name == "water") s.poltergust = true, s.element = 3;
+        else if (name == "ice") s.poltergust = true, s.element = 4;
+        else if (!name.empty()) log("[test] LM_TEST_STATE: unknown preset '%s'", name.c_str());
+        if (e == std::string::npos) break;
+        p = e + 1;
+    }
+    return s;
+}
+
+}  // namespace
+
+u32 copyDispCount();  // hle_gx.cpp
+
+void testStateFrame(Ctx& c) {
+    // LM_PATCHES=<id>[,<id>...] (testing): switch these hooks.txt instruction patches on for the
+    // whole run, e.g. 42 (every locked door counts as unlockable: the key-door unlock events
+    // without the story's keys).
+    static const bool sPatchesDone = [] {
+        if (const char* e = std::getenv("LM_PATCHES"))
+            for (const char* p = e; *p;) {
+                const u32 id = u32(std::strtoul(p, nullptr, 10));
+                setPatch(id, true);
+                log("[test] LM_PATCHES: patch %u on", id);
+                const char* comma = std::strchr(p, ',');
+                if (!comma) break;
+                p = comma + 1;
+            }
+        return true;
+    }();
+    (void)sPatchesDone;
+    // LM_TEST_HIT=<frame>[,<period>[,<damage>]] (testing): from that frame on (LM_FRAME_DUMP
+    // numbering), every <period> frames (0: once), Luigi takes <damage> (default 5) through the
+    // game's own health setter fn_800B9488, the call every damage source makes, so the hurt
+    // reaction and the damage blink play (frame interpolation tests of the blink).
+    static u32 sHitAt = 0, sHitPeriod = 0, sHitDamage = 5;
+    static const bool sHitOn = [] {
+        const char* e = std::getenv("LM_TEST_HIT");
+        if (!e) return false;
+        std::sscanf(e, "%u,%u,%u", &sHitAt, &sHitPeriod, &sHitDamage);
+        return true;
+    }();
+    // LM_HEALTH_LOG=1 (testing): log Luigi's health whenever it changes, with the frame number.
+    static const bool sHealthLog = std::getenv("LM_HEALTH_LOG") != nullptr;
+    if (sHealthLog) {
+        static s32 sLast = -1, sLastMax = -1;
+        const u32 l = rd32(kActorSlots);
+        if (l >= 0x80000000u && l < 0x81800000u) {
+            const s32 hp = s16(rd16(l + 0xFC)), maxHp = s16(rd16(l + 0xFFC));
+            if (hp != sLast || maxHp != sLastMax)
+                log("[test] Luigi health %d max %d at frame %u (map %u)", hp, maxHp, copyDispCount(),
+                    rd32(VA(0x804D80C8)));
+            sLast = hp;
+            sLastMax = maxHp;
+        }
+    }
+    if (sHitOn) {
+        const u32 f = copyDispCount();
+        const u32 l = rd32(kActorSlots);
+        if (f >= sHitAt && l >= 0x80000000u && l < 0x81800000u) {
+            const s32 hp = s16(rd16(l + 0xFC));
+            log("[test] LM_TEST_HIT: frame %u, Luigi health %d -> %d", f, hp, hp - s32(sHitDamage));
+            static const u32 sSetHealth = guestSymbol("fn_800B9488");
+            guestCall(c, sSetHealth, l, u32(std::max(1, hp - s32(sHitDamage))) & 0xFFFF);
+            sHitAt = sHitPeriod ? f + sHitPeriod : ~0u;
+        }
+    }
+    // LM_TEST_SAVE=<n>[,<n>...] (testing): request the save screen n gameplay frames in, the way
+    // the <SAVE> event command does (0x804D80C4 = 5, see skip.cpp), to test memory card saves.
+    static const std::vector<u32> sSaveAt = [] {
+        std::vector<u32> v;
+        if (const char* e = std::getenv("LM_TEST_SAVE"))
+            for (const char* p = e; *p;) {
+                v.push_back(u32(std::strtoul(p, nullptr, 10)));
+                const char* comma = std::strchr(p, ',');
+                if (!comma) break;
+                p = comma + 1;
+            }
+        return v;
+    }();
+    if (!sSaveAt.empty()) {
+        static u32 sGameplayFrames = 0;
+        sGameplayFrames++;
+        for (u32 at : sSaveAt)
+            if (at == sGameplayFrames) {
+                log("[test] LM_TEST_SAVE: requesting the save screen (gameplay frame %u)", at);
+                wr32(VA(0x804D80C4), 5);
+            }
+    }
+}
+
+// The LM_TEST_STATE presets are applied from Luigi's own per-frame update (dev::noteLuigi), to the
+// actor being updated. They were written once per frame through actor slot 0 from the HUD update:
+// in the nursery door event (A at the door, Luigi not updated for ~10 s) that slot held a freed
+// actor, and the stores corrupted whatever reused the memory (a model's node tree looping in
+// fn_8005B660, garbage display-list and audio callback pointers: hangs and crashes).
+void testStateLuigi(u32 l) {
+    static const State s = parse();
+    if (!s.poltergust && s.element < 0) return;
+    if (l < 0x80000000u || l >= 0x81800000u) return;
+    static bool sLogged = false;
+    if (s.poltergust) wr16(l + kLuigiFlags, rd16(l + kLuigiFlags) | 0xC);
+    if (s.element >= 0) {
+        wr32(l + kLuigiElement, u32(s.element));
+        wr32(l + kLuigiElemAmount, std::bit_cast<u32>(100.0f));
+    }
+    if (!sLogged) {
+        sLogged = true;
+        log("[test] LM_TEST_STATE applied (poltergust %d, element %d)", s.poltergust, s.element);
+    }
+}
+
+}  // namespace recomp

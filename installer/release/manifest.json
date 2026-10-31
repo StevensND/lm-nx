@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "folder": "LM-NX",
+  "nro": "LM-NX.nro",
+  "nro_sha256": "ae3d20e9f28e26f7edbd5de0781860632cd2ff65d9f10c587b8baf5d3d243120",
+  "shader_build": "8bd445c65795e6a2283bc086",
+  "pipelines_sha256": "1e2193f9e7725dea1af4d31e9757ce742d0c6b5dfd4ccb81c231b08961bd35a5"
+}

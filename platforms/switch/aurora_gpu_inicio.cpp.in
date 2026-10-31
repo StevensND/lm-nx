@@ -1,0 +1,58 @@
+// LMNX-Deko3D startup only. The rest comes from the patched Aurora producer; Dawn device creation is not
+// included.
+bool initialize(AuroraBackend backend, bool) {
+  if (backend != BACKEND_DEKO3D) return false;
+  lmnx::abrirCacheShaders(std::filesystem::path(g_config.cachePath));
+  lmnx::gpu::configurarCacheTraduccion(std::filesystem::path(g_config.cachePath) / ("lmnx-tint-" LMNX_SHADER_BUILD_ID));
+  g_device = lmnx::gpu::crearDispositivo();
+  // Query the actual backend without inheriting Dawn's limits.
+  g_msaaSupportMask = lmnx::gpu::muestrasSoportadas(g_device) | 1u;
+  g_msaaRequested = std::max(g_config.msaa, 1u);
+  g_config.msaa = 1;
+  for (uint32_t muestras : {8u, 4u, 2u}) {
+    if (muestras <= g_msaaRequested && (g_msaaSupportMask & muestras)) {g_config.msaa = muestras;break;}
+  }
+  Log.info("[MSAA] solicitado={}, soportados={}, seleccionado={}", g_msaaRequested, g_msaaSupportMask, g_config.msaa);
+  g_queue = g_device.GetQueue();
+  g_instance.activo = true;
+  g_backendType = wgpu::BackendType::Undefined;
+  g_hasCoreFeatures = true;
+  g_bcTexturesSupported = true;
+  g_dualSourceBlendingSupported = true;
+  g_clipDistancesSupported = false;
+  g_textureComponentSwizzleSupported = false;
+  g_astcTexturesSupported = false;
+  g_graphicsConfig.surfaceConfiguration.format = wgpu::TextureFormat::RGBA8Unorm;
+  g_graphicsConfig.depthFormat = wgpu::TextureFormat::Depth32Float;
+  g_graphicsConfig.msaaSamples = g_config.msaa;
+  g_graphicsConfig.textureAnisotropy = g_config.maxTextureAnisotropy;
+#ifdef LMNX_PC_VULKAN
+  static std::string nombreGPU;
+  nombreGPU = lmnx::gpu::nombreDispositivo(g_device);
+  g_adapterInfo.vendor = "Vulkan / plume";
+  g_adapterInfo.device = nombreGPU;
+#else
+  g_adapterInfo.vendor = "NVIDIA";
+  g_adapterInfo.device = "Tegra X1 / LMNX-Deko3D";
+#endif
+  create_copy_pipeline();
+  create_resample_pipeline();
+  g_surface = lmnx::gpu::crearSuperficie(g_device);
+  g_initialized = true;
+  return true;
+}
+static void release_surface_locked() noexcept { g_surface = {}; }
+static bool create_surface() { g_surface = lmnx::gpu::crearSuperficie(g_device); return bool(g_surface); }
+void (*g_cacheOpenHook)() = nullptr;
+bool g_cacheVerifyOnOpen = true;
+CacheStats cache_stats() {
+#ifdef __SWITCH__
+  const auto s=lmnx::estadisticasCacheShaders();
+  return {s.hits,s.misses,s.stores,s.loadNs,s.storeNs,s.broken,s.entriesAtOpen,0};
+#else
+  // The Vulkan test keeps translations but provides no DKSH/Dawn blobs.
+  CacheStats s{};s.broken=true;return s;
+#endif
+}
+void cache_prune() { lmnx::podarCacheShaders(); }
+void cache_delete_files() { lmnx::borrarCacheShaders(); }

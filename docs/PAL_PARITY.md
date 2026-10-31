@@ -1,0 +1,112 @@
+# PAL-base parity (October 2026)
+
+Every port feature checked on the European game (GLMP01) as the base, next to the USA game
+(GLME01). Runs: the European dev build (`lmrecomp` with `-DLM_DOL_VERSION=GLMP01`), the USA
+dev build, and the shipped `LuigisMansionRecomp.exe` (fresh `APPDATA`, PAL disc only and both
+discs). Scratch `APPDATA`/`LM_CARD_DIR` for every run; screenshots by PrintWindow at 1280x720
+(16:9) and 1680x720 (21:9). How the version mapping works: docs/SETUP.md, *Version-aware code*.
+
+Legend: **works** = checked, no change needed; **fixed** = broken or USA-only before, works
+now; **gated** = greyed out in F1 with the reason.
+
+| Feature | USA | PAL | Notes |
+|---|---|---|---|
+| Shipped setup, PAL disc only (fresh AppData -> module build -> game) | works | works | ~25 s module build, then title, foyer |
+| Shipped setup, both discs, PAL as base + USA Hidden Mansion | works | works | both modules + `hidden_mansion/usa/` built; USA map data served, no mirror |
+| Frame presentation | works | **fixed** | European double-buffered frame end (`fn_80007844`) dropped ~1 frame in 6 (25 fps shown): the guest waits for the host in `GXCopyDisp`, so no retrace callback fell between two frames. Now every copied frame is shown (`hle_vi.cpp`, `palfn_80007844` hook). 0 drops in a 70 s run |
+| 50 / 60 Hz (PAL60) | n/a | works | game speed the same (29.7 / 29.9 frames/s measured); stale "20% faster" comments corrected |
+| Languages (English, German, French, Spanish, Italian) | n/a | works | pause screen checked in all five; per-language `game_<l>.szp` loaded |
+| Widescreen HUD anchoring (health, GBH + money tally, element meter, room name) | works | works | 16:9 and 21:9, "Keep HUD at 4:3" off |
+| Pause screen | works | works | centered 4:3 at 16:9 (was untested on USA) |
+| GBH screens (map) | **fixed** | **fixed** | the map is drawn into a viewport over the GBH screen (112,84 416x312) that was stretched across the wide frame, so it showed beside the bezel and was distorted; its scene (`fn_8000C598`) now runs in a centered anchor scope like the picture-in-picture views |
+| GBH live camera (D-pad Up) | works | works | |
+| GBH E3 clock (D-pad Left) | works | **fixed** | instruction patch had only the USA address; European line `patch 3 8003E9C0` |
+| GBH ghost tracker (D-pad Down) | works | **fixed** | European lines `patch 1/2 80045C20` (same `li r0, 0` in `fn_80045B30`) |
+| Beta ghost shading | works | works | checked in the ballroom (ordinary room, ghosts) on both: ghosts lit brighter |
+| Air / water nozzles | works | **fixed** | hook `fn_800B36B8` tagged `us pal`, tables via `VA()`; water spray re-types the nozzle to `wpwater` |
+| Early Poltergust (vbody) | works | **fixed** | the European resident archive is `game_<l>.szp`; its `vbody.arc` is identical, so the key order read from `game_usa.szp` (also on the PAL disc) holds |
+| Early Bogmire | works | **fixed** | loaded and swapped in map 13 |
+| Early Luigi | works | **fixed** | model built and swapped |
+| Green Toad | works | works | was already `VA()`-based |
+| Beta skybox, GBH-map Luigi | works | **fixed** | `VA()` for the sky descriptors; resource hooks tagged |
+| Heart / star doors | works | **fixed** | door table reached through the map table (`lbl_802FF218[2] + 0x18`), which finds the European copy |
+| Portrificationizer portrait models | works | **fixed** | table base via `VA()` (identical layout) |
+| Leftover rooms (unused rooms) | works (WIP) | **gated** | hooks on Luigi's appear point are USA-only; F1 says "not available on the European version yet" |
+| Debug: particle report, depth blur, info overlay (F3), model viewer (F4) | works | **fixed** | the whole Debug tab and F3/F4 were blocked on a PAL-only install |
+| Debug: AR debug modes (debug flags, info display, scan boxes, axes, HUD test) | works | **fixed** | hooks tagged, HUD-test return address via `VA()`. Before, the HUD/font test flags were written at USA addresses on the European game every frame (memory corruption) |
+| Debug: font test | works | works | European font test already prints Latin lines; the "Latin last line" fix is USA-only (greyed with a tooltip on PAL) |
+| Map warps + skip entry cutscenes | works | works | maps 1, 4, 13, 10 (entry events held back), unused 5, 7, 8 |
+| Flashlight shadows, shadows at any distance | works | works | `[shadow]` refits logged on PAL |
+| Lightning shadows (`LM_LIGHTNING`) | works | **fixed** | threshold literal via `VA()`, `fn_8002D7C8` tagged; strikes forced in the ballroom |
+| `LM_ROOMS_LIT`, `LM_TEST_STATE`, `LM_TELEPORT` test aids | works | **fixed** | `VA()` |
+| Interpolation (dust, spiderwebs) | works | **fixed** | with the drops fixed, tapes pair like USA (5-7 unpaired values per tape instead of ~700). European tapes are stamped with the game's own N/60 s frame period instead of 50 Hz retraces (the blend interval jittered between 16.7 and 33.4 ms) |
+| Shader precache | works | **fixed** | full `tools/pipelines/sweep.py` run on the European build merged into `data/pipelines.bin` (1999 -> 2148 configs) |
+| Hidden Mansion, USA rules on the European game | n/a | works | foyer (not mirrored, USA lighting), Chauncey / Boolossus / Bowser maps run; Boolossus fight played to a game over |
+| Hidden Mansion, European rules | works (overlay) | works (native) | mirrored, darker; Boolossus fight with the European mechanics |
+| Log flood "GXLoadTexObj: unknown texture object 803BD214/803BD234" | n/a | **fixed** | the European file select and opening set up the shadow receivers (`fn_8005DD50`) before the shadow object's constructor (`fn_8005D41C`) runs (the USA game constructs it earlier, in `fn_8000CE58`), so two zeroed GXTexObjs were loaded every frame. A zero object is now loaded as its registers read on hardware (1x1 I4 at physical 0, clamp, nearest); other unknown objects are logged 16 times. 0 lines in a 100 s run |
+
+## Second unused batch and 2-player mode (October 2026)
+
+Previously USA-only and greyed on the European game; all now run on both (docs/UNUSED_CONTENT.md
+"Second batch"). Checked on the European dev build with scratch `APPDATA`/`LM_CARD_DIR`;
+evidence in `build/pal_parity2/` (not committed).
+
+| Feature | USA | PAL | Notes |
+|---|---|---|---|
+| Play as Mario | works | **fixed** (ungated) | model swap was already `VA()`-based; nursery checked |
+| Mario as player 2 | works | **fixed** | with the 2-player mode below |
+| 2-player mode + co-op improvements | works | **fixed** | European lines for AR patches 40-47 (same instructions; `sGamePad` is r13+0x118 on both); `fn_800112F8`/`fn_800850B4`/`fn_8003E7B0` tagged; HUD meter values `lbl_804D8490/92` and the meter object `lbl_804D84CC` mapped by hand (`gen_version_map.py` `DATA_OVERRIDES`; the matcher picked neighbours); the European heart-sprite object starts 0x30 later (`VOFF(0x30, 0)`). Shared view, both meters, port-2 movement |
+| Bordered view (patch 50) | works | **fixed** | `patch 50 80011BB4 480000D8 pal` |
+| Poison state | works | **fixed** | `fn_800AEEA8` is a `layout` pair only for Luigi fields >= +0x134C, which the handler does not use |
+| Crawling fear (patch 51) | works | **fixed** | `patch 51 800BA7B8 2C00007F pal`; fear table reached through `lbl_804D2428` (the table itself has no code reference) |
+| Vacuum overheat | works | **fixed** | meter hooks `fn_80045F58`/`fn_80046120` tagged; burned at full heat |
+| Ending pictures | works | **fixed** | `fn_8000E050` tagged (European version only centres the caption; layer block and colours identical); rank 8 checked |
+| Unused ghost placements | works | **fixed** | European JMP tables have other byte layouts, same rows; fields found by name. Roof Ghost Guys and Courtyard `skul` checked |
+| Pink mice / Blue Ghost Guys | works | **fixed** | type table identical; European `game_<l>.szp` have `rat2.prm`, `heypo9/10.prm`. Pink mice seen on both |
+| Extra Speedy Spirits | **fixed** | **fixed** | were never created on either release (no group observer); observers added, `iyapoo16` created in room 4 on both |
+| Spawn list, particle test | works | **fixed** (ungated) | type and effect tables identical; Boo ball, toy car, Bowser with a Boo, rice/fire/element-test effects |
+| Shipped program, PAL disc only | | works | fresh `APPDATA`, module built (52 s), Mario + 2-player + crawling fear in the nursery |
+
+Not available: nothing in the batch stays greyed on the European game.
+
+## Re-check after the later merges (October 2026)
+
+Quick smoke on the European dev build after enhanced lighting, world/ghost lights,
+interpolation, shadows, co-op, the Pikmin fix and the audio pacing merges:
+
+| Feature | PAL | Notes |
+|---|---|---|
+| Enhanced lighting + world lights + ghost lights | works | nursery at 16:9 with lightning, no errors in the log |
+| Lightning / flashlight shadows | works | `[shadow]` refits logged; shadows in the lightning frames |
+| Widescreen HUD anchoring (16:9, 21:9, "Keep HUD at 4:3" off) | works | health at the left edge, GBH at the right |
+| Interpolation (`LM_INTERP_TEST=2`, 120 fps, nursery walk, 61 frames) | works | same as USA in the same run: 463 vs 498 unpaired positions, 3398 vs 3417 jerky matrices of ~55,400 |
+| Pikmin movie (HVQM4) | works | plays to the end card; 0 voice stops (`BreakLowerActiveDSPchannel`, European `fn_801A4980`) |
+| Audio pacing | works | no voice stops in the menus or the movie |
+| 2-player mode | works | see above |
+
+## 1.1 user reports: "the European version as the base doesn't work" (October 2026)
+
+Reproduced with the published 1.1 Windows package, an empty APPDATA, the European disc alone
+(ISO) and both discs (RVZ, European base): setup, the GLMP01 module build, boot, title, new game
+and the foyer all worked. The failure was at the first E. Gadd event (the Parlor door, event01):
+a heap shortfall made the game decompress a model over low memory, which zeroed the bus clock;
+the European frame alarm (N * bus clock / 4 / 60 ticks) then fired at once and the game logic ran
+unpaced at 60-180 frames/s (the interpolation and pacing then showed ~10 fps). The USA game hit the
+same corruption without the pacing symptom. Cause and fix: docs/SETUP.md "Guest memory" (the arena
+now ends where the console's does).
+
+Checked after the fix (dev build of the branch, scratch APPDATA/LM_CARD_DIR): European base
+through event01 and the lab at Original 30, 60 (with PAL60: 59.9 retraces/s) and 120: game logic
+30.0 frames/s throughout, every pacing alarm 1350000 ticks (33.3 ms), no store to 0x80000000-0x80000100
+after `OSInit`, no heap allocation failure; the same on the USA base. Save (LM_TEST_SAVE) and load
+from the file select, German via F1 language (event01 and lab text), the European Hidden Mansion
+(LM_HM_FORCE, mirrored foyer), both discs from RVZ with the European base (both modules and both
+overlays built). Every `pal` hook resolves (`gen_version_map.py`), and the recompiler now refuses
+to build a module whose hooks.txt names a function the release does not have.
+
+## Notes for later work
+
+- Patches in `tools/recomp/hooks.txt` are not mapped by `gen_version_map.py`: a patch for both
+  releases is two lines, the USA one and one tagged `pal` with the European address.
+- Performance comparisons between runs are only meaningful with the same machine load; side by
+  side the two releases interpolate at the same rate.

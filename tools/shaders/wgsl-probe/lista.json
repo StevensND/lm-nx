@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "shaders": [
+    {"etapa": "vertex", "wgsl": "nativo.wgsl", "entrada": "vs_main", "esquema": "gx", "ubo": 32768, "ssbo": 1},
+    {"etapa": "fragment", "wgsl": "nativo.wgsl", "entrada": "fs_main", "esquema": "gx", "ubo": 1, "ssbo": 0}
+  ]
+}

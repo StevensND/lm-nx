@@ -1,0 +1,230 @@
+0251: EFB copies executed after the game reused their memory are dropped at the next check
+
+Bug (user report, 2026-10-28, ProjectLM-NX on Switch): the second time the Game Boy Horror map is
+opened (Y), its rooms show the foyer's wooden floor instead of flat grey and the Luigi head marker
+has wood where its eyes and mouth are. Opening the map copies the 3D view (640x480 RGB565) into a
+heap buffer; the game frees that buffer and loads the map's textures into the same memory. Aurora
+executes the copy later (frame interpolation replay, another thread), when the map's textures are
+already there, so the entry recorded that memory as "the memory under the copy". The memory never
+changed afterwards, the entry stayed valid, and every map texture inside the range was decoded
+from the copy ("texture ... reads EFB copy memory (1 copies, newest ... 640x480 fmt 0x4): decoding").
+Not seen with "EFB copies to RAM" off, nor the first time the map opens (the heap layout differs).
+
+0222 already compares the readback with the memory as the game left it when it issued the copy
+(aurora_efb_ram_guest_copy); the entry itself still used the memory as Aurora found it. Now, at every
+execution of the copy (repeated replays of its tape included), when the game announced the copy and
+has written the range since its newest announcement (and the memory is not our own writeback), the
+entry keeps the issue-time hash: the next check (resolve_locked outside replays, or a sweep
+requested for the next frame instead of waiting up to 64 frames; the earliest pending request is
+kept) drops it and evicts Aurora's copy texture for the destination, as on the console where the
+game's writes replaced the copy. The entry still exists for this frame. As with 0250's sweep, the
+eviction also removes the destination from the replay slots: an interpolated replay of an earlier
+frame that read the copy reads the memory instead (on the console that memory already holds the
+game's new data). The 0222 readback logic is unchanged (it keeps comparing with the memory found at
+execution). Identity is still per destination and size (the newest announcement), as in 0222.
+
+A game that turned readbacks off (LM-NX on the console) skipped the announcement and its
+600 KB hashes; aurora_efb_ram_guest_copy_sparse announces the copy with a sparse fingerprint (32 bytes every
+1 KiB and the last 32; a write under 1 KiB falling entirely between two samples is not seen), compared with the same fingerprint at execution; such an announcement is only used for
+this check (the 0222 readback ignores it).
+
+--- a/include/aurora/efb_ram.h
++++ b/include/aurora/efb_ram.h
+@@ -49,6 +49,11 @@ void aurora_efb_ram_cpu_read(const void* ptr, uint32_t size);
+  *  late copy into a buffer the game had freed and reused (e.g. for heap blocks) was written over
+  *  the new contents. */
+ void aurora_efb_ram_guest_copy(const void* dest, uint32_t width, uint32_t height, uint32_t format);
++/** ProjectLM-NX (0251): the same announcement for a game that turned readbacks off: a sparse
++ *  fingerprint of the range (32 bytes every 1 KiB) instead of the full hash. Aurora then only uses
++ *  it to drop a copy it executed after the game had written the range (the game freed the buffer
++ *  and loaded other data there), so textures there read the memory, as on the console. */
++void aurora_efb_ram_guest_copy_sparse(const void* dest, uint32_t width, uint32_t height, uint32_t format);
+ /** Always read back copies overlapping [ptr, ptr+size) (e.g. a debug capture buffer). */
+ void aurora_efb_ram_watch(const void* ptr, uint32_t size);
+ /** Writes finished readbacks into memory. Returns how many were written. */
+--- a/lib/gfx/efb_ram.cpp
++++ b/lib/gfx/efb_ram.cpp
+@@ -331,6 +331,8 @@ std::mutex g_landedMutex; // g_landed only (leaf lock: map callbacks)
+ std::atomic_bool g_enabled{true};
+ std::atomic_bool g_readbackAll{false};
+ std::atomic_bool g_scaledDepthReads{true};
++// ProjectLM-NX (0251): frame from which the next sweep should run (0: none), see on_copy.
++std::atomic<uint32_t> g_sweepAt{0};
+ std::vector<Entry> g_entries; // oldest first
+ absl::flat_hash_map<uint64_t, LazyBufferRef> g_bytePool; // (dest ^ size) -> bytes buffer, reused per range
+ absl::flat_hash_map<DecodedKey, Decoded> g_decoded;
+@@ -349,9 +351,24 @@ struct GuestCopy {
+   uint32_t size;
+   HashType hash;
+   std::chrono::steady_clock::time_point when; // diagnostics: how late Aurora executes it
++  bool sparse = false; // ProjectLM-NX (0251): hash is sparse_hash (aurora_efb_ram_guest_copy_sparse)
+ };
+ std::vector<GuestCopy> g_guestCopies;
+ constexpr size_t MaxGuestCopies = 128;
++// ProjectLM-NX (0251): a cheap fingerprint of a copy's range (32 bytes every 1 KiB and the last 32 bytes),
++// enough to notice that the game loaded other data there. Used by aurora_efb_ram_guest_copy_sparse when
++// the full hash is not taken (no readbacks): ~19 KiB read for a 640x480 copy instead of 600 KiB. A write that
++// falls entirely between two samples (under 1 KiB) is not seen; reusing a copy buffer writes far more.
++HashType sparse_hash(const uint8_t* p, uint32_t size) {
++  Hasher h;
++  for (uint32_t off = 0; off < size; off += 1024) {
++    h.update(p + off, std::min<uint32_t>(32, size - off));
++  }
++  if (size > 32) {
++    h.update(p + size - 32, 32);
++  }
++  return static_cast<HashType>(h.digest());
++}
+ uint64_t g_seq = 0;
+ AuroraEfbRamStats g_stats{};
+ AuroraEfbRamWritebackFn g_writebackFn = nullptr;
+@@ -715,8 +732,45 @@ PassOp on_copy(const void* destPtr, GXTexFmt fmt, uint32_t width, uint32_t heigh
+       .seq = ++g_seq,
+   });
+   // Memory still holds what was there before the copy until a writeback lands.
+-  e.ramHash = hash_range(dest, size);
++  const HashType ramNow = hash_range(dest, size);
++  e.ramHash = ramNow;
+   e.verifiedFrame = current_frame();
++  // LM-NX (GBH map): the memory under the copy is the memory as the game left
++  // it when it issued the copy (the newest announcement for this range). Aurora
++  // can execute the copy after the game has freed and reused the range (opening the GBH map copies
++  // the 3D view into a heap buffer that then receives the map's textures): the memory found now
++  // already holds the new contents, the entry looked valid forever and the map's textures were
++  // decoded from the copy. With the issue-time hash the next check (resolve_locked outside replays,
++  // or sweep, requested for the next frame) sees the game's writes, drops the entry and evicts the
++  // copy texture, as on the console where those writes replaced the copy. Replays of this frame keep
++  // the entry until then (save_slot/restore_slot), as before. Every execution checks, repeated replays
++  // of the tape included, so a later replay does not record the reused memory as valid again.
++  for (auto it = g_guestCopies.rbegin(); it != g_guestCopies.rend(); ++it) {
++    if (it->dest != dest || it->size != size) {
++      continue;
++    }
++    const auto ours = g_written.find(dest);
++    const bool oursNow = ours != g_written.end() && ours->second.first == size && ours->second.second == ramNow;
++    if (it->hash != (it->sparse ? sparse_hash(dest, size) : ramNow) && !oursNow) {
++      // A sparse announcement has no full hash: any value but the memory's makes the check drop it.
++      e.ramHash = it->sparse ? ramNow ^ 1 : it->hash;
++      // The earliest pending request is kept (a later one must not postpone it).
++      const uint32_t at = std::max<uint32_t>(e.verifiedFrame + 1, 1);
++      uint32_t pending = g_sweepAt.load(std::memory_order_relaxed);
++      while ((pending == 0 || at < pending) &&
++             !g_sweepAt.compare_exchange_weak(pending, at, std::memory_order_relaxed)) {
++      }
++      static uint32_t s_logged = 0;
++      if (++s_logged <= 20) {
++        const double lagMs =
++            std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - it->when).count();
++        Log.info("EFB copy to {} (+{:#x}) executed {:.0f} ms after the game issued it; the game reused the "
++                 "range in between: dropped at the next check",
++                 static_cast<const void*>(dest), size, lagMs);
++      }
++    }
++    break;
++  }
+ 
+   bool readback = watched || g_readbackAll.load(std::memory_order_relaxed);
+   // Frame interpolation replays a frame several times; only its first replay reads its copies back
+@@ -736,12 +790,12 @@ PassOp on_copy(const void* destPtr, GXTexFmt fmt, uint32_t width, uint32_t heigh
+   ++g_stats.readbacks;
+   auto encode = make_encode_op(e);
+   // The writeback may only land if the game has not written the range since it issued the copy.
+-  // e.ramHash is the memory now, which can already hold what the game put there after the copy
++  // ramNow is the memory now, which can already hold what the game put there after the copy
+   // (it freed the buffer and the heap reused it while this frame waited for its replay).
+-  HashType preHash = e.ramHash;
++  HashType preHash = ramNow;
+   bool guestKnown = false;
+   for (auto it = g_guestCopies.rbegin(); it != g_guestCopies.rend(); ++it) {
+-    if (it->dest == dest && it->size == size) {
++    if (it->dest == dest && it->size == size && !it->sparse) {
+       preHash = it->hash;
+       guestKnown = true;
+       const double lagMs =
+@@ -753,8 +807,8 @@ PassOp on_copy(const void* destPtr, GXTexFmt fmt, uint32_t width, uint32_t heigh
+                  static_cast<const void*>(dest), size, lagMs);
+       }
+       const auto ours = g_written.find(dest);
+-      const bool oursNow = ours != g_written.end() && ours->second.first == size && ours->second.second == e.ramHash;
+-      if (preHash != e.ramHash && !oursNow && ++g_stats.lateChanged <= 20) {
++      const bool oursNow = ours != g_written.end() && ours->second.first == size && ours->second.second == ramNow;
++      if (preHash != ramNow && !oursNow && ++g_stats.lateChanged <= 20) {
+         Log.info("EFB copy to {} (+{:#x}) executed {:.0f} ms after the game issued it; the game wrote the range "
+                  "in between",
+                  static_cast<const void*>(dest), size, lagMs);
+@@ -769,7 +823,7 @@ PassOp on_copy(const void* destPtr, GXTexFmt fmt, uint32_t width, uint32_t heigh
+       .width = width,
+       .height = height,
+       .preHash = preHash,
+-      .hostHash = e.ramHash,
++      .hostHash = ramNow,
+       .guestKnown = guestKnown,
+       .seq = e.seq,
+   });
+@@ -1021,6 +1075,15 @@ void restore_slot(uint8_t slot) {
+   }
+ }
+ 
++bool take_sweep_request(uint32_t frame) noexcept {
++  const uint32_t at = g_sweepAt.load(std::memory_order_relaxed);
++  if (at == 0 || frame < at) {
++    return false;
++  }
++  g_sweepAt.store(0, std::memory_order_relaxed);
++  return true;
++}
++
+ void sweep(std::vector<const void*>& evict) {
+   // Released after g_mutex (lock order: no Dawn object is released under it).
+   std::vector<Entry> dropped;
+@@ -1143,6 +1206,28 @@ void aurora_efb_ram_guest_copy(const void* ptr, uint32_t width, uint32_t height,
+   g_guestCopies.push_back({dest, size, h, std::chrono::steady_clock::now()});
+ }
+ 
++// ProjectLM-NX (0251): the announcement without readbacks (see the header).
++void aurora_efb_ram_guest_copy_sparse(const void* ptr, uint32_t width, uint32_t height, uint32_t format) {
++  const auto fmt = static_cast<GXTexFmt>(format);
++  if (!enabled() || !supports_copy_format(fmt) || width == 0 || height == 0) {
++    return;
++  }
++  const auto size = static_cast<uint32_t>(GXGetTexBufferSize(width, height, fmt, GX_FALSE, 0));
++  if (size == 0) {
++    return;
++  }
++  const auto* dest = static_cast<const uint8_t*>(ptr);
++  // Hashed under g_mutex (~19 KiB). It is used when the game turned readbacks off, so no writeback lands in the
++  // range meanwhile (with readbacks the full announcement is used).
++  std::lock_guard lock{g_mutex};
++  const aurora::HashType h = sparse_hash(dest, size);
++  std::erase_if(g_guestCopies, [&](const GuestCopy& g) { return g.dest == dest; });
++  if (g_guestCopies.size() >= MaxGuestCopies) {
++    g_guestCopies.erase(g_guestCopies.begin());
++  }
++  g_guestCopies.push_back({dest, size, h, std::chrono::steady_clock::now(), true});
++}
++
+ void aurora_efb_ram_watch(const void* ptr, uint32_t size) {
+   std::lock_guard lock{g_mutex};
+   g_watchRanges.emplace_back(static_cast<const uint8_t*>(ptr), size);
+--- a/lib/gfx/efb_ram.hpp
++++ b/lib/gfx/efb_ram.hpp
+@@ -66,5 +66,8 @@ void restore_slot(uint8_t slot);
+ // for it evicted, even if no texture ever reads that memory again. Byte buffers no tracked copy
+ // uses any more are released. Returns the destinations to evict (the caller evicts them).
+ void sweep(std::vector<const void*>& evict);
++// ProjectLM-NX (0251): true once at or after the frame on_copy asked for a sweep (a copy executed
++// after the game had reused its memory), so it is dropped without waiting for the 64-frame sweep.
++bool take_sweep_request(uint32_t frame) noexcept;
+ 
+ } // namespace aurora::gfx::efb_ram
+--- a/lib/gx/texture.cpp
++++ b/lib/gx/texture.cpp
+@@ -730,7 +730,7 @@ constexpr size_t MaxCopyDestinations = 128;
+ void sweep_copy_textures() noexcept {
+   static uint32_t s_last = 0;
+   const uint32_t frame = gfx::current_frame();
+-  if (frame - s_last < 64) {
++  if (frame - s_last < 64 && !gfx::efb_ram::take_sweep_request(frame)) {
+     return;
+   }
+   s_last = frame;

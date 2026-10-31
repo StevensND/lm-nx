@@ -1,0 +1,39 @@
+# Game data must NEVER be committed -- users supply their own dumps.
+/Luigis Mansion US/
+/Lugis Mansion PAL/
+/orig/
+*.iso
+*.gcm
+*.rvz
+*.ciso
+*.wbfs
+*.dol
+*.rel
+*.arc
+*.szp
+
+# Build output
+/build/
+/out/
+/.vs/
+CMakeUserPresets.json
+*.log
+__pycache__/
+*.pyc
+*.nro
+*.elf
+*.nacp
+*.dksh
+*.gci
+*.sav
+
+__pycache__/
+*.pyc
+
+# The installer: the NRO is a release asset (the Pages workflow downloads it)
+installer/release/*.nro
+installer/node_modules/
+
+# Third-party sources the build expects (see docs/BUILDING_SWITCH.md); not part of the repository
+/extern/fuentes/
+/extern/descargas/

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "nota": "Synthetic test data; contains no GLME01 pipelines or shaders",
+  "shaders": [
+    {"etapa": "vertex", "glsl": "triangulo.vert.glsl"},
+    {"etapa": "fragment", "glsl": "verde.frag.glsl"},
+    {"etapa": "fragment", "glsl": "textura.frag.glsl"},
+    {"etapa": "vertex", "glsl": "buffers.vert.glsl", "ubo": 32769, "ssbo": 1}
+  ]
+}

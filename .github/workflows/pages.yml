@@ -1,0 +1,61 @@
+name: Deploy the installer to GitHub Pages
+
+# The installer page lives in installer/. The NRO is not in this repository: it is an asset of a release of this
+# repository. Each deployment downloads it into installer/release/, checks it against installer/release/manifest.json
+# and publishes the page with it.
+# Run it by hand (Actions > Deploy the installer to GitHub Pages > Run workflow) after publishing a new release.
+
+on:
+  push:
+    branches: [main]
+    paths: ['installer/**', '.github/**']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release to take the NRO from (empty for the latest)
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: installer
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the NRO of the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: gh release download $TAG --repo ${{ github.repository }} --pattern '*.nro' --dir release --clobber
+
+      - name: Check it against the manifest
+        run: node ../.github/verify_release.mjs
+
+      - name: Assemble the site
+        run: |
+          mkdir ../_site
+          cp -r index.html app.js sw.js fonts icons lib forge release ../_site/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

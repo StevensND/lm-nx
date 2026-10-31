@@ -1,0 +1,88 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "switch",
+      "displayName": "Switch nativo deko3d (fase 4; Ninja pendiente de validar)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/switch",
+      "toolchainFile": "${sourceDir}/cmake/SwitchToolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "LMNX_LTO": "OFF",
+        "LMNX_PGO": "OFF"
+      }
+    },
+    {
+      "name": "host-recompiler",
+      "displayName": "Herramienta AOT del anfitrion, sin Aurora",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/host-recompiler",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "LMNX_HOST_RECOMPILER_ONLY": "ON"
+      }
+    },
+    {
+      "name": "windows-clang",
+      "displayName": "Windows (clang-cl, Ninja)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "linux-clang",
+      "displayName": "Linux x86_64 (clang + lld, Ninja; docs/LINUX.md)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=lld",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fuse-ld=lld"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "switch",
+      "configurePreset": "switch",
+      "targets": [
+        "lmnx_diagnostico_nro",
+        "lmnx_graphics_probe_nro",
+        "lmnx_aot_runtime_core",
+        "lmnx_ppc_helpers"
+      ]
+    },
+    {
+      "name": "host-recompiler",
+      "configurePreset": "host-recompiler",
+      "targets": [
+        "lmrecompile"
+      ]
+    },
+    {
+      "name": "windows-clang",
+      "configurePreset": "windows-clang"
+    },
+    {
+      "name": "linux-clang",
+      "configurePreset": "linux-clang"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+#pragma once
+// Gameplay / difficulty options (F1 > Enhancements > Gameplay; port::GameplaySettings).
+// Implemented as hooks on game functions, keyed by symbol name (tools/recomp/hooks.txt), in
+// src/recomp/gameplay_hooks.cpp. Description and verification: docs/GAMEPLAY_OPTIONS.md.
+//
+// Version note: the hooks name US (GLME01) symbols and apply to both releases (tagged `us pal`
+// in hooks.txt); data addresses go through VA() and the few struct offsets that differ through
+// VOFF() (recomp/version.h). The struct offsets used here are the same in both releases unless
+// marked.
+#include "port/settings.h"
+#include "recomp/ctx.h"
+
+namespace recomp::gameplay {
+
+// Effective settings: the saved ones, with LM_GAMEPLAY test overrides applied, e.g.
+// LM_GAMEPLAY="damage=2,health=0.5,ghosthp=3,vacuum=0.5,hearts=0,dark=1,ambient=0.4,mirror=1".
+port::GameplaySettings current();
+
+// Room ambient multiplier: 0.2 while the PAL Hidden Mansion rules apply or "PAL darkness
+// everywhere" is on, times the ambient slider (the slider composes with PAL darkness).
+float ambientFactor();
+
+// "Always ride the Poltergust": whether the riding movement mode may be on for this Luigi
+// right now (it is suspended where it would break the game; see docs/GAMEPLAY_OPTIONS.md).
+bool rideAllowed(u32 luigi);
+
+// Calls Luigi's message handler fn_800AEEA8 (from its HLE in luigi_states.cpp) with the
+// options' adjustments: "Luigi's health" (scripted health/maximum, boss portrait rank, health
+// stored in the player record in original units) and disabled recovery hearts.
+void callLuigiMessage(Ctx& c);
+
+}  // namespace recomp::gameplay

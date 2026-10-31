@@ -1,0 +1,2 @@
+# One canonical name per line, or * to disable all. Applied during generation; not a game option. Never enables
+# contracts. All audited GX entries are rejected because they yield or observe Ctx.

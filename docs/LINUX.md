@@ -1,0 +1,328 @@
+# Linux port
+
+The port builds and runs natively on Linux x86_64: the same runtime, recompiler and setup as
+on Windows, Aurora on Dawn's Vulkan backend, SDL3 for the window, input, audio and file
+dialogs. The game module that setup compiles from the user's disc is a `.so` built with a
+bundled clang + ld.lld. Everything is in `#ifdef`s, the `linux-clang` CMake preset and the
+files under `packaging/linux/`; Windows builds are unchanged.
+
+## Building
+
+Tested on Ubuntu 24.04 (WSL2). Build dependencies (Debian/Ubuntu names):
+
+```
+clang lld llvm cmake ninja-build pkg-config git python3 zip patchelf
+libvulkan-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev
+libxss-dev libxfixes-dev libxtst-dev libxkbcommon-dev libwayland-dev wayland-protocols
+libdecor-0-dev libegl-dev libgl-dev libgles-dev libasound2-dev libpulse-dev
+libpipewire-0.3-dev libdbus-1-dev libudev-dev libibus-1.0-dev libdrm-dev libgbm-dev libusb-1.0-0-dev
+```
+
+CMake 3.25+ (Ubuntu 24.04: 3.28). Aurora fetches the rest at configure time: Dawn and nod as
+prebuilt static libraries (`dawn-linux-x86_64`, `libnod-linux-x86_64`), SDL3 built from
+source (static; it `dlopen`s X11/Wayland/PulseAudio/PipeWire/ALSA at run time, so the
+headers above only decide which of those it supports).
+
+```
+cmake --preset linux-clang [-DLM_DOL=<path to your main.dol>]   # build/linux-clang
+cmake --build build/linux-clang --target lmrecomp LuigisMansionRecomp
+```
+
+Build in the Linux filesystem (e.g. `~/lm` in WSL), not on `/mnt/c`: it is much faster.
+`lmrecomp` (dev build with the game linked in) needs `LM_DOL` like on Windows; the disc is
+found from `--disc <iso>` or `orig/GLME01.iso` above the working directory.
+
+## Runtime differences from Windows
+
+| Area | Windows | Linux |
+|------|---------|-------|
+| Game module | `module.dll`, `lld-link /dll /noentry` | `module.so`, `ld.lld -shared -nostdlib` (below) |
+| Module loader | `LoadLibraryW` | `dlopen(RTLD_NOW \| RTLD_LOCAL)` |
+| Tool processes | `CreateProcessW`, below-normal priority | `posix_spawn`, nice 10, output to the per-file log |
+| Settings / install.ini | `%APPDATA%\Luigi's Mansion Recompiled` | `$XDG_CONFIG_HOME/Luigi's Mansion Recompiled` (`~/.config/...`) |
+| Modules, overlays, memory cards, screenshots | `%APPDATA%\Luigi's Mansion Recompiled` | `$XDG_DATA_HOME/Luigi's Mansion Recompiled` (`~/.local/share/...`) |
+| GPU caches (`pipeline_cache.db`, `dawn_cache.db`) | `%APPDATA%\Luigi's Mansion Recompiled` | `$XDG_CACHE_HOME/Luigi's Mansion Recompiled` (`~/.cache/...`) |
+| Crash reports | SEH filter + vectored handler, dbghelp symbols | `SIGSEGV/SIGBUS/SIGILL/SIGFPE` handler on an alternate stack: signal, pc as `binary+offset` (`dladdr`), fault address, `backtrace_symbols_fd` |
+| Graphics backend | D3D12 (auto) | Vulkan (auto); OpenGL ES fallback |
+| File dialogs | SDL3 | SDL3 (xdg-desktop-portal, or zenity/kdialog) |
+| Updater (docs/SETUP.md "Updates") | WinHTTP, BCrypt SHA-256, `System32\tar.exe`; running files renamed to `.old`, deleted at the next start; new process started | libcurl `dlopen`ed (`libcurl.so.4`, else `libcurl-gnutls.so.4`; none: the menu offers the download page), own SHA-256, `tar -xzf`; files replaced by rename, old ones deleted at once, executable bits set, `execv` of the installed program (same PID) |
+
+`port::configDir()`, `port::dataDir()` and `port::cacheDir()` (`src/port/install.h`) are the
+only places that decide where files go; on Windows all three are the one `%APPDATA%`
+folder. Each moves a 1.0.x "Luigi's Mansion PC" folder to the new name on first use
+(docs/SETUP.md "What lives where"). Test runs: point `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME` and
+`LM_CARD_DIR` at empty folders (the Linux equivalent of a scratch `APPDATA`).
+Portable mode (docs/SETUP.md "Portable mode": `portable.txt` / a `portable` folder next to the
+program, or `LM_PORTABLE=1`) makes all three `<program folder>/portable`, the flat Windows layout;
+the launcher then logs there too.
+
+### The game module (.so)
+
+Compile flags (`src/setup/module_builder.cpp`): `--target=x86_64-pc-linux-gnu -fPIC
+-fvisibility=hidden`, plus the freestanding set used on Windows (`-ffreestanding -nostdinc
+-fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-math-errno -fno-stack-protector
+-funwind-tables`). Link: `ld.lld -shared -nostdlib --eh-frame-hdr -Bsymbolic -z defs -z
+noexecstack -z now`.
+
+- **Visibility.** Only `lm_module_init` is exported (`LM_MODULE_EXPORT` in
+  `module_rt.cpp`); everything else is hidden and bound inside the module, so its `g_mem`,
+  `memcpy`, `fma`, ... can never be interposed by the executable's or libc's symbols.
+  The built module has one dynamic symbol and no undefined ones.
+- **Unwinding.** Guest threads end by throwing `sched::ThreadExit` through module frames;
+  on Linux the unwinder needs `.eh_frame` (from `-funwind-tables`) and the
+  `.eh_frame_hdr` lookup table (`--eh-frame-hdr`, which the clang driver normally adds).
+- **No stack probes / `__chkstk` / `_fltused`** (Windows-only in `module_rt.cpp`): Linux
+  thread stacks are fully mapped.
+- `-z defs` turns a helper the compiler calls but `module_rt.cpp` lacks into a link error
+  instead of a `dlopen` failure.
+- A full build takes about 60 s on 24 threads in WSL (while the setup screen compiles
+  shaders on the CPU renderer); `[setup]` lines in the log name the toolchain and the time.
+
+### Portable executable (glibc 2.34+)
+
+The executable must run on distributions older than the build host. Aurora links SDL3,
+Dawn and nod statically; on top of that the runtime targets (`lm_runtime_target` in
+`CMakeLists.txt`):
+
+- link libstdc++ statically (`-static-libstdc++`); libgcc_s stays shared (the static
+  unwinder of a new GCC needs `_dl_find_object`, glibc 2.35);
+- add `src/port/glibc_compat.c`, which defines the few functions a new glibc would
+  otherwise be required for: the C23 `__isoc23_strtol`/`sscanf` family (2.38; the headers
+  redirect to them, also inside the prebuilt Dawn), `strlcpy`/`strlcat`/`wcslcpy`/`wcslcat`
+  (2.38, used by SDL), `arc4random*` (2.36, libstdc++'s `random_device`), `hypotf` (a full, hidden implementation instead of
+  the 2.35 version; a shim must never call the libc name it defines through the PLT, see
+  "Black screen above 30 fps" below) and
+  `pidfd_spawnp`/`pidfd_getpid` (2.39, weak references in Rust's std inside nod).
+
+Result: `NEEDED` is only `libc`, `libm`, `libz`, `libgcc_s`, `ld-linux-x86-64`, and the
+highest symbol version is `GLIBC_2.34` (`objdump -T`). Re-check after dependency updates;
+`tools/package_linux.sh` prints the versions of every binary it packages.
+
+### Bundled compiler
+
+The package carries `llvm/bin/clang` and `llvm/bin/ld.lld` from the official LLVM release
+(`LLVM-<ver>-Linux-X64.tar.xz` from github.com/llvm/llvm-project releases; 21.1.8 for the
+first package). Those binaries link LLVM statically and need only libc (2.34), libm, libz,
+libgcc_s and libstdc++ (GCC 12+, `GLIBCXX_3.4.30`). A distribution's own clang is not
+suitable (it needs `libLLVM`/`libclang-cpp` and their dependencies).
+
+`lld` also needs `libxml2.so.2`, used only by its COFF flavour to merge Windows manifests.
+Distributions disagree on libxml2's soname (2.14 is `.so.16`) and the build host's copy
+needs ICU and glibc 2.38, so the package ships `llvm/lib/libxml2.so.2` built from
+`packaging/linux/libxml2_stub.c`: the 16 symbols lld imports, with libxml2's symbol
+versions (`libxml2_stub.map`), aborting if ever called. lld finds it through its
+`RUNPATH $ORIGIN/../lib`. The license is `llvm/LLVM-LICENSE.TXT` (Apache-2.0 WITH
+LLVM-exception), like on Windows.
+
+The module needs no clang resource headers (`-nostdinc`, builtins only).
+Toolchain lookup is the same as on Windows: `<exe dir>/llvm/bin`, `LM_LLVM_DIR`, the LLVM
+that built the executable (`LM_DEV_LLVM_DIR`, dev trees), `PATH`.
+
+## Packaging
+
+```
+tools/package_linux.sh <LLVM bin dir> [out dir]
+```
+
+configures with `LM_LLVM_DIR=<LLVM bin dir>`, builds, runs `cmake --install --strip` into
+`<out>/LuigisMansionRecompiled-linux-x86_64/`, prints the glibc/libstdc++ requirements, and makes a
+`.tar.gz` (keeps the executable bits) and a `.zip` of it. Layout:
+
+```
+LuigisMansionRecompiled.sh  launcher: log to ~/.local/share/Luigi's Mansion Recompiled/last_run.log
+                         (previous_run.log; portable mode: portable/last_run.log), chmod +x in case
+                         unzip dropped the bits,
+                         LD_LIBRARY_PATH=lib/ if a lib/ folder is ever added
+LuigisMansionRecomp      the program (stripped; symbolize crash offsets with the
+                         unstripped build/linux-clang/LuigisMansionRecomp of the same commit)
+pipelines.bin            shader precache list
+README.txt               requirements, how to run, where files go, reporting problems
+                         (packaging/linux/README.txt)
+THIRD_PARTY_NOTICES.md
+llvm/bin/clang, ld.lld   bundled compiler; llvm/lib/libxml2.so.2 (stub); llvm/LLVM-LICENSE.TXT
+```
+
+No game data, nothing derived from it, and no build output other than these.
+
+Releases: `tools\release_windows.bat` (Windows) builds the Windows zip, then runs
+`tools/release_linux.sh <version> out` in WSL (clone in `~/lm-release` from the committed HEAD,
+missing apt packages installed, an `LLVM-*-Linux-X64` under `~` or `/opt` found or 20.1.8
+downloaded, `package_linux.sh`, versioned copies in `out/`), and publishes GitHub release
+`v<version>` with every package and release notes generated from the package list.
+Size: about 450 MB unpacked, 150 MB compressed (clang and lld are 250 MB and 190 MB).
+
+## Testing
+
+- **WSL2 + WSLg** (what was used): Ubuntu 24.04 with WSLg; display through XWayland or
+  Wayland, sound through WSLg's PulseAudio server. WSLg has no hardware Vulkan driver for
+  this GPU (Mesa's D3D12-backed `dzn` is not in Ubuntu's Mesa), so Vulkan runs on Mesa's
+  CPU renderer: `LM_BACKEND=vulkan LM_ALLOW_CPU_GPU=1` (Aurora ignores CPU adapters
+  otherwise). Without them Aurora picks OpenGL ES on llvmpipe; `GALLIUM_DRIVER=d3d12` puts
+  GL on the GPU but was slower than llvmpipe here.
+- **Older distribution:** a `debootstrap` Ubuntu 22.04 chroot (glibc 2.35, libstdc++ 12) with
+  desktop runtime libraries (`libvulkan1 mesa-vulkan-drivers libx11-6 ... libpulse0`), WSLg's
+  X11 and PulseAudio sockets bind-mounted, running the packaged tarball as a normal user.
+- Checked (October 2026): fresh setup with `--us-disc <iso> --setup-auto` in scratch XDG
+  dirs (module built with the bundled clang/ld.lld in about 60 s and loaded), title ->
+  file select -> opening -> foyer with HUD through `--input "600:START*10,1000:A*6"`
+  (frame dumps), audio device opened on PulseAudio, pipeline precache list found next to
+  the executable, F1 menu rendering (`LM_MENU=Visuals`), setup screen with mouse input,
+  the file-dialog fallback, clean exit on SIGINT/SIGTERM (SDL quit event), crash handler
+  output (a shutdown use-after-free of the SDL audio stream found this way is fixed:
+  `audio::outShutdown` before `aurora_shutdown`). The "no GPU" message box is untested.
+- Not verifiable in WSLg: keyboard input. WSLg gives an X11 window keyboard focus only when
+  its Windows-side window is focused, so `xdotool` key/text injection does not arrive;
+  mouse injection does.
+- Frame dumps (`LM_FRAME_DUMP`) work as on Windows; window screenshots in WSLg:
+  `SDL_VIDEO_DRIVER=x11` and ImageMagick `import -window <id>`.
+
+## Steam Deck: the picture stopped above 30 fps (issue #11)
+
+**Root cause found later** (it was not Gamescope or the swap chain): the `hypotf` shim looping
+on itself, see "Black screen above 30 fps after START" below. The changes listed here stay.
+
+**Report** (1.1.1, SteamOS game mode: Gamescope, Vulkan on RADV VANGOGH, Dawn compatibility
+feature level, 89.89 Hz panel, VSync off = present mode Mailbox): any frame rate above 30 "locks as
+soon as you press START" at the title; switching from 30 in game "locks within a minute". Windows
+works for the same player.
+
+**What the log shows.** After the switch the `[frame] N presents, M retraces` lines keep coming at
+the title's 60 fps (presents and retraces advance together; the music changes from the title to the
+file select at START), so the game thread ran on. The `[interp] presented ...` statistics, which
+only a replay prints (every 5 s), appear once and never again for the remaining ~15 s: the host
+loop replayed one interpolated frame and then presented nothing. (That one line's "presented 0.1
+fps" is an artefact: its first window starts at program start.) `accuracy 0x7f -> 0xff` is
+`GX_AURORA_ACCURACY_EARLY_Z_MERGE` (0x80), set whenever the target is above 30, with 0 pipelines
+queued (no shader hold). So the display loop (main thread, render worker or swap chain) stopped
+while the decoupled game kept running; 1.1.1 had no hang watchdog, and 1.1.2's would only have said
+"main thread has not returned to its loop (game loop)".
+
+**Not reproduced** on Windows with Dawn's Vulkan backend (also the compatibility feature level;
+NVIDIA) at 60/90/120 and match-refresh, Mailbox and FIFO, 30 -> 90 switched at the title before
+START, 4 logical CPUs, nor on Mesa's CPU Vulkan driver in WSL under Xvfb (Mailbox, 90). Gamescope's
+WSI layer and RADV are not available here. On the Deck, the working 30 fps and the stuck interpolated
+mode differ in what reaches the swap chain: interpolated frames are presented at about the panel's
+own 90 Hz (at or above the refresh rate, timer-paced, Mailbox through Gamescope's layer) instead
+of 30/60 fps below it, and the host waits for each frame's GPU completion (frame-ahead limit).
+
+**Changes:**
+
+- Under Gamescope (`GAMESCOPE_WAYLAND_DISPLAY` or `XDG_CURRENT_DESKTOP=gamescope`) VSync is always
+  on (FIFO; F1 tooltip says so). Gamescope composites every frame, so Mailbox never avoided tearing
+  there, only latency. Interpolated frames are then paced by the swap chain (`F` mode at the refresh
+  rate, or an even fraction of it). Test aids: `LM_GAMESCOPE=0/1` (detection), `LM_GAMESCOPE_VSYNC=0`
+  (keep the setting).
+- The frame-ahead wait no longer depends on present timing being reported: after 8 frames in a row
+  whose GPU completion did not arrive within 50 ms, frames are paced by the timer alone (`[pacing]
+  ... frames are paced by the timer alone`), back on after 30 completions in time. Aurora counts
+  frames whose completion never arrived (`aurora_present_timing_timeouts`, logged).
+- Hang reports name the place: the main loop sets a phase per step (pacing wait,
+  `aurora_begin_frame`, replay, menu, present hold, `aurora_end_frame`); every `[hang]` line adds
+  the game frames finished since the main thread stopped and what Aurora's threads are doing
+  (Aurora 0236 `aurora_describe_activity`, e.g. `render worker: acquiring the swap chain texture
+  (GetCurrentTexture) for 15.4 s; host: waiting for a frame slot (the render worker still has two
+  frames) for 15.3 s`); Linux prints every thread's stack once per run at the first report (a
+  signal handler per thread writes its own backtrace, `binary(symbol+off)` lines, into
+  last_run.log through the launcher). The main loop itself reports what the watchdog cannot see
+  because the loop keeps running: no frame begun for 10 s, and with interpolation the game thread
+  not finishing a frame for 15 s while the display replays its last one (with the guest thread
+  list).
+
+Test aids: `AURORA_TEST_ACQUIRE_STALL=<frame>[,<seconds>]` (the swap chain acquire of that frame
+takes that long), `LM_TEST_GUEST_STALL=<frame>[,<seconds>]` (the game thread stops at that frame).
+Verified on Windows (both reported with the right phase and activity) and in WSL (Vulkan on
+llvmpipe under Xvfb: the acquire stall reported as `host: waiting for a frame slot ...; render
+worker: acquiring the swap chain texture (GetCurrentTexture) for 15.5 s`, then every thread's
+stack; llvmpipe's worker threads block the signal and are listed as such; frame addresses are
+`binary(+offset)`, resolved offline with `llvm-symbolizer --obj=<binary>`). `LM_GAMESCOPE=1` with
+VSync off gave FifoRelaxed on Windows (Vulkan, 90 fps presented) and in WSL.
+
+## NVIDIA: the picture froze about 20 s after start (issue #2)
+
+EndeavourOS, RTX 4060 Ti, NVIDIA 615.78 (open kernel module), Wayland, original 30 fps, either
+disc: about 20-25 s after the game started (title screen, intro map or foyer, whatever was on
+screen) the picture stopped while the music played on. Wayland: the render worker waited in
+GetCurrentTexture (the swap chain image never came back); X11 (`SDL_VIDEO_DRIVER=x11`):
+`CreateFence failed with VK_ERROR_OUT_OF_HOST_MEMORY` or `vkQueueSubmit failed with
+VK_ERROR_DEVICE_LOST`. No overlays/layers involved, no NVRM Xid lines, file descriptors flat
+(checked on the same package under llvmpipe: 45 fds over 900 frames). The player's test:
+`[rendering] gpu_keep_warm=0` fixed it on both discs.
+
+At 30 fps that setting is what runs the GPU keep-warm filler (Aurora 0215, a compute pass after
+the frame) and the per-frame GPU completion tracking (OnSubmittedWorkDone futures polled by the
+present-timing thread, Aurora 0197/0216). The player's next test settled which: with
+`gpu_keep_warm=0` any frame rate above 30 (even 35; VSync on or off) froze again, and above 30 the
+tracking runs for frame pacing without any filler. So the completion tracking is the trigger: a
+helper thread polling `WaitAny(OnSubmittedWorkDone future, 0)` every 0.25 ms while the render
+worker submits and presents (likely an unsynchronized fence/queue access in Dawn's Vulkan backend
+that D3D12 tolerates). The Steam Deck freeze above 30 fps (issue #11) fits the same cause.
+
+Now the tracking is Windows-only (`pacing::presentTimingAvailable`; `LM_PRESENT_TIMING=0/1`
+overrides on any system), and keep-warm with it (it is sized from the tracked GPU cost; the F1
+checkbox is greyed with a note on Linux). Without it frames are paced exactly as before by the
+timer and the governor (start intervals); what is missing is the frame-ahead limit (the GPU at
+most one frame behind: with VSync the swap chain limits it instead) and GPU ms in the `[perf]`
+lines. Checked on Windows with `LM_PRESENT_TIMING=0` at a 120 fps target (VRR window capped at
+57): 57.0 fps presented, game 30.0, the same as with the tracking. `[pacing] GPU keep-warm running`
+lines (at most one a minute) show when the filler runs where it is available.
+
+## Black screen above 30 fps after START / after the pause screen (issues #2, #11; fixed after 1.1.4)
+
+**Report** (1.1.x up to 1.1.4, every Linux system that tried: Steam Deck/RADV, Bazzite and
+CachyOS on AMD, EndeavourOS on NVIDIA 615): with the frame rate above 30 (even 31-36) the picture
+froze and went black after START on the title screen while the music played on (CachyOS offered
+"wait / force quit"); switched to >30 in the mansion, it froze when the pause screen closed.
+`LM_INTERP_2D_LAYOUT=0` avoided it completely. Windows was fine.
+
+**Cause: the `hypotf` shim in `src/port/glibc_compat.c` called itself.** It was a
+default-visibility `hypotf` that forwarded to `hypotf@GLIBC_2.2.5` through the PLT (so the
+executable would not need glibc 2.35's new `hypotf` version). The executable therefore exported an
+unversioned `hypotf` *and* imported `hypotf@GLIBC_2.2.5`. The dynamic loader searches the
+executable first and accepts an unversioned definition for a versioned reference, so the PLT slot
+bound to the shim itself: `hypotf: jmp hypotf@plt` -> `hypotf`, an endless jump loop on the first
+call, on any distribution and driver. Nothing called `std::hypot(float, float)` on the usual paths
+except the frame interpolation's 2D layout blend (`blend2DLayout`, `interp.cpp`): a 2D picture that
+moves without changing size (a panel sliding in on the file select after START, the pause screen
+closing) asks whether it moved the same way the game frame before, with `std::hypot` of the two
+steps. Below 31 fps there is no interpolation, and `LM_INTERP_2D_LAYOUT=0` returns before that
+line. The main thread (replay) spun there forever while the game thread, the audio and the retrace
+timer ran on: exactly the logs' picture (`[frame] N presents` stopped advancing with the display,
+music changes kept coming, the `[interp]` statistics stopped, the abort stack of a force quit
+ended in `hypotf+0x0` called from `blend2DLayout`, `interp.cpp:2227`, and once at the PLT entry
+itself). A minimal C++ program linked with the old shim hangs on `std::hypot(3.f, 4.f)`.
+
+**Fix:** `hypotf` is now a complete, hidden implementation (the same double-precision arithmetic as
+glibc 2.35's `hypotf`, infinities and NaNs as C requires), so calls inside the executable bind to
+it at link time, nothing is imported from libm for it, and the executable no longer exports the
+name (so a driver's own `hypotf` calls go to libm too). `tools/package_linux.sh` now fails when the
+executable exports a name it also imports (the 1.1.4 binary: exactly `hypotf`).
+
+**Verified** in WSL (Vulkan on llvmpipe under Xvfb, US disc, 1.1.4 build vs the same build
+relinked with only the new shim): 1.1.4 at 60 and 120 fps hung right after START on the title
+(`[hang] ... main thread has not returned to its loop (game loop: replaying a game frame)`, main
+thread stack `hypotf+0x0` <- `blend2DLayout` <- `replayPair`, identical to the players' logs);
+the fixed build went title -> file select -> opening -> foyer at 60 and 120 fps and opened and
+closed the pause screen twice in the foyer at 120 fps, then quit normally. Windows does not compile
+the shim (unchanged).
+
+## Known issues / not done
+
+- Real GPUs: only tested on Mesa's CPU Vulkan driver (WSLg). NVIDIA/AMD/Intel drivers on a
+  real Linux install are untested; performance on llvmpipe is not representative.
+- Anti-aliasing on Vulkan is Off or 4x only (Aurora 0233, issue #14; docs/RENDERING.md
+  "Anti-aliasing sample counts"): Dawn's Vulkan backend cannot create 2x/8x targets, and up to
+  1.1.1 choosing them stopped every later start right after the shader cache opened. A saved
+  2x/8x now runs at the highest supported count below it (log line, note in F1 > Visuals).
+  OpenGL ES (compatibility mode) has no MSAA.
+- Wayland vs X11: SDL3 prefers Wayland when available; `SDL_VIDEO_DRIVER=x11` forces X11.
+- Window activation / focus-loss pause, gamepad hot-plug, rumble and the PAL disc path are
+  untested on Linux. File-picker dialogs need xdg-desktop-portal or zenity (SDL3); when
+  neither exists, setup shows SDL's error and the Linux-only path box next to "Browse..."
+  (type/paste a path, quotes and `file://` stripped) works instead; `--us-disc` /
+  `--pal-disc` too.
+- No usable GPU: Aurora falls back to its null device and stops at the first allocation;
+  `main.cpp` remembers "Failed to create adapter" errors and shows a message box naming
+  the missing Vulkan driver before aborting (skipped with `LM_BACKGROUND`).
+- No AppImage/Flatpak; the tarball is self-contained apart from glibc, libstdc++ (bundled
+  compiler only), libz, libgcc_s and the GPU/audio/display libraries of the desktop.
+- `lmport` (the old prototype) is not built on Linux.

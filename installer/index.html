@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LM-NX Installer</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <style>
+    :root { --bg: #0a0d12; --panel: rgba(18, 22, 30, .86); --inset: rgba(6, 8, 11, .82); --text: #eef1f4;
+      --muted: #a9b3bd; --accent: #4cc35a; --good: #57c07a; --link: #4cc35a; --link-hover: #7ddc88; --bad: #ef6a5f;
+      --line: rgba(255, 255, 255, .09);
+      /* spacing that grows with the height of the window: tight on laptops, roomy on tall screens */
+      --gap: clamp(8px, .9vh, 14px); --pad: clamp(9px, 1.2vh, 18px); --edge: clamp(10px, 2vh, 28px); }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { background: var(--bg); }
+    /* isolation: the body is its own layer, so the night (z-index -1) is drawn over its sky and under the page */
+    body { margin: 0; min-height: 100vh; isolation: isolate; color: var(--text); display: flex; flex-direction: column; justify-content: center;
+      font: clamp(15px, 1.7vh, 16px)/1.5 ui-sans-serif, system-ui, sans-serif;
+      /* a dark hallway lit by Luigi's flashlight: two soft glows, no game artwork */
+      background: radial-gradient(ellipse 70% 45% at 50% -5%, rgba(76, 195, 90, .20), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 85% 110%, rgba(120, 90, 200, .18), transparent 70%), var(--bg);
+      background-attachment: fixed; }
+    /* the night behind the page (drawn here, no game artwork): stars, the moon, bats, ghosts and fog. It never takes
+       clicks and stays still for people who ask for less motion */
+    .night { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .stars { position: absolute; inset: 0 0 35% 0; opacity: .7; animation: twinkle 6s ease-in-out infinite alternate;
+      background-image: radial-gradient(1.5px 1.5px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 27% 8%, #fff, transparent),
+        radial-gradient(1.2px 1.2px at 41% 22%, #e9e3ff, transparent), radial-gradient(1px 1px at 58% 12%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 69% 28%, #fff, transparent), radial-gradient(1px 1px at 88% 34%, #e9e3ff, transparent),
+        radial-gradient(1.2px 1.2px at 7% 42%, #fff, transparent), radial-gradient(1px 1px at 35% 48%, #fff, transparent),
+        radial-gradient(1.4px 1.4px at 94% 9%, #fff, transparent), radial-gradient(1px 1px at 50% 38%, #e9e3ff, transparent),
+        radial-gradient(1px 1px at 19% 30%, #fff, transparent), radial-gradient(1.3px 1.3px at 77% 46%, #fff, transparent); }
+    .moon { position: absolute; top: 7vh; right: 7vw; width: clamp(70px, 9vw, 130px); aspect-ratio: 1; border-radius: 50%;
+      background: radial-gradient(circle at 35% 38%, rgba(0, 0, 0, .10) 0 9%, transparent 10%),
+        radial-gradient(circle at 62% 60%, rgba(0, 0, 0, .09) 0 13%, transparent 14%),
+        radial-gradient(circle at 58% 27%, rgba(0, 0, 0, .07) 0 6%, transparent 7%),
+        radial-gradient(circle at 40% 40%, #fffbe6, #f4e7b4 60%, #e2cf8e);
+      box-shadow: 0 0 40px 10px rgba(255, 240, 190, .25), 0 0 120px 40px rgba(255, 230, 160, .10); }
+    /* three bats drawn still around the moon, as their silhouettes against it */
+    .bat { position: absolute; width: 34px; fill: #05030a; opacity: .9; }
+    .bat svg { display: block; width: 100%; }
+    .bat.b1 { top: calc(7vh + clamp(70px, 9vw, 130px) * .55); right: calc(7vw + clamp(70px, 9vw, 130px) * .55); transform: rotate(-12deg); }
+    .bat.b2 { top: calc(7vh - 10px); right: calc(7vw - 22px); width: 24px; transform: rotate(14deg); }
+    .bat.b3 { top: calc(7vh + clamp(70px, 9vw, 130px) + 6px); right: calc(7vw - 8px); width: 20px; transform: rotate(-6deg); }
+    /* slow dark clouds across the top of the sky */
+    .clouds { position: absolute; left: -10%; right: -10%; top: -4vh; height: 38vh; filter: blur(18px); opacity: .8;
+      background: radial-gradient(ellipse 22% 40% at 15% 40%, rgba(44, 52, 70, .75), transparent 70%),
+        radial-gradient(ellipse 26% 35% at 45% 25%, rgba(38, 45, 62, .7), transparent 70%),
+        radial-gradient(ellipse 20% 38% at 78% 45%, rgba(44, 52, 70, .65), transparent 70%);
+      animation: drift 70s ease-in-out infinite alternate; }
+    /* the graveyard along the bottom: the ground, the haunted house far away, the path to its door, the graves and
+       the iron fence with its gate open. One drawing, so the path always meets the door; on narrow screens its sides
+       are cut and the path stays in the middle */
+    .yard { position: absolute; left: 0; bottom: 0; width: 100%; height: 62vh; }
+    .yard .ground { fill: url(#yard-ground); }
+    .yard .path { fill: url(#yard-path); stroke: rgba(150, 170, 160, .10); stroke-width: 1.5; }
+    .yard .door, .yard .hill { fill: #0d1219; }
+    /* a faint moonlit edge so the near graves read against the dark ground */
+    .yard use { stroke: rgba(150, 170, 195, .16); stroke-width: .9; }
+    /* jack-o'-lanterns among the graves on both sides (the middle is under the page), their faces lit */
+    .yard use.pumpkin { stroke: none; filter: drop-shadow(0 0 8px rgba(255, 160, 50, .7)); }
+    .yard .pillar { fill: #080a0e; stroke: rgba(150, 170, 195, .18); stroke-width: 1; }
+    .yard use .mark, .yard symbol .mark { fill: rgba(255, 255, 255, .06); }
+    .mansion { opacity: .8; }
+    .mansion .house { fill: #0d1219; stroke: rgba(120, 160, 140, .18); stroke-width: 1; }
+    /* a pale green glow behind the house so its outline reads against the night */
+    .mansion { filter: drop-shadow(0 0 18px rgba(76, 195, 90, .18)); }
+    .mansion .lit { fill: #f6c64e; filter: drop-shadow(0 0 4px rgba(246, 198, 78, .8)); animation: flicker 5s steps(1) infinite; }
+    /* twisted bare trees framing the page */
+    .tree { position: absolute; bottom: 0; height: 88vh; fill: none; stroke: #04060a; stroke-linecap: round; }
+    .tree.left { left: -2vw; }
+    .tree.right { right: -2vw; transform: scaleX(-1); }
+    .ghost { position: absolute; width: 46px; opacity: .55; animation: float 7s ease-in-out infinite alternate; }
+    .ghost ellipse { fill: #0b0c14; }
+    .ghost.g1 { left: 7vw; top: 50vh; width: 64px; fill: #5ac8ff; filter: drop-shadow(0 0 12px #5ac8ff); }
+    .ghost.g2 { right: 8vw; top: 58vh; width: 58px; fill: #ff7ad9; filter: drop-shadow(0 0 12px #ff7ad9); animation-delay: -3s; }
+    .ghost.g3 { right: 20vw; top: 30vh; width: 30px; fill: #ffd34d; filter: drop-shadow(0 0 10px #ffd34d); animation-delay: -5s; }
+    .ghost.g4 { left: 15vw; top: 22vh; width: 30px; fill: #eef6ff; filter: drop-shadow(0 0 10px #cfe8ff); animation-delay: -2s; opacity: .45; }
+    .ghost.g5 { left: 3vw; top: 12vh; width: 22px; fill: #eef6ff; filter: drop-shadow(0 0 8px #cfe8ff); animation-delay: -6s; opacity: .35; }
+    @keyframes flicker { 0%, 46%, 50%, 100% { opacity: 1; } 48% { opacity: .55; } }
+    @media (max-width: 700px) { .tree, .ghost.g3, .ghost.g4 { display: none; } .yard { height: 46vh; opacity: .8; } }
+    .fog { position: absolute; left: -20%; right: -20%; bottom: -6vh; height: 34vh; filter: blur(22px); opacity: .42;
+      background: radial-gradient(ellipse 30% 55% at 20% 70%, rgba(170, 160, 210, .35), transparent 70%),
+        radial-gradient(ellipse 35% 50% at 60% 80%, rgba(150, 170, 200, .30), transparent 70%),
+        radial-gradient(ellipse 25% 45% at 90% 75%, rgba(170, 160, 210, .30), transparent 70%);
+      animation: drift 38s ease-in-out infinite alternate; }
+    .fog.f2 { bottom: -10vh; opacity: .4; animation-duration: 52s; animation-direction: alternate-reverse; }
+    @keyframes twinkle { from { opacity: .45; } to { opacity: .85; } }
+    @keyframes float { from { transform: translateY(0); } to { transform: translateY(-18px); } }
+    @keyframes drift { from { transform: translateX(-6%); } to { transform: translateX(6%); } }
+    @media (prefers-reduced-motion: reduce) { .night * { animation: none !important; } }
+    /* a cobweb in the top right corner of each step */
+    section { position: relative; }
+    section::after { content: ""; position: absolute; top: 0; right: 0; width: 64px; height: 64px; opacity: .22;
+      pointer-events: none; border-top-right-radius: 12px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none' stroke='%23fff' stroke-width='.8'%3E%3Cpath d='M64 0L0 0M64 0L8 30M64 0L28 52M64 0L64 64M64 0L50 60'/%3E%3Cpath d='M50 0Q52 8 58 11Q60 7 64 6M36 0Q40 14 51 20Q58 12 64 14M22 0Q28 22 44 32Q54 22 64 24M10 0Q18 30 38 44Q52 32 64 38'/%3E%3C/svg%3E") no-repeat top right / contain; }
+    /* the blocks (title, the three steps, credits) spread over the height of the window, up to 1080px: whatever the
+       content does not need goes between them, and a message or the log takes it back instead of scrolling */
+    main { width: 100%; max-width: 1040px; min-height: min(100vh, 1080px); margin: 0 auto; padding: var(--edge) 16px 10px;
+      display: flex; flex-direction: column; justify-content: space-between; gap: var(--gap); }
+    /* an empty last block: it takes its share of the free space under the credits (without a gap of its own, so a
+       window with no free space ends right under the legal notice) */
+    main::after { content: ""; margin-top: calc(var(--gap) * -1); }
+    @media (max-width: 600px) { main { padding-top: 32px; } }
+    /* the title in Delfino (PFRA, a fan-made font in the style of Nintendo's lettering) */
+    @font-face { font-family: "Delfino"; src: url(fonts/Delfino.ttf) format("truetype"); font-display: swap; }
+    h1 { font-family: "Delfino", ui-sans-serif, system-ui, sans-serif; font-size: clamp(2.2rem, 7vw, 3.2rem); font-weight: 400;
+      letter-spacing: .01em; line-height: 1.1; margin: 0 0 4px; text-align: center; }
+    h1 .word2 { color: var(--accent); }
+    /* each letter leans and bobs a little, so the title wobbles like the game's logo; --r and --dy set them */
+    h1 b { display: inline-block; font-weight: inherit; transform: translateY(var(--dy, 0)) rotate(var(--r, 0deg)); }
+    p.lead { color: #d7dde3; margin: 0 auto; max-width: 940px; text-align: center; text-wrap: balance; }
+    p.lead strong { white-space: nowrap; }
+    /* "everything runs in this browser" kept on one line where it fits */
+    @media (min-width: 700px) { p.lead .line { white-space: nowrap; } }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: var(--pad) calc(var(--pad) + 4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, .35); }
+    h2 { font-size: 1.1em; font-weight: 800; margin: 0 0 calc(var(--pad) * .6); }
+    button, label.button { display: inline-block; background: #3c404d; color: #fff; border: 1px solid #3c404d;
+      border-radius: 10px; padding: .5em 1.05em; font: inherit; font-weight: 700; line-height: 1.3; cursor: pointer;
+      margin: 4px 8px 4px 0; transition: background .12s, border-color .12s; }
+    button:not(:disabled):hover, label.button:hover { background: #434856; border-color: #5b6273; }
+    button:focus-visible, label.button:focus-within { outline: none; border-color: #8a91a3; }
+    button:disabled { background: #2a2d36; border-color: #2a2d36; color: #7d828f; cursor: default; }
+    input[type=file] { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .hint { margin: calc(var(--pad) * .5) 0 0; }
+    /* the button and its hint on one line, so step 1 takes less height */
+    .pick { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; }
+    .pick label.button { margin: 0; }
+    .pick .hint { margin: 4px 0; }
+    .note { margin: calc(var(--pad) * .6) 0 0; padding: calc(var(--pad) * .45) calc(var(--pad) * .6); background: var(--inset);
+      border: 1px solid var(--line); border-radius: 10px; }
+    /* one row per disc: what it is for, and what was found */
+    .discs { display: grid; gap: 8px; margin-top: calc(var(--pad) * .6); }
+    .disc { display: flex; align-items: center; gap: 14px; background: var(--inset); border: 1px solid var(--line);
+      border-radius: 9px; padding: 7px 14px; }
+    .disc.good { border-color: var(--good); }
+    .disc.bad { border-color: var(--bad); }
+    .disc .mark { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 800;
+      background: #2a2d36; color: var(--muted); }
+    .disc.good .mark { background: var(--good); color: #0b1a0e; }
+    .disc.bad .mark { background: var(--bad); color: #1a0b0b; }
+    /* the name and the state share a line when they fit (the USA row), otherwise the state goes under it */
+    .disc > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; }
+    .disc .name { font-weight: 700; }
+    .disc .state { color: var(--muted); font-size: .92rem; word-break: break-word; }
+    .disc.good .state { color: var(--good); }
+    .disc.bad .state { color: var(--bad); }
+    .choices { display: grid; justify-items: start; row-gap: calc(var(--pad) * .4); }
+    .choices button { margin: 0; }
+    .choices button + .flow { margin-top: calc(var(--pad) * .7); }
+    .flow { margin: 0; font-weight: 700; }
+    /* the work under way: what is being done, the bar and the percentage under it */
+    .work { margin-top: calc(var(--pad) * .8); }
+    .work .what { font-weight: 700; }
+    .work .bar { height: 12px; margin-top: 6px; background: #2a2d36; border-radius: 6px; overflow: hidden; }
+    .work .fill { height: 100%; width: 0; background: var(--accent); transition: width .15s linear; }
+    .work .percent { color: var(--muted); font-size: .92rem; margin-top: 4px; }
+    #log { font: 13px/1.45 ui-monospace, monospace; color: var(--muted); white-space: pre-wrap; max-height: 120px; overflow: auto;
+      margin: 8px 0 0; }
+    .error { color: var(--bad); }
+    ol { margin: 0; padding-left: 20px; }
+    ol li + li { margin-top: 6px; }
+    code { background: rgba(0, 0, 0, .45); border: 1px solid var(--line); padding: 1px 5px; border-radius: 4px; color: #fff;
+      font-weight: 700; word-break: break-all; }
+    a { color: var(--link); font-weight: 700; text-underline-offset: 2px; }
+    a:hover { color: var(--link-hover); }
+    /* language picker: one transparent flag per language; the chosen one lit and outlined */
+    .languages { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 0 0 calc(var(--gap) * 1.3); }
+    .languages button, .languages button:not(:disabled):hover { background: none; border: 0; box-shadow: none; }
+    .languages button { padding: 4px; margin: 0; border-radius: 6px; line-height: 0; opacity: .55; cursor: pointer;
+      transition: opacity .15s, transform .15s; }
+    .languages button:not(:disabled):hover { opacity: 1; transform: scale(1.1); }
+    .languages button[aria-pressed="true"] { opacity: 1; }
+    .languages button[aria-pressed="true"] svg { outline: 2px solid #fff; outline-offset: 2px; }
+    .languages button:focus-visible { outline: 2px solid #8a91a3; outline-offset: 2px; }
+    .languages svg { display: block; width: 30px; height: 20px; border-radius: 3px; box-shadow: 0 1px 6px rgba(0, 0, 0, .6); }
+    footer { margin-top: calc(var(--gap) * -.5); }
+    .source { margin: 0 0 2px; text-align: center; font-size: 1.1em; font-weight: 800; font-style: italic; }
+    .source a { text-decoration: none; }
+    .source a:hover, .source a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+    .links { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin: 0; }
+    .links a { display: inline-flex; padding: 4px; border-radius: 8px; line-height: 0; transition: transform .15s; }
+    .links a:hover { transform: scale(1.15); }
+    .links a:focus-visible { outline: 2px solid #8a91a3; outline-offset: 2px; }
+    .links svg { width: 26px; height: 26px; flex: none; fill: #fff; }
+    .signature { margin: 2px 0 0; text-align: center; color: #d7dde3; font-weight: 700; font-style: italic; }
+    .legal { margin: 6px auto 0; padding: 6px 18px; text-align: center; color: #c9d0d7; font-size: 12.5px; line-height: 1.5;
+      text-wrap: pretty; background: rgba(10, 13, 17, .78); border: 1px solid var(--line); border-radius: 12px; }
+    @media (max-width: 600px) { .links { gap: 10px; } }
+    /* the Discord page: the server, its rules, and the piracy rule spelled out in a box */
+    #discord p { margin: 0 0 10px; }
+    #discord .rules-title { margin: 12px 0 4px; font-weight: 700; }
+    #discord .rules { margin: 0 0 10px; padding-left: 22px; }
+    #discord .rules li { margin: 2px 0; }
+    .discord-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0 !important; }
+    .discord-actions button { margin: 0; }
+    a.join { display: inline-block; padding: 8px 14px; border-radius: 8px; background: #5865f2; color: #fff;
+      text-decoration: none; }
+    a.join:hover, a.join:focus-visible { background: #4752c4; color: #fff; }
+    /* the help and about pages */
+    .page-text h3 { margin: 14px 0 4px; font-size: 1em; }
+    .page-text h3:first-child { margin-top: 0; }
+    .page-text p { margin: 0 0 8px; }
+    .page-text ul { margin: 0 0 8px; padding-left: 20px; }
+    .page-text li { margin: 3px 0; }
+    .keys { border-collapse: collapse; margin: 4px auto 10px; }
+    .keys th, .keys td { padding: 4px 14px 4px 0; text-align: left; border-bottom: 1px solid var(--line); }
+    .keys th { color: var(--muted); font-weight: 700; }
+    /* the credits page */
+    .credits { margin: 0; padding-left: 20px; }
+    .credits li { margin: 4px 0; }
+    @media (prefers-reduced-motion: reduce) { .work .fill { transition: none; } }
+    /* side menu: the three-line button opens a panel from the left with the steps, the links and the legal notice */
+    /* absolute, not fixed: it stays at the top of the page and scrolls away with it, so it never covers the steps */
+    .menu-button { position: absolute; top: 12px; /* app.js lines it up with the left edge of the steps */ left: 12px; z-index: 30; width: 44px; height: 44px; padding: 10px;
+      border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--text); cursor: pointer;
+      backdrop-filter: blur(6px); }
+    .menu-button:hover, .menu-button:focus-visible { border-color: var(--link); color: var(--link-hover); }
+    .menu-button svg, .menu-close svg { display: block; width: 100%; height: 100%; }
+    .menu-backdrop { position: fixed; inset: 0; z-index: 40; background: rgba(0, 0, 0, .55); opacity: 0;
+      transition: opacity .2s; pointer-events: none; }
+    .menu { position: fixed; top: 0; bottom: 0; left: 0; z-index: 50; width: min(300px, 86vw); overflow-y: auto;
+      padding: 14px 16px 24px; background: rgba(12, 15, 20, .97); border-right: 1px solid var(--line);
+      transform: translateX(-102%); transition: transform .22s ease; visibility: hidden; }
+    body.menu-open .menu { transform: none; visibility: visible; }
+    body.menu-open .menu-backdrop { opacity: 1; pointer-events: auto; }
+    /* the menu's title and group names in Delfino, like the page title */
+    .menu-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+      font-family: "Delfino", ui-sans-serif, system-ui, sans-serif; font-weight: 400; font-size: 1.45rem; text-transform: uppercase; }
+    .menu-close { width: 36px; height: 36px; padding: 8px; border: 0; border-radius: 8px; background: transparent;
+      color: var(--muted); cursor: pointer; }
+    .menu-close:hover, .menu-close:focus-visible { color: var(--text); background: var(--line); }
+    .menu-group { margin: 16px 0 6px; font-family: "Delfino", ui-sans-serif, system-ui, sans-serif; font-weight: 400;
+      font-size: .95rem; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--link); }
+    .menu a { display: block; padding: 8px 10px; border-radius: 8px; color: var(--text); text-decoration: none; }
+    /* the whole side menu in Delfino, like the page title (the font has every letter of the five languages) */
+    .menu, .menu a { font-family: "Delfino", ui-sans-serif, system-ui, sans-serif; font-weight: 400; }
+    .menu a:hover, .menu a:focus-visible { background: var(--line); color: var(--link-hover); }
+    .menu a.menu-group { padding: 0; border-radius: 0; color: var(--link); }
+    .menu a.menu-group:hover, .menu a.menu-group:focus-visible { background: none; color: var(--link-hover);
+      text-decoration: underline; text-underline-offset: 3px; }
+    /* where the player is: that entry in green (INSTALLER and CREDITS, already green, are underlined) */
+    .menu a[aria-current="page"] { color: var(--link); background: rgba(76, 195, 90, .12); }
+    .menu a.menu-group[aria-current="page"] { background: none; text-decoration: underline; text-underline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) { .menu, .menu-backdrop { transition: none; } }
+  </style>
+</head>
+<body>
+<div class="night" aria-hidden="true">
+  <div class="stars"></div>
+  <div class="moon"></div>
+  <div class="bat b1"><svg viewBox="0 0 22 12"><path d="M0 5C3 1 6 1 8 4C9 2 10 2 11 3.5C12 2 13 2 14 4C16 1 19 1 22 5C19 4.5 17 6 16 8.5C14.5 6.5 13 7.5 11 10C9 7.5 7.5 6.5 6 8.5C5 6 3 4.5 0 5Z"/></svg></div>
+  <div class="bat b2"><svg viewBox="0 0 22 12"><path d="M0 5C3 1 6 1 8 4C9 2 10 2 11 3.5C12 2 13 2 14 4C16 1 19 1 22 5C19 4.5 17 6 16 8.5C14.5 6.5 13 7.5 11 10C9 7.5 7.5 6.5 6 8.5C5 6 3 4.5 0 5Z"/></svg></div>
+  <div class="bat b3"><svg viewBox="0 0 22 12"><path d="M0 5C3 1 6 1 8 4C9 2 10 2 11 3.5C12 2 13 2 14 4C16 1 19 1 22 5C19 4.5 17 6 16 8.5C14.5 6.5 13 7.5 11 10C9 7.5 7.5 6.5 6 8.5C5 6 3 4.5 0 5Z"/></svg></div>
+  <div class="clouds"></div>
+  <div class="fog f2"></div>
+  <!-- the graveyard: a path winds between the graves up to the mansion's door; far graves are smaller and paler -->
+  <svg class="yard" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <symbol id="gs-round" viewBox="0 0 40 50" width="40" height="50"><path d="M4 50V18Q4 2 20 2Q36 2 36 18V50Z"/><path class="mark" d="M18 12h4v8h7v4h-7v14h-4V24h-7v-4h7Z"/></symbol>
+      <symbol id="gs-cross" viewBox="0 0 30 54" width="30" height="54"><path d="M12 54V22H2V14h10V2h6v12h10v8H18v32Z"/><path d="M6 54v-5h18v5Z"/></symbol>
+      <symbol id="gs-slab" viewBox="0 0 36 46" width="36" height="46"><path d="M3 46V8L8 3H28L33 8V46Z"/><path class="mark" d="M9 16h18v3H9ZM11 23h14v3H11Z"/></symbol>
+      <symbol id="gs-pumpkin" viewBox="0 0 32 26" width="32" height="26"><path d="M15 6Q14 2 17 0L19 1Q17 3 17 6Z" fill="#3c5a24"/><path d="M16 6C9 4 1 8 1 16S8 26 16 25C24 26 31 23 31 16S23 4 16 6Z" fill="#c2611b"/><path d="M16 6C12 6 10 11 10 16S12 25 16 25C20 25 22 21 22 16S20 6 16 6Z" fill="#d9731f"/><path d="M7 12L11 14L7 16ZM25 12L21 14L25 16ZM14 16L16 13L18 16ZM7 19Q16 25 25 19L22 20L20 22L18 20L16 22L14 20L12 22L10 20Z" fill="#ffd34d"/></symbol>
+      <symbol id="gs-obelisk" viewBox="0 0 22 64" width="22" height="64"><path d="M2 64V56H5L8 10L11 2L14 10L17 56H20V64Z"/></symbol>
+      <linearGradient id="yard-ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1219"/><stop offset="1" stop-color="#040608"/></linearGradient>
+      <linearGradient id="yard-path" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3236"/><stop offset="1" stop-color="#1a1e21"/></linearGradient>
+      <pattern id="yard-fence" width="26" height="70" patternUnits="userSpaceOnUse" y="540"><path d="M11 10L13 0L15 10V70H11Z M0 22H26V26H0Z M0 58H26V62H0Z" fill="#05070a" stroke="rgba(150, 170, 195, .16)" stroke-width="1"/></pattern>
+    </defs>
+    <path class="ground" d="M0 418Q140 394 300 406Q420 414 520 398Q800 370 1080 398Q1180 414 1300 404Q1460 394 1600 414V600H0Z"/>
+    <g class="mansion" transform="translate(520 80) scale(1.4)">
+      <path class="hill" d="M0 230V200Q120 160 200 165Q280 160 400 200V230Z"/>
+      <path class="house" d="M60 200V120L95 88L130 120V200ZM270 200V120L305 88L340 120V200ZM120 200V95H280V200Z
+        M165 95V55L200 10L235 55V95ZM196 10V0H204V10ZM140 95V70H152V95ZM250 95V62H262V95Z"/>
+      <path class="lit" d="M80 130h12v16H80ZM98 130h12v16H98ZM290 130h12v16h-12ZM308 130h12v16h-12ZM140 115h14v18h-14Z
+        M170 115h14v18h-14ZM216 115h14v18h-14ZM246 115h14v18h-14ZM190 60h20v22h-20ZM140 150h14v18h-14ZM246 150h14v18h-14Z"/>
+      <path class="door" d="M188 200v-34q12-12 24 0v34Z"/>
+    </g>
+    <path class="path" d="M791.0 362.0 L789.4 368.0 L785.2 374.0 L779.3 380.0 L772.5 386.0 L765.7 392.0 L759.8 398.0 L755.6 404.0 L754.0 410.0 L754.9 416.0 L757.2 422.0 L760.5 428.0 L764.5 434.0 L768.8 440.0 L772.8 446.0 L776.3 452.0 L778.8 458.0 L780.0 464.0 L778.0 470.0 L771.0 476.0 L760.0 482.0 L746.1 488.0 L730.5 494.0 L714.2 500.0 L698.4 506.0 L684.1 512.0 L672.6 518.0 L664.8 524.0 L662.0 530.0 L661.2 536.0 L659.1 542.0 L655.9 548.0 L651.9 554.0 L647.4 560.0 L642.7 566.0 L638.0 572.0 L633.7 578.0 L629.9 584.0 L627.0 590.0 L625.3 596.0 L973.9 596.0 L968.7 590.0 L960.0 584.0 L948.5 578.0 L935.2 572.0 L920.9 566.0 L906.5 560.0 L892.7 554.0 L880.6 548.0 L870.8 542.0 L864.3 536.0 L862.0 530.0 L862.5 524.0 L864.0 518.0 L866.1 512.0 L868.8 506.0 L871.7 500.0 L874.8 494.0 L877.7 488.0 L880.3 482.0 L882.3 476.0 L883.6 470.0 L883.9 464.0 L880.4 458.0 L872.4 452.0 L861.4 446.0 L848.6 440.0 L835.2 434.0 L822.6 428.0 L812.0 422.0 L804.7 416.0 L802.0 410.0 L802.3 404.0 L803.1 398.0 L804.2 392.0 L805.5 386.0 L806.8 380.0 L807.9 374.0 L808.7 368.0 L809.0 362.0Z"/>
+    <use href="#gs-round" transform="translate(304 414) rotate(-6) scale(0.30) translate(-20 -50)" fill="#1d242e"/>
+    <use href="#gs-cross" transform="translate(93 422) rotate(0) scale(0.31) translate(-15 -54)" fill="#1c232d"/>
+    <use href="#gs-slab" transform="translate(1265 423) rotate(-2) scale(0.32) translate(-18 -46)" fill="#1c232d"/>
+    <use href="#gs-round" transform="translate(213 424) rotate(2) scale(0.32) translate(-20 -50)" fill="#1c232c"/>
+    <use href="#gs-round" transform="translate(110 431) rotate(-8) scale(0.33) translate(-20 -50)" fill="#1b222b"/>
+    <use class="pumpkin" href="#gs-pumpkin" transform="translate(420 432) scale(0.55) translate(-16 -26)"/>
+    <use href="#gs-slab" transform="translate(645 433) rotate(9) scale(0.34) translate(-18 -46)" fill="#1b222b"/>
+    <use class="pumpkin" href="#gs-pumpkin" transform="translate(1185 436) scale(0.55) translate(-16 -26)"/>
+    <use href="#gs-cross" transform="translate(256 443) rotate(0) scale(0.37) translate(-15 -54)" fill="#1a212a"/>
+    <use href="#gs-obelisk" transform="translate(1278 443) rotate(6) scale(0.37) translate(-11 -64)" fill="#1a212a"/>
+    <use href="#gs-round" transform="translate(1500 443) rotate(0) scale(0.37) translate(-20 -50)" fill="#1a212a"/>
+    <use href="#gs-obelisk" transform="translate(678 443) rotate(0) scale(0.37) translate(-11 -64)" fill="#1a212a"/>
+    <use href="#gs-round" transform="translate(224 444) rotate(8) scale(0.37) translate(-20 -50)" fill="#1a212a"/>
+    <use href="#gs-slab" transform="translate(1319 446) rotate(-1) scale(0.37) translate(-18 -46)" fill="#1a202a"/>
+    <use href="#gs-slab" transform="translate(1001 449) rotate(-5) scale(0.39) translate(-18 -46)" fill="#1a2029"/>
+    <use href="#gs-round" transform="translate(440 450) rotate(-7) scale(0.39) translate(-20 -50)" fill="#1a2029"/>
+    <use class="pumpkin" href="#gs-pumpkin" transform="translate(160 452) scale(0.70) translate(-16 -26)"/>
+    <use href="#gs-cross" transform="translate(64 452) rotate(0) scale(0.40) translate(-15 -54)" fill="#192029"/>
+    <use href="#gs-round" transform="translate(584 454) rotate(0) scale(0.41) translate(-20 -50)" fill="#191f28"/>
+    <use class="pumpkin" href="#gs-pumpkin" transform="translate(1470 455) scale(0.70) translate(-16 -26)"/>
+    <use href="#gs-obelisk" transform="translate(1450 463) rotate(-6) scale(0.45) translate(-11 -64)" fill="#191f27"/>
+    <use href="#gs-slab" transform="translate(86 463) rotate(-1) scale(0.45) translate(-18 -46)" fill="#191f27"/>
+    <use href="#gs-round" transform="translate(1356 466) rotate(7) scale(0.46) translate(-20 -50)" fill="#181e27"/>
+    <use href="#gs-cross" transform="translate(442 468) rotate(-1) scale(0.47) translate(-15 -54)" fill="#181e27"/>
+    <use href="#gs-obelisk" transform="translate(1404 471) rotate(8) scale(0.49) translate(-11 -64)" fill="#181e26"/>
+    <use href="#gs-round" transform="translate(204 471) rotate(5) scale(0.49) translate(-20 -50)" fill="#181e26"/>
+    <use href="#gs-obelisk" transform="translate(1385 474) rotate(0) scale(0.50) translate(-11 -64)" fill="#181d26"/>
+    <use href="#gs-round" transform="translate(1569 476) rotate(0) scale(0.52) translate(-20 -50)" fill="#171d26"/>
+    <use href="#gs-cross" transform="translate(179 476) rotate(-4) scale(0.52) translate(-15 -54)" fill="#171d26"/>
+    <use href="#gs-slab" transform="translate(395 477) rotate(3) scale(0.52) translate(-18 -46)" fill="#171d25"/>
+    <use href="#gs-cross" transform="translate(636 479) rotate(6) scale(0.53) translate(-15 -54)" fill="#171d25"/>
+    <use href="#gs-obelisk" transform="translate(925 484) rotate(6) scale(0.57) translate(-11 -64)" fill="#171c25"/>
+    <use href="#gs-round" transform="translate(1147 485) rotate(1) scale(0.57) translate(-20 -50)" fill="#171c24"/>
+    <use class="pumpkin" href="#gs-pumpkin" transform="translate(350 486) scale(0.95) translate(-16 -26)"/>
+    <use class="pumpkin" href="#gs-pumpkin" transform="translate(1325 492) scale(0.95) translate(-16 -26)"/>
+    <use href="#gs-slab" transform="translate(1398 495) rotate(0) scale(0.64) translate(-18 -46)" fill="#161b23"/>
+    <use href="#gs-slab" transform="translate(990 498) rotate(4) scale(0.66) translate(-18 -46)" fill="#151b23"/>
+    <use href="#gs-round" transform="translate(395 501) rotate(0) scale(0.69) translate(-20 -50)" fill="#151a22"/>
+    <use href="#gs-round" transform="translate(620 503) rotate(-4) scale(0.70) translate(-20 -50)" fill="#151a22"/>
+    <use href="#gs-round" transform="translate(550 503) rotate(-9) scale(0.70) translate(-20 -50)" fill="#151a22"/>
+    <use href="#gs-slab" transform="translate(298 504) rotate(-9) scale(0.71) translate(-18 -46)" fill="#151a22"/>
+    <use href="#gs-slab" transform="translate(1561 504) rotate(0) scale(0.71) translate(-18 -46)" fill="#151a22"/>
+    <use href="#gs-slab" transform="translate(339 509) rotate(0) scale(0.75) translate(-18 -46)" fill="#151a21"/>
+    <use href="#gs-slab" transform="translate(208 510) rotate(3) scale(0.75) translate(-18 -46)" fill="#141a21"/>
+    <use href="#gs-obelisk" transform="translate(1243 521) rotate(1) scale(0.86) translate(-11 -64)" fill="#131820"/>
+    <use href="#gs-round" transform="translate(910 523) rotate(0) scale(0.87) translate(-20 -50)" fill="#131820"/>
+    <use href="#gs-round" transform="translate(341 528) rotate(0) scale(0.92) translate(-20 -50)" fill="#13181f"/>
+    <use href="#gs-round" transform="translate(1293 530) rotate(1) scale(0.94) translate(-20 -50)" fill="#13171f"/>
+    <use href="#gs-obelisk" transform="translate(212 536) rotate(0) scale(1.00) translate(-11 -64)" fill="#12171e"/>
+    <use href="#gs-round" transform="translate(966 538) rotate(-4) scale(1.02) translate(-20 -50)" fill="#12171d"/>
+    <use href="#gs-slab" transform="translate(172 544) rotate(0) scale(1.08) translate(-18 -46)" fill="#11161d"/>
+    <use href="#gs-round" transform="translate(1106 544) rotate(-2) scale(1.09) translate(-20 -50)" fill="#11161d"/>
+    <use class="pumpkin" href="#gs-pumpkin" transform="translate(1340 545) scale(1.30) translate(-16 -26)"/>
+    <use href="#gs-round" transform="translate(1189 546) rotate(9) scale(1.11) translate(-20 -50)" fill="#11161c"/>
+    <use href="#gs-obelisk" transform="translate(1240 548) rotate(0) scale(1.13) translate(-11 -64)" fill="#11151c"/>
+    <use href="#gs-cross" transform="translate(332 564) rotate(4) scale(1.32) translate(-15 -54)" fill="#10141a"/>
+    <use href="#gs-round" transform="translate(1151 565) rotate(-7) scale(1.33) translate(-20 -50)" fill="#10141a"/>
+    <use href="#gs-slab" transform="translate(425 569) rotate(-7) scale(1.39) translate(-18 -46)" fill="#0f1319"/>
+    <use href="#gs-slab" transform="translate(1013 572) rotate(0) scale(1.43) translate(-18 -46)" fill="#0f1319"/>
+    <use href="#gs-cross" transform="translate(1486 573) rotate(0) scale(1.44) translate(-15 -54)" fill="#0f1319"/>
+    <use href="#gs-cross" transform="translate(1277 574) rotate(0) scale(1.45) translate(-15 -54)" fill="#0f1319"/>
+    <use class="pumpkin" href="#gs-pumpkin" transform="translate(95 588) scale(1.70) translate(-16 -26)"/>
+    <use class="pumpkin" href="#gs-pumpkin" transform="translate(1505 592) scale(1.75) translate(-16 -26)"/>
+    <use href="#gs-round" transform="translate(224 601) rotate(0) scale(1.83) translate(-20 -50)" fill="#0c1015"/>
+    <use href="#gs-slab" transform="translate(488 602) rotate(0) scale(1.85) translate(-18 -46)" fill="#0c1015"/>
+    <use href="#gs-obelisk" transform="translate(1107 607) rotate(4) scale(1.92) translate(-11 -64)" fill="#0c0f14"/>
+    <use href="#gs-round" transform="translate(1557 610) rotate(0) scale(1.97) translate(-20 -50)" fill="#0c0f14"/>
+    <use href="#gs-cross" transform="translate(1185 611) rotate(7) scale(1.99) translate(-15 -54)" fill="#0c0f14"/>
+    <use href="#gs-slab" transform="translate(1399 615) rotate(0) scale(2.05) translate(-18 -46)" fill="#0b0e13"/>
+    <rect x="0" y="540" width="603" height="70" fill="url(#yard-fence)"/>
+    <rect x="997" y="540" width="603" height="70" fill="url(#yard-fence)"/>
+    <path class="pillar" d="M597 600V532h18v68ZM594 532h24v-8h-24ZM985 600V532h18v68ZM982 532h24v-8h-24Z"/>
+  </svg>
+  <!-- twisted trees on both sides; the right one is the same tree mirrored -->
+  <svg class="tree left" viewBox="0 0 300 600"><g>
+    <path d="M70 600C85 500 55 430 85 340C105 270 75 210 115 150C130 120 125 80 150 40" stroke-width="30"/>
+    <path d="M88 340C140 310 185 270 250 262M175 290C200 270 205 245 230 230" stroke-width="11"/>
+    <path d="M108 205C160 180 205 135 270 125M215 150C235 140 245 120 270 112" stroke-width="9"/>
+    <path d="M95 270C60 235 30 215 0 205M45 228C40 205 25 190 10 180" stroke-width="9"/>
+    <path d="M120 150C95 120 70 105 40 100M140 70C165 50 185 45 210 50" stroke-width="7"/>
+    <path d="M80 430C40 410 20 392 0 396M250 262C268 270 280 285 292 280M270 125C282 135 290 150 300 148" stroke-width="7"/>
+  </g></svg>
+  <svg class="tree right" viewBox="0 0 300 600"><g>
+    <path d="M70 600C85 500 55 430 85 340C105 270 75 210 115 150C130 120 125 80 150 40" stroke-width="30"/>
+    <path d="M88 340C140 310 185 270 250 262M175 290C200 270 205 245 230 230" stroke-width="11"/>
+    <path d="M108 205C160 180 205 135 270 125M215 150C235 140 245 120 270 112" stroke-width="9"/>
+    <path d="M95 270C60 235 30 215 0 205M45 228C40 205 25 190 10 180" stroke-width="9"/>
+    <path d="M120 150C95 120 70 105 40 100M140 70C165 50 185 45 210 50" stroke-width="7"/>
+    <path d="M80 430C40 410 20 392 0 396M250 262C268 270 280 285 292 280M270 125C282 135 290 150 300 148" stroke-width="7"/>
+  </g></svg>
+  <!-- glowing ghosts in the colours of a haunted night -->
+  <svg class="ghost g1" viewBox="0 0 20 22"><path d="M10 0C4.5 0 1 4 1 9v12l3-2 3 2 3-2 3 2 3-2 3 2V9c0-5-3.5-9-9-9z"/><ellipse cx="7" cy="9" rx="1.6" ry="2.4"/><ellipse cx="13" cy="9" rx="1.6" ry="2.4"/></svg>
+  <svg class="ghost g2" viewBox="0 0 20 22"><path d="M10 0C4.5 0 1 4 1 9v12l3-2 3 2 3-2 3 2 3-2 3 2V9c0-5-3.5-9-9-9z"/><ellipse cx="7" cy="9" rx="1.6" ry="2.4"/><ellipse cx="13" cy="9" rx="1.6" ry="2.4"/></svg>
+  <svg class="ghost g3" viewBox="0 0 20 22"><path d="M10 0C4.5 0 1 4 1 9v12l3-2 3 2 3-2 3 2 3-2 3 2V9c0-5-3.5-9-9-9z"/><ellipse cx="7" cy="9" rx="1.6" ry="2.4"/><ellipse cx="13" cy="9" rx="1.6" ry="2.4"/></svg>
+  <svg class="ghost g4" viewBox="0 0 20 22"><path d="M10 0C4.5 0 1 4 1 9v12l3-2 3 2 3-2 3 2 3-2 3 2V9c0-5-3.5-9-9-9z"/><ellipse cx="7" cy="9" rx="1.6" ry="2.4"/><ellipse cx="13" cy="9" rx="1.6" ry="2.4"/></svg>
+  <svg class="ghost g5" viewBox="0 0 20 22"><path d="M10 0C4.5 0 1 4 1 9v12l3-2 3 2 3-2 3 2 3-2 3 2V9c0-5-3.5-9-9-9z"/><ellipse cx="7" cy="9" rx="1.6" ry="2.4"/><ellipse cx="13" cy="9" rx="1.6" ry="2.4"/></svg>
+  <div class="fog"></div>
+</div>
+<button class="menu-button" id="menuButton" type="button" aria-controls="menu" aria-expanded="false" aria-label="Open menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg></button>
+<div class="menu-backdrop" id="menuBackdrop"></div>
+<nav class="menu" id="menu" aria-label="Menu">
+  <div class="menu-head"><span data-i18n="menuTitle">Menu</span><button class="menu-close" id="menuClose" type="button" aria-label="Close menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg></button></div>
+  <a class="menu-group" href="#step1" data-i18n="menuInstaller">Installer</a>
+  <p class="menu-group" data-i18n="menuHelp">Help</p>
+  <a href="#requirements" data-i18n="navRequirements">Requirements</a>
+  <a href="#controls" data-i18n="navControls">Controls</a>
+  <a href="#faq" data-i18n="navFaq">FAQ</a>
+  <a href="#troubleshooting" data-i18n="navTrouble">Troubleshooting</a>
+  <a href="#report" data-i18n="navReport">Report a bug</a>
+  <p class="menu-group" data-i18n="menuAbout">About</p>
+  <a href="#changelog" data-i18n="navNews">Changelog</a>
+  <a href="#media" data-i18n="navMedia">Screenshots &amp; videos</a>
+  <p class="menu-group" data-i18n="menuLinks">Links</p>
+  <a href="#discord">Discord</a>
+  <a class="menu-group" href="#disclaimer" data-i18n="menuDisclaimer">Disclaimer</a>
+  <a class="menu-group" href="#credits" data-i18n="menuCredits">Credits</a>
+</nav>
+<main>
+  <header>
+    <nav class="languages" id="languages" aria-label="Language"></nav>
+    <h1 aria-label="LM-NX Installer"><span aria-hidden="true"><b style="--r:-5deg">L</b><b style="--r:3deg;--dy:.03em">M</b><b
+      style="--r:-4deg">-</b><b style="--r:4deg;--dy:-.02em">N</b><b style="--r:-3deg;--dy:.03em">X</b></span>
+      <span class="word2" aria-hidden="true"><b style="--r:4deg;--dy:-.03em">I</b><b style="--r:-3deg;--dy:.02em">n</b><b
+      style="--r:5deg">s</b><b style="--r:-4deg;--dy:-.02em">t</b><b style="--r:3deg;--dy:.03em">a</b><b style="--r:-5deg">l</b><b
+      style="--r:4deg;--dy:.02em">l</b><b style="--r:-3deg;--dy:-.02em">e</b><b style="--r:5deg;--dy:.02em">r</b></span></h1>
+    <p class="lead" data-i18n-html="lead">Builds the <strong>Nintendo Switch</strong> package of <strong>Luigi's Mansion</strong> from your own
+      <strong>GameCube</strong> disc. <span class="line">Everything runs in <strong>this browser</strong>: nothing is uploaded.</span><br>
+      The port is based on <a href="https://github.com/rob646464/luigis-mansion-recompiled" target="_blank"
+      rel="noopener">Luigi's Mansion Recompiled</a>, the recompilation made by <strong>rob646464</strong>.</p>
+  </header>
+
+  <section id="step1">
+    <h2 data-i18n="step1">1. Choose your disc images</h2>
+    <div class="pick">
+      <label class="button" for="discs" data-i18n="chooseIso">Choose disc images</label>
+      <input id="discs" type="file" accept=".iso,.gcm,.rvz,.wia,.gcz,.ciso" multiple>
+      <p class="hint" data-i18n="hintBoth">You can choose both discs at once, or one after the other.</p>
+    </div>
+    <div class="discs">
+      <div class="disc" id="usa">
+        <div class="mark" aria-hidden="true">1</div>
+        <div>
+          <div class="name" data-i18n="usaName">Luigi's Mansion (USA) &middot; GLME01 &middot; Required</div>
+          <div class="state">Not chosen yet.</div>
+        </div>
+      </div>
+      <div class="disc" id="pal">
+        <div class="mark" aria-hidden="true">2</div>
+        <div>
+          <div class="name" data-i18n="palName">Luigi's Mansion (Europe) &middot; GLMP01 (Rev 0) ONLY &middot; Optional</div>
+          <div class="state">Not chosen. Only the first release (revision 0) works. With it, the game also gets the
+            European <strong>Hidden Mansion</strong> and the other languages: <strong>Spanish, German, French and
+            Italian</strong>.</div>
+        </div>
+      </div>
+    </div>
+    <p class="note" data-i18n-html="ownCopy"><strong>Important:</strong> you need your own copy of the game, dumped from your disc: a full disc
+      image (<code>.iso</code>, 1.36 GB), <code>.rvz</code>, <code>.gcz</code> or <code>.ciso</code>. Compressed
+      images become <code>.iso</code> while the package is made.
+      The European disc <strong>must be the first release (revision 0)</strong>.</p>
+  </section>
+
+  <section id="step2">
+    <h2 data-i18n="step2">2. Create the package</h2>
+    <div class="choices">
+      <p class="flow" data-i18n="step2First">If you are installing the game for the first time, use:</p>
+      <button id="create" disabled data-i18n="create">Create lm-nx.zip</button>
+      <p class="flow" data-i18n="step2Update">If the game is already installed and you only want to update it (the game, its shaders and its
+        pipeline list; your discs and saves stay as they are), use:</p>
+      <button id="update" data-i18n="createUpdate">Create lm-nx-update.zip</button>
+    </div>
+    <div class="work" id="work" hidden>
+      <div class="what" id="what"></div>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="percent" id="percent"></div>
+    </div>
+    <div id="log"></div>
+  </section>
+
+  <section id="step3">
+    <h2 data-i18n="step3">3. Copy it to the Switch</h2>
+    <ol>
+      <li data-i18n-html="step3Extract">Extract the downloaded <code>.zip</code> file and copy the <code>LM-NX</code> folder inside it into
+        <code>sdmc:/switch/</code> on your SD card. When you update, let it replace the files that are already there.</li>
+      <li data-i18n-html="step3Start">Start <code>LM-NX.nro</code> from the Homebrew Menu in title takeover mode (<strong>launch</strong> a game
+        <strong>while holding R</strong> to open the <strong>Homebrew Menu</strong>) or create a <strong>forwarder</strong> with
+        <a href="https://github.com/NaGaa95/sphaira/releases" target="_blank" rel="noopener">Sphaira</a>.</li>
+      <li data-i18n="step3Shaders">The shaders are already in the package: the first start only loads them, it does not compile them.</li>
+    </ol>
+  </section>
+
+  <!-- the Discord page: opened from the menu (#discord), it takes the place of the three steps -->
+  <section id="discord" class="page" hidden>
+    <p data-i18n-html="spzIntro"><strong>Switch Port Zone</strong> is a Discord server made by <a href="https://github.com/ChanseyIsTheBest" target="_blank" rel="noopener">ChanseyIsTheBest</a> about ports to Nintendo Switch. There
+      you will find more ports, guides on how to make ports and people who make them, ready to help.</p>
+    <p class="rules-title" data-i18n="spzRules">Server rules</p>
+    <ol class="rules">
+      <li data-i18n="spzRule1">English only.</li>
+      <li data-i18n="spzRule2">No bullying or trolling.</li>
+      <li data-i18n-html="spzRule3"><strong>No piracy.</strong></li>
+      <li data-i18n="spzRule4">Use each channel for its purpose: for example, ask for ports in #request-ports.</li>
+      <li data-i18n="spzRule5">No self-promotion (your YouTube channel, your Discord server, Ko-fi, PayPal, etc.) without
+        permission.</li>
+      <li data-i18n="spzRule6">No spam. This includes spam messages like the MrBeast ones (honeypot).</li>
+      <li data-i18n="spzRule7">Respect every member, as well as the admins and moderators.</li>
+      <li data-i18n="spzRule8">No alt accounts. The server detects them and using one to get around a kick or a ban can
+        get you banned.</li>
+    </ol>
+    <p class="note piracy" data-i18n-html="spzPiracy"><strong>Piracy is not allowed, in any form.</strong> Don't share or ask for links to download games. Don't share videos that show
+      links to pirated games either in the video or in the video description/comments. Use only the games you dumped from your
+      own discs.</p>
+    <p class="discord-actions"><a class="join" href="https://discord.gg/aCaza7xDZH" target="_blank" rel="noopener"
+      data-i18n="spzJoin">Join Switch Port Zone</a>
+    <button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
+  <!-- the help and about pages: opened from the menu, like the Discord page -->
+  <section id="requirements" class="page" hidden>
+    <div class="page-text" data-i18n-html="pageRequirements"><h3>What you need</h3><ul><li>A Nintendo Switch that can run homebrew, with custom firmware such as <strong>Atmosphère</strong>.</li><li>Your own copy of <strong>Luigi's Mansion (USA)</strong> for GameCube, dumped from your disc. The <strong>European</strong> disc (first release) is optional: it adds the Hidden Mansion and four more languages.</li><li>Free space on the SD card: about <strong>1.7 GB</strong> with the USA disc, about <strong>3.2 GB</strong> with both discs. Your computer needs the same space for the zip.</li><li>A computer with an up-to-date browser to make the package.</li></ul><h3>How to start it</h3><p>Start <code>LM-NX.nro</code> in title takeover mode: hold <strong>R</strong> while you launch any game and the Homebrew Menu opens with all the memory of the console. From the Album the game does not have enough memory.</p></div>
+    <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
+  <section id="controls" class="page" hidden>
+    <div class="page-text" data-i18n-html="pageControls"><p>The Switch controller works as a GameCube controller:</p><table class="keys"><tbody><tr><th>GameCube</th><th>Switch</th></tr><tr><td>Control stick</td><td>Left stick</td></tr><tr><td>C-stick</td><td>Right stick</td></tr><tr><td>A, B, X, Y</td><td>A, B, X, Y</td></tr><tr><td>Z</td><td>L or R</td></tr><tr><td>L, R</td><td>ZL, ZR</td></tr><tr><td>START</td><td>+</td></tr><tr><td>D-pad</td><td>D-pad</td></tr></tbody></table><p><strong>Settings menu:</strong> press both sticks at once (<strong>L3 + R3</strong>). There you can change the graphics, the sound, the controls and the game options. Every button can be remapped, and the sticks have dead zone, sensitivity and invert options. Your changes are saved when the menu closes.</p></div>
+    <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
+  <section id="faq" class="page" hidden>
+    <div class="page-text" data-i18n-html="pageFaq"><h3>Why do I need my own disc?</h3><p>This page does not host or send any part of the game: it builds the package from the disc you own, inside your browser.</p><h3>Which discs work?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, is required. The European disc, GLMP01, is optional and only its first release (revision 0) works. Other releases are not supported.</p><h3>Can I use .rvz, .wia, .gcz or .ciso images?</h3><p>Yes: they become the full <code>.iso</code> while the package is made. Trimmed images such as <code>.nkit.iso</code> do not work.</p><h3>Is anything uploaded?</h3><p>No. Your discs are read only in your browser and the zip is saved straight to your computer.</p><h3>Where are my saves?</h3><p>In <code>sdmc:/switch/LM-NX/guardados/</code>. Copy that folder to keep a backup.</p><h3>How do I update?</h3><p>Make <code>lm-nx-update.zip</code> on this page and copy its <code>LM-NX</code> folder over the old one. Your discs and your saves stay as they are.</p><h3>What are the shaders?</h3><p>The game needs about 2,000 shaders, small programs for the GPU. This page compiles them on your computer while it makes the package and puts them in <code>cache/</code>, so the first start only loads them, in a few seconds.</p><h3>Why is my console compiling shaders?</h3><p>It happens once, with a progress bar, when the <code>cache/</code> folder is missing or damaged, or when you updated <code>LM-NX.nro</code> by hand instead of with <code>lm-nx-update.zip</code>. The shaders are saved and later starts load them in seconds.</p></div>
+    <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
+  <section id="troubleshooting" class="page" hidden>
+    <div class="page-text" data-i18n-html="pageTrouble"><h3>The game closes or the screen stays black when it starts</h3><p>Check that the folder is <code>sdmc:/switch/LM-NX/</code> with <code>LM-NX.nro</code> inside, and start it in title takeover mode (hold <strong>R</strong> while you launch a game), not from the Album.</p><h3>The game cannot find the disc</h3><p>The <code>LM-NX</code> folder must have <code>orig/GLME01.iso</code> inside. If it is missing, make <code>lm-nx.zip</code> again and copy the whole folder.</p><h3>The page does not accept my disc</h3><p>It needs a full dump or an <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> or <code>.ciso</code> made from one. Trimmed images and the European revision 1 do not work.</p><h3>The first start takes a long time</h3><p>The shaders come ready in the package. If they are missing, the console compiles them on the first start, which takes longer only that time.</p><p>Something else? See <a href="#report">Report a bug</a>.</p></div>
+    <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
+  <section id="report" class="page" hidden>
+    <div class="page-text" data-i18n-html="pageReport"><p>Found a bug? Open an issue on <a href="https://github.com/StevensND/lm-nx/issues" target="_blank" rel="noopener">GitHub</a>. Please include:</p><ul><li>The version of LM-NX you installed, for example 1.0.0.</li><li>Whether you play docked or in handheld mode.</li><li>What you were doing just before the problem, and whether it happens again.</li><li>The files in <code>sdmc:/switch/LM-NX/logs/</code>.</li><li>A photo or a video, if it is something you can see or hear.</li></ul></div>
+    <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
+  <section id="changelog" class="page" hidden>
+    <div class="page-text" data-i18n-html="pageNews"><h3>1.0.0</h3><ul><li>First release.</li><li>Native port of <strong>Luigi's Mansion (USA)</strong> to Nintendo Switch, based on <a href="https://github.com/rob646464/luigis-mansion-recompiled" target="_blank" rel="noopener">Luigi's Mansion Recompiled</a>.</li><li>With the European disc: the Hidden Mansion and Spanish, German, French and Italian.</li><li>1080p when docked.</li><li>Settings menu with graphics, sound, controls and game options.</li><li>This page makes the whole package in your browser, shaders included, and reads <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> and <code>.ciso</code> disc images.</li></ul></div>
+    <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
+  <section id="media" class="page" hidden>
+    <div class="page-text" data-i18n-html="pageMedia"><p>Screenshots and videos of LM-NX running on the Switch will be here soon. Meanwhile, you can find videos on <a href="https://www.youtube.com/@StevensxD" target="_blank" rel="noopener">YouTube</a>.</p></div>
+    <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
+  <!-- the disclaimer: what the console shows at every start, and where the port officially comes from -->
+  <section id="disclaimer" class="page" hidden>
+    <div class="page-text" data-i18n-html="pageDisclaimer"><ul><li><strong>LM-NX is a community-made port.</strong> It's based on the work of <strong>rob646464</strong> (<a href="https://github.com/rob646464/luigis-mansion-recompiled" target="_blank" rel="noopener">Luigi's Mansion Recompiled</a>) adapted to Nintendo Switch.</li><li><strong>This port is free.</strong> Selling it isn't allowed. If you paid for it or for having it installed, you were scammed.</li><li><strong>Tools like AIO Switch Updater and similar and sites like NXMaster aren't affiliated with or endorsed by this project.</strong><br>They distribute the package with the disc images already included and sharing the game's disc images like that is illegal.<br><strong>This page never does that:</strong> to make the package, you must provide your own disc images, dumped from your own discs.</li><li><strong>Luigi's Mansion is a trademark of Nintendo.</strong> This project is <strong>not affiliated with Nintendo</strong>.</li></ul><p><strong>Official sources:</strong> only this page and the <a href="https://github.com/StevensND/lm-nx" target="_blank" rel="noopener">lm-nx</a> repository on GitHub. Any other download doesn't come from this project.</p></div>
+    <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
+  <!-- the credits: opened from the menu (#credits), like the Discord page -->
+  <section id="credits" class="page" hidden>
+    <ul class="credits">
+      <li data-i18n-html="crStevens"><strong>StevensND</strong>: LM-NX, the port to Nintendo Switch, and this page.</li>
+      <li data-i18n-html="crRob"><strong>rob646464</strong>: <a href="https://github.com/rob646464/luigis-mansion-recompiled" target="_blank" rel="noopener">Luigi's Mansion Recompiled</a>, the recompilation this port is based on.</li>
+      <li data-i18n-html="crDusklight"><strong>TwilitRealm</strong> (<a href="https://github.com/TwilitRealm/dusklight" target="_blank" rel="noopener">Dusklight</a>): parts of JSystem and of the console's system code.</li>
+      <li data-i18n-html="crAurora"><strong>encounter</strong> (<a href="https://github.com/encounter/aurora" target="_blank" rel="noopener">Aurora</a>): the GameCube compatibility layer.</li>
+      <li data-i18n-html="crSwitch"><strong>banjo-nx</strong>, <a href="https://github.com/centollOS/SwitchWaker" target="_blank" rel="noopener">SwitchWaker</a> and <a href="https://github.com/centollOS/SwitchWakerHD" target="_blank" rel="noopener">SwitchWakerHD</a>: the deko3d renderer, the SDL3 layer and the shader compiler patches the port adapts.</li>
+      <li data-i18n-html="crAleks"><a href="https://github.com/Alexgg1014/The-Legend-of-Zelda-Twilight-Princess-Alek-s-Ultimate-NX-Edition" target="_blank" rel="noopener">TP-Aleks</a>: the Switch build setup.</li>
+      <li data-i18n-html="crDevkit"><a href="https://github.com/fincs" target="_blank" rel="noopener">fincs</a> and <a href="https://devkitpro.org" target="_blank" rel="noopener">devkitPro</a>: <a href="https://github.com/devkitPro/deko3d" target="_blank" rel="noopener">deko3d</a>, <a href="https://github.com/devkitPro/uam" target="_blank" rel="noopener">uam</a>, <a href="https://github.com/switchbrew/libnx" target="_blank" rel="noopener">libnx</a> and the tools to make Switch homebrew.</li>
+      <li data-i18n-html="crDolphin">The <a href="https://dolphin-emu.org" target="_blank" rel="noopener">Dolphin</a> team: the RVZ, WIA and GCZ formats this page reads.</li>
+      <li data-i18n-html="crLibs"><strong>Zstandard</strong>, the <strong>LZMA SDK</strong> (Igor Pavlov), <strong>bzip2</strong> (Julian Seward), <strong>Tint</strong>, <strong>Abseil</strong> and <strong>Mesa</strong>: the decompressors and the shader compiler of this page.</li>
+      <li data-i18n-html="crFont"><strong>PFRA</strong>: Delfino, the font of the titles.</li>
+      <li data-i18n-html="crNintendo"><strong>Nintendo</strong>: Luigi's Mansion, Nintendo GameCube and Nintendo Switch are trademarks of Nintendo. LM-NX is an unofficial fan project and is not affiliated with, endorsed or sponsored by Nintendo.</li>
+    </ul>
+    <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
+  </section>
+
+  <footer>
+    <p class="source"><a href="https://github.com/StevensND/lm-nx" target="_blank" rel="noopener" data-i18n="sourceCode">Source Code</a></p>
+    <div class="links">
+      <a class="github" href="https://github.com/StevensND" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+      <a class="kofi" href="https://ko-fi.com/stevenss" target="_blank" rel="noopener" aria-label="Ko-fi" title="Ko-fi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/></svg></a>
+      <a class="paypal" href="https://www.paypal.com/paypalme/stevensnd" target="_blank" rel="noopener" aria-label="PayPal" title="PayPal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788.06-.26.76-4.852.816-5.09a.932.932 0 0 1 .923-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.174-3.388-.777-4.471z"/></svg></a>
+      <a class="x" href="https://x.com/stevensmods" target="_blank" rel="noopener" aria-label="X" title="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></a>
+      <a class="youtube" href="https://www.youtube.com/@StevensxD" target="_blank" rel="noopener" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+      <a class="reddit" href="https://www.reddit.com/user/StevenssND/" target="_blank" rel="noopener" aria-label="Reddit" title="Reddit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12c0 3.314 1.343 6.314 3.515 8.485l-2.286 2.286C.775 23.225 1.097 24 1.738 24H12c6.627 0 12-5.373 12-12S18.627 0 12 0Zm4.388 3.199c1.104 0 1.999.895 1.999 1.999 0 1.105-.895 2-1.999 2-.946 0-1.739-.657-1.947-1.539v.002c-1.147.162-2.032 1.15-2.032 2.341v.007c1.776.067 3.4.567 4.686 1.363.473-.363 1.064-.58 1.707-.58 1.547 0 2.802 1.254 2.802 2.802 0 1.117-.655 2.081-1.601 2.531-.088 3.256-3.637 5.876-7.997 5.876-4.361 0-7.905-2.617-7.998-5.87-.954-.447-1.614-1.415-1.614-2.538 0-1.548 1.255-2.802 2.803-2.802.645 0 1.239.218 1.712.585 1.275-.79 2.881-1.291 4.64-1.365v-.01c0-1.663 1.263-3.034 2.88-3.207.188-.911.993-1.595 1.959-1.595Zm-8.085 8.376c-.784 0-1.459.78-1.506 1.797-.047 1.016.64 1.429 1.426 1.429.786 0 1.371-.369 1.418-1.385.047-1.017-.553-1.841-1.338-1.841Zm7.406 0c-.786 0-1.385.824-1.338 1.841.047 1.017.634 1.385 1.418 1.385.785 0 1.473-.413 1.426-1.429-.046-1.017-.721-1.797-1.506-1.797Zm-3.703 4.013c-.974 0-1.907.048-2.77.135-.147.015-.241.168-.183.305.483 1.154 1.622 1.964 2.953 1.964 1.33 0 2.47-.81 2.953-1.964.057-.137-.037-.29-.184-.305-.863-.087-1.795-.135-2.769-.135Z"/></svg></a>
+      <a class="gbatemp" href="https://gbatemp.net/members/stevensnd.438828/" target="_blank" rel="noopener" aria-label="GBAtemp" title="GBAtemp"><svg viewBox="0 0 118.06 113.06" aria-hidden="true"><path d="M98.19 6c.57 0 13.87.03 13.87 2.42l-3.08 2.85-3.07 2.83a81.372 81.372 0 00-15.5 21.7c9.34-3.12 14.76-4.62 16.54-4.62.03 8.91-5.11 16.7-7.3 20.02-.61.92-1.04 1.58-.98 1.69l4.18-.23 3.86-.23c.03 2.52-2.68 8.8-5.77 13.46 1.17 2.3 1.79 5.02 1.79 7.83 0 7.83-4.8 14.2-10.71 14.2-.76 0-1.52-.11-2.26-.32C83.7 99.41 70 107.05 54.9 107.05c-15.28 0-29.04-7.76-35.05-19.78-.99.44-2.06.65-3.15.65-5.89 0-10.7-6.37-10.7-14.19 0-4.71 1.75-9.1 4.69-11.75C7.25 52.93 6 42.01 6 36.88l3.19 2.1 6.29 4.25c-.04-10.4 4.26-25.79 12.23-33.77l.52 1.9c.72 6.33 1.84 12.38 3.34 18.01C50.03 14.51 78.2 7.51 96.7 6.03c.23-.02.76-.03 1.49-.03m0-6c-1.32 0-1.8.04-1.96.05-16.97 1.36-41.76 7.2-60.77 19.21-.51-2.78-.93-5.64-1.26-8.57a5.7 5.7 0 00-.17-.9l-.52-1.9a6 6 0 00-5.79-4.42c-1.57 0-3.11.62-4.25 1.76-6.72 6.73-11.09 17.5-12.95 27.44l-1.21-.8a5.986 5.986 0 00-6.14-.27A5.966 5.966 0 000 36.88C0 41.17.85 51.1 3.9 60.7 1.42 64.3 0 68.92 0 73.73c0 11.14 7.5 20.2 16.71 20.2h.09c7.84 11.75 22.3 19.13 38.12 19.13 15.8 0 30.31-7.41 38.12-19.17 8.75-.63 15.71-9.43 15.71-20.16 0-2.51-.38-4.97-1.1-7.26 2.47-4.32 5.12-10.23 5.08-14.09a6.009 6.009 0 00-3.64-5.45c2.06-4.28 3.9-9.72 3.88-15.76a5.994 5.994 0 00-6-5.98c-.7 0-1.63.08-3.15.39 1.93-2.5 4.02-4.89 6.27-7.15l2.98-2.75 3.08-2.86a6.025 6.025 0 001.92-4.4c0-1.63-.64-5.59-6.52-7.18-1.47-.4-3.32-.69-5.66-.9-3.65-.33-7.3-.34-7.7-.34z"/><path d="M73.01 87.68c-2.81 0-5.1-2.28-5.1-5.09s2.29-5.09 5.1-5.09 5.1 2.29 5.1 5.09-2.28 5.09-5.1 5.09zm7.67-7.66c-2.81 0-5.1-2.29-5.1-5.09 0-2.81 2.29-5.09 5.1-5.09 2.81 0 5.1 2.29 5.1 5.09 0 2.81-2.29 5.09-5.1 5.09zm-15.33 0c-2.81 0-5.1-2.29-5.1-5.09 0-2.81 2.29-5.09 5.1-5.09s5.1 2.29 5.1 5.09c0 2.81-2.29 5.09-5.1 5.09zm7.77-7.76c-2.81 0-5.1-2.29-5.1-5.09 0-2.81 2.29-5.09 5.1-5.09s5.1 2.29 5.1 5.09c0 2.81-2.29 5.09-5.1 5.09z"/><path d="M36.83 87.69c-1.79 0-3.25-1.59-3.25-3.55v-4.07H29.3c-1.96 0-3.55-1.46-3.55-3.25v-3.33c0-1.79 1.59-3.25 3.55-3.25h4.28v-4.27c0-1.96 1.46-3.55 3.25-3.55h3.33c1.79 0 3.25 1.59 3.25 3.55v4.27h4.08c1.96 0 3.56 1.46 3.56 3.25v3.33c0 1.79-1.6 3.25-3.56 3.25h-4.08v4.07c0 1.96-1.46 3.55-3.25 3.55h-3.33z"/></svg></a>
+    </div>
+    <p class="signature" data-i18n="signature">a StevensND project</p>
+    <p class="legal" id="legal" data-i18n="legal">Luigi's Mansion, Nintendo GameCube and Nintendo Switch are trademarks of Nintendo. The icon is
+      © Nintendo. LM-NX is an unofficial fan project and is not affiliated with, endorsed or sponsored by Nintendo. This site does
+      not host or distribute disc images, game data or shaders: your disc images are read only inside your browser, are never
+      uploaded, and are copied straight into the zip saved on your computer; the shaders are compiled on your computer. You need
+      your own legally obtained copy of the game. Title font: Delfino by PFRA.</p>
+  </footer>
+</main>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
