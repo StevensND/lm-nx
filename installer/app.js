@@ -1,7 +1,7 @@
 import { identifyDisc, openDisc } from './lib/disc.js';
 import { openDiscImage } from './lib/disc_image.js';
 import { buildHiddenMansion } from './lib/hidden_mansion.js';
-import { packageEntries, packageSize, writePackage } from './lib/package.js';
+import { PAL_LANGUAGES, packageEntries, packageSize, writePackage } from './lib/package.js';
 import { buildShaderCaches } from './lib/shaders.js';
 import { FLAGS } from './lib/flags.js';
 import { LANGUAGES, formatSize, getLanguage, preferredLanguage, setLanguage, t } from './lib/i18n.js';
@@ -168,6 +168,24 @@ function renderDisc(slot) {
 function setButtons() {
   create.disabled = busy || !discs.usa;
   update.disabled = busy;
+  renderGameLanguage();
+}
+
+// The language the game starts in. English is the USA version; the others are the European version, so they need
+// the European disc. Until the player picks one, it follows the language of this page once that disc is chosen.
+const gameLanguage = document.getElementById('gameLanguage');
+const GAME_LANGUAGES = [['en', 'English'], ['es', 'Español'], ['de', 'Deutsch'], ['fr', 'Français'], ['it', 'Italiano']];
+let gameLanguagePicked = false;
+for (const [code, name] of GAME_LANGUAGES) gameLanguage.add(new Option(name, code));
+gameLanguage.addEventListener('change', () => {
+  gameLanguagePicked = true;
+});
+
+function renderGameLanguage() {
+  for (const option of gameLanguage.options) option.disabled = option.value !== 'en' && !discs.pal;
+  if (!discs.pal) gameLanguage.value = 'en';
+  else if (!gameLanguagePicked && PAL_LANGUAGES[getLanguage()]) gameLanguage.value = getLanguage();
+  gameLanguage.disabled = busy;
 }
 
 const PROBLEMS = { palRev1: 'palRev1', other: 'otherDisc' };
@@ -371,6 +389,7 @@ async function makePackage(full) {
       shaders: caches.files,
       discs: full ? { usa: discs.usa.file, pal: discs.pal?.file ?? null } : null,
       hiddenMansion,
+      gameLanguage: full && discs.pal ? gameLanguage.value : 'en',
     });
     const filename = full ? 'lm-nx.zip' : 'lm-nx-update.zip';
     const size = packageSize(entries);
@@ -408,6 +427,7 @@ function applyLanguage(code) {
   }
   renderDisc('usa');
   renderDisc('pal');
+  renderGameLanguage();
 }
 
 for (const { code, name, flag } of LANGUAGES) {

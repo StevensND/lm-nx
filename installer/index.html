@@ -140,6 +140,14 @@
     .help-link:focus-visible { outline: none; border-color: #8a91a3; }
     .help-link svg { width: 1.15em; height: 1.15em; color: var(--accent); }
     .help-link span { text-transform: uppercase; letter-spacing: .03em; }
+    /* the language the game starts in, under the discs */
+    .game-language { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; margin-top: calc(var(--pad) * .6); }
+    .game-language label { font-weight: 700; }
+    .game-language select { background: #3c404d; color: #fff; border: 1px solid #3c404d; border-radius: 10px;
+      padding: .4em .8em; font: inherit; font-weight: 700; cursor: pointer; }
+    .game-language select:focus-visible { outline: none; border-color: #8a91a3; }
+    .game-language select:disabled { color: #7d828f; cursor: default; }
+    .game-language .hint { margin: 4px 0; }
     /* the button and its hint on one line, so step 1 takes less height */
     .pick { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; }
     .pick label.button { margin: 0; }
@@ -451,6 +459,11 @@
             Italian</strong>.</div>
         </div>
       </div>
+    </div>
+    <div class="game-language">
+      <label for="gameLanguage" data-i18n="gameLanguage">Game language</label>
+      <select id="gameLanguage"></select>
+      <p class="hint" data-i18n="gameLanguageHint">Spanish, German, French and Italian need the European disc.</p>
     </div>
     <p class="note" data-i18n-html="ownCopy"><strong>Important:</strong> you need your own copy of the game, dumped from your disc: a full disc
       image (<code>.iso</code>, 1.36 GB), <code>.rvz</code>, <code>.gcz</code> or <code>.ciso</code>. Compressed
