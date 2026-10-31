@@ -7,16 +7,19 @@
 
 A native Nintendo Switch port of the GameCube version of **Luigi's Mansion** (2001).
 
-It's not an emulator. The PowerPC code of the game's `main.dol` is statically recompiled to C++, based on
-[Luigi's Mansion Recompiled](https://github.com/rob646464/luigis-mansion-recompiled) by rob646464, and compiled for
-the Switch, and the game is drawn by a native [deko3d](https://github.com/devkitPro/deko3d) renderer. It targets the
-game's original **30 FPS at the console's stock clocks** with no overclock.
+It's not an emulator. The PowerPC code of the game's `main.dol` is statically recompiled to C++ with
+[Luigi's Mansion Recompiled](https://github.com/rob646464/luigis-mansion-recompiled) and compiled for the Switch and
+the game is drawn by a native [deko3d](https://github.com/devkitPro/deko3d) renderer. It targets the game's original
+**30 FPS at the console's stock clocks** with no overclock.
 
 > [!NOTE]
-> You need your own copy of the GameCube game, dumped from your own disc. The installer page accepts a full disc image
-> (`.iso`) or a compressed one (`.rvz`, `.wia`, `.gcz`, `.ciso`).
+> You need your own copy of the GameCube game: a disc image (`.iso`) or a compressed one (`.rvz`, `.wia`, `.gcz`,
+> `.ciso`).
 
 ## Supported editions
+
+One NRO for every edition: it runs the USA disc and the European disc adds content (the installer page checks your
+discs automatically):
 
 <div align="center">
 
