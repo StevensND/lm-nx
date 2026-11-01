@@ -126,6 +126,10 @@ graphics, the sound, the controls, the enhancements and the game options. Your c
 The port is made to run at the console's stock clocks **with no overclock**. The measured areas, such as the foyer
 and the Master Bedroom, run at about 30 FPS.
 
+> [!WARNING]
+> The options for increasing FPS were imported from the PC port; that doesn't mean they'll work properly on Switch.
+> If the game slows down after you raise the frame rate, set it back to 30.
+
 <div align="center">
 
 | Mode | CPU | GPU | Memory |
