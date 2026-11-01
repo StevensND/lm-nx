@@ -57,7 +57,7 @@ const TEXTS = {
     navHowto: 'How to use the installer',
     helpButton: 'Help',
     gameLanguage: `Game language`,
-    gameLanguageHint: `Spanish, German, French and Italian need the European disc: the game then starts in the European version, in that language. Making lm-nx.zip again with a language replaces your settings.`,
+    gameLanguageHint: `Spanish, German, French and Italian need the PAL disc.`,
     navRequirements: 'Requirements',
     navControls: 'Controls',
     navFaq: 'FAQ',
@@ -68,22 +68,20 @@ const TEXTS = {
     pageHowto:
       `<h3>Before you start</h3><ul>` +
       `<li>Use a computer with an up-to-date browser: the package is made on your computer, and it is big.</li>` +
-      `<li>Your own copy of <strong>Luigi's Mansion (USA)</strong>, dumped from your disc, is <strong>required</strong>. The <strong>European</strong> disc (first release) is optional: it adds the Hidden Mansion and more languages.</li>` +
+      `<li>Your own copy of <strong>Luigi's Mansion</strong>, dumped from your disc: the <strong>USA</strong> disc, the <strong>PAL</strong> disc (first release) or both. You need at least one.</li>` +
       `<li>Check the free space you need in <a href="#requirements">Requirements</a>.</li></ul>` +
       `<h3>1. Choose your discs</h3><p>Press <strong>Choose disc images</strong> and pick your <code>.iso</code>, <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> or <code>.ciso</code>. The page turns <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> and <code>.ciso</code> images into a full <code>.iso</code> while it makes the package. You can pick both discs at once, or one after the other. Each disc says <strong>found, ready to use</strong> when it is accepted. If a disc is not accepted, the message under it tells you why.</p>` +
       `<h3>2. Create the package</h3><p>Installing for the first time? Press <strong>Create lm-nx.zip</strong>. Already installed? Press <strong>Create lm-nx-update.zip</strong>: your discs and saves stay as they are.</p>` +
-      `<p>The page downloads the package, checks it, compiles the shaders and, with the European disc, builds the Hidden Mansion. This can take a few minutes. <strong>Keep this tab open</strong> until it says <strong>Done</strong>. If the browser asks where to save the file, choose a folder.</p>` +
+      `<p>The page downloads the package, checks it, compiles the shaders and, with the PAL disc, builds the Hidden Mansion. This can take a few minutes. <strong>Keep this tab open</strong> until it says <strong>Done</strong>. If the browser asks where to save the file, choose a folder.</p>` +
       `<h3>3. Copy it to the Switch</h3><p>Extract the <code>.zip</code> and copy the <code>LM-NX</code> folder inside it into <code>sdmc:/switch/</code> on your SD card. You should end up with <code>sdmc:/switch/LM-NX/LM-NX.nro</code>.</p>` +
       `<h3>4. Start the game</h3><p>Hold <strong>R</strong> while you launch any game: the Homebrew Menu opens. Choose <strong>LM-NX</strong> there. You can also make a forwarder with ${SPHAIRA}. Don't start it from the Album: it does not have enough memory.</p>` +
-      `<h3>5. Change the game's language</h3><p>The USA version is in English. For Spanish, German, French or Italian, add the European disc when you make the package. The easiest way is to choose it in <strong>Game language</strong> in step 1 of this page, before you make <code>lm-nx.zip</code>. To change it later, while playing:</p><ol><li>Press <strong>L3 + R3</strong> (both sticks at once) to open the settings and go to the <strong>Game</strong> tab.</li><li>In <strong>Version to play</strong>, choose <strong>Europe</strong> and press <strong>Exit to change version</strong>.</li><li>Start LM-NX again, open the settings and choose your language in <strong>Language (European version)</strong>.</li></ol><p>The language is used for a new save. An existing save keeps its own language, which you can change in the game's Options.</p>` +
+      `<h3>5. Change the game's language</h3><p>The USA version is in English. For Spanish, German, French or Italian, add the PAL disc when you make the package. The easiest way is to choose it in <strong>Game language</strong> in step 1 of this page, before you make <code>lm-nx.zip</code>. To change it later, while playing:</p><ol><li>Press <strong>L3 + R3</strong> (both sticks at once) to open the settings and go to the <strong>Game</strong> tab.</li><li>In <strong>Version to play</strong>, choose <strong>Europe</strong> and press <strong>Exit to change version</strong>.</li><li>Start LM-NX again, open the settings and choose your language in <strong>Language (European version)</strong>.</li></ol><p>The language is used for a new save. An existing save keeps its own language, which you can change in the game's Options.</p>` +
       `<p>Still stuck? See <a href="#troubleshooting">Troubleshooting</a> or <a href="#report">Report a bug</a>.</p>`,
     pageRequirements:
       `<h3>What you need</h3><ul>` +
       `<li>A Nintendo Switch that can run homebrew, with custom firmware such as <strong>Atmosphère</strong>.</li>` +
-      `<li>Your own copy of <strong>Luigi's Mansion (USA)</strong> for GameCube, dumped from your disc. The ` +
-      `<strong>European</strong> disc (first release) is optional: it adds the Hidden Mansion and four more languages.</li>` +
-      `<li>Free space on the SD card: about <strong>1.7 GB</strong> with the USA disc, about <strong>3.2 GB</strong> with ` +
-      `both discs. Your computer needs the same space for the zip.</li>` +
+      `<li>Your own copy of <strong>Luigi's Mansion</strong> for GameCube, dumped from your disc: the <strong>USA</strong> disc, the <strong>PAL</strong> disc (first release) or both. The PAL disc has the Hidden Mansion and four more languages.</li>` +
+      `<li>Free space on the SD card: about <strong>0.6 GB</strong> with one disc and about <strong>1 GB</strong> with both, with the discs made smaller (about 1.7 GB and 3.2 GB with whole discs). Your computer needs the same space for the zip.</li>` +
       `<li>A computer with an up-to-date browser to make the package.</li></ul>` +
       `<h3>How to start it</h3><p>Start <code>LM-NX.nro</code> in title takeover mode: hold <strong>R</strong> while you ` +
       `launch any game and the Homebrew Menu opens with all the memory of the console. From the Album the game does not ` +
@@ -101,8 +99,7 @@ const TEXTS = {
     pageFaq:
       `<h3>Why do I need my own disc?</h3><p>This page does not host or send any part of the game: it builds the ` +
       `package from the disc you own, inside your browser.</p>` +
-      `<h3>Which discs work?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, is required. The European disc, ` +
-      `GLMP01, is optional and only its first release (revision 0) works. Other releases are not supported.</p>` +
+      `<h3>Which discs work?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, and <strong>Luigi's Mansion (PAL)</strong>, GLMP01, first release (revision 0). You need at least one of them; with both, the USA version also gets the PAL Hidden Mansion. Other releases are not supported.</p>` +
       `<h3>Can I use .rvz, .wia, .gcz or .ciso images?</h3><p>Yes: they become the full <code>.iso</code> while the ` +
       `package is made. Trimmed images such as <code>.nkit.iso</code> do not work.</p>` +
       `<h3>Is anything uploaded?</h3><p>No. Your discs are read only in your browser and the zip is saved straight to ` +
@@ -116,7 +113,7 @@ const TEXTS = {
       `<h3>Why is my console compiling shaders?</h3><p>It happens once, with a progress bar, when the ` +
       `<code>cache/</code> folder is missing or damaged, or when you updated <code>LM-NX.nro</code> by hand instead of ` +
       `with <code>lm-nx-update.zip</code>. The shaders are saved and later starts load them in seconds.</p>` +
-      `<h3>How do I change the game's language?</h3><p>The USA version is in English. For Spanish, German, French or Italian, add the European disc when you make the package. The easiest way is to choose it in <strong>Game language</strong> in step 1 of this page, before you make <code>lm-nx.zip</code>. To change it later, while playing:</p><ol><li>Press <strong>L3 + R3</strong> (both sticks at once) to open the settings and go to the <strong>Game</strong> tab.</li><li>In <strong>Version to play</strong>, choose <strong>Europe</strong> and press <strong>Exit to change version</strong>.</li><li>Start LM-NX again, open the settings and choose your language in <strong>Language (European version)</strong>.</li></ol><p>The language is used for a new save. An existing save keeps its own language, which you can change in the game's Options.</p>`,
+      `<h3>How do I change the game's language?</h3><p>The USA version is in English. For Spanish, German, French or Italian, add the PAL disc when you make the package. The easiest way is to choose it in <strong>Game language</strong> in step 1 of this page, before you make <code>lm-nx.zip</code>. To change it later, while playing:</p><ol><li>Press <strong>L3 + R3</strong> (both sticks at once) to open the settings and go to the <strong>Game</strong> tab.</li><li>In <strong>Version to play</strong>, choose <strong>Europe</strong> and press <strong>Exit to change version</strong>.</li><li>Start LM-NX again, open the settings and choose your language in <strong>Language (European version)</strong>.</li></ol><p>The language is used for a new save. An existing save keeps its own language, which you can change in the game's Options.</p>`,
     pageTrouble:
       `<h3>The game closes or the screen stays black when it starts</h3><p>Check that the folder is ` +
       `<code>sdmc:/switch/LM-NX/</code> with <code>LM-NX.nro</code> inside, and start it in title takeover mode (hold ` +
@@ -124,7 +121,7 @@ const TEXTS = {
       `<h3>The game cannot find the disc</h3><p>The <code>LM-NX</code> folder must have <code>orig/GLME01.iso</code> ` +
       `inside. If it is missing, make <code>lm-nx.zip</code> again and copy the whole folder.</p>` +
       `<h3>The page does not accept my disc</h3><p>It needs a full dump or an <code>.rvz</code>, <code>.wia</code>, ` +
-      `<code>.gcz</code> or <code>.ciso</code> made from one. Trimmed images and the European revision 1 do not work.</p>` +
+      `<code>.gcz</code> or <code>.ciso</code> made from one. Trimmed images and the PAL revision 1 do not work.</p>` +
       `<h3>The first start takes a long time</h3><p>The shaders come ready in the package. If they are missing, the ` +
       `console compiles them on the first start, which takes longer only that time.</p>` +
       `<p>Something else? See <a href="#report">Report a bug</a>.</p>`,
@@ -137,9 +134,10 @@ const TEXTS = {
       `<li>The files in <code>sdmc:/switch/LM-NX/logs/</code>.</li>` +
       `<li>A photo or a video, if it is something you can see or hear.</li></ul>`,
     pageNews:
+      `<h3>1.0.1</h3><ul><li>Install with only the PAL disc: the USA disc is no longer required.</li><li>Smaller discs: the page keeps only the game's files, about 190 MB (USA) and 275 MB (PAL) instead of 1.36 GB each.</li><li>Choose the game's language on this page before making the package.</li><li>Fixed: light colours for Luigi's clothes (Wario's yellow) no longer turn white, and Fire Luigi's cap keeps the green L.</li><li>New guide: How to use the installer, with a Help button.</li></ul>` +
       `<h3>1.0.0</h3><ul><li>First release.</li>` +
       `<li>Native port of <strong>Luigi's Mansion (USA)</strong> to Nintendo Switch, based on ${RECOMP}.</li>` +
-      `<li>With the European disc: the Hidden Mansion and Spanish, German, French and Italian.</li>` +
+      `<li>With the PAL disc: the Hidden Mansion and Spanish, German, French and Italian.</li>` +
       `<li>1080p when docked.</li>` +
       `<li>Settings menu with graphics, sound, controls and game options.</li>` +
       `<li>This page makes the whole package in your browser, shaders included, and reads <code>.rvz</code>, ` +
@@ -185,18 +183,19 @@ const TEXTS = {
     languageBar: 'Language',
     step1: '1. Choose your disc images',
     chooseIso: 'Choose disc images',
-    hintBoth: 'You can choose both discs at once, or one after the other.',
-    usaName: 'Luigi\'s Mansion (USA) · GLME01 · Required',
-    palName: 'Luigi\'s Mansion (Europe) · GLMP01 (Rev 0) ONLY · Optional',
+    hintBoth: 'Choose one disc or both, at once or one after the other.',
+    shrinkDiscs: `Make the discs smaller (recommended): 190-275 MB each instead of 1.36 GB`,
+    usaName: 'Luigi\'s Mansion (USA) · GLME01',
+    palName: 'Luigi\'s Mansion (PAL) · GLMP01 (Rev 0) ONLY',
     usaNotChosen: 'Not chosen yet.',
     palNotChosen:
-      'Not chosen. Only the first release (revision 0) works. With it, the game also gets the European ' +
+      'Not chosen. Only the first release (revision 0) works. With it, the game also gets the PAL ' +
       '<strong>Hidden Mansion</strong> and the other languages: <strong>Spanish, German, French and Italian</strong>.',
     ownCopy:
       '<strong>Important:</strong> you need your own copy of the game, dumped from your disc: a full disc image ' +
       '(<code>.iso</code>, 1.36 GB), <code>.rvz</code>, <code>.gcz</code> or <code>.ciso</code>. ' +
       'Compressed images become <code>.iso</code> while the package is made. ' +
-      'The European disc <strong>must be the first release (revision 0)</strong>.',
+      'The PAL disc <strong>must be the first release (revision 0)</strong>.',
     step2: '2. Create the package',
     step2First: 'If you are installing the game for the first time, use:',
     create: 'Create lm-nx.zip',
@@ -221,7 +220,7 @@ const TEXTS = {
       'uploaded, and are copied straight into the zip saved on your computer; the shaders are compiled on your computer. ' +
       'You need your own legally obtained copy of the game. Title font: Delfino by PFRA.',
     discReady: '{name} ({size}): found, ready to use.',
-    palRev1: 'This is the European revision 1 (GLMP01, revision 1). The port needs the first release (revision 0).',
+    palRev1: 'This is the PAL revision 1 (GLMP01, revision 1). The port needs the first release (revision 0).',
     otherDisc: 'This is not a supported Luigi\'s Mansion disc, or the copy has been modified.',
     notFullSize: '{name}: this is a trimmed image, not a full disc. Use a full .iso (1,459,978,240 bytes), or an .rvz, .gcz or .ciso.',
     unsupportedCompression: '{name}: this image uses a compression this page cannot read. Convert it again with Dolphin, to RVZ or to .iso.',
@@ -242,7 +241,7 @@ const TEXTS = {
     compilerMismatch: 'the shader compiler ({forge}) does not match the game ({game}): reload the page',
     compiled: '{count} shaders compiled in {seconds} s.',
     buildingHM: 'Building the Hidden Mansion…',
-    builtHM: 'European Hidden Mansion: built from your two discs.',
+    builtHM: 'PAL Hidden Mansion: built from your two discs.',
     saving: 'Saving {name} ({size}). If the browser asks where to save it, choose a folder.',
     writing: 'Writing {name}…',
     ready: '{name} is ready.',
@@ -275,7 +274,7 @@ const TEXTS = {
     navHowto: 'Cómo usar el instalador',
     helpButton: 'Ayuda',
     gameLanguage: `Idioma del juego`,
-    gameLanguageHint: `Español, alemán, francés e italiano necesitan el disco europeo: el juego arranca entonces en la versión europea, en ese idioma. Si vuelves a crear lm-nx.zip con un idioma, se sustituyen tus ajustes.`,
+    gameLanguageHint: `Español, alemán, francés e italiano necesitan el disco PAL.`,
     navRequirements: 'Requisitos',
     navControls: 'Controles',
     navFaq: 'Preguntas frecuentes',
@@ -286,22 +285,20 @@ const TEXTS = {
     pageHowto:
       `<h3>Antes de empezar</h3><ul>` +
       `<li>Usa un ordenador con un navegador actualizado: el paquete se crea en tu ordenador y ocupa bastante.</li>` +
-      `<li>Tu propia copia de <strong>Luigi's Mansion (USA)</strong>, extraída de tu disco, es <strong>obligatoria</strong>. El disco <strong>europeo</strong> (primera edición) es opcional: añade la Mansión oculta y más idiomas.</li>` +
+      `<li>Tu propia copia de <strong>Luigi's Mansion</strong>, extraída de tu disco: el disco <strong>USA</strong>, el <strong>PAL</strong> (primera edición) o los dos. Necesitas al menos uno.</li>` +
       `<li>Comprueba el espacio libre que necesitas en <a href="#requirements">Requisitos</a>.</li></ul>` +
       `<h3>1. Elige tus discos</h3><p>Pulsa <strong>Elegir imágenes de disco</strong> y escoge tu <code>.iso</code>, <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> o <code>.ciso</code>. La página convierte las imágenes <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> y <code>.ciso</code> en un <code>.iso</code> completo al crear el paquete. Puedes elegir los dos discos a la vez o uno detrás de otro. Cuando un disco es válido, aparece <strong>encontrado, listo para usar</strong>. Si no lo es, el mensaje que aparece debajo te dice por qué.</p>` +
       `<h3>2. Crea el paquete</h3><p>¿Lo instalas por primera vez? Pulsa <strong>Crear lm-nx.zip</strong>. ¿Ya lo tienes instalado? Pulsa <strong>Crear lm-nx-update.zip</strong>: tus discos y tus partidas guardadas no se tocan.</p>` +
-      `<p>La página descarga el paquete, lo comprueba, compila los shaders y, si añadiste el disco europeo, crea la Mansión oculta. Puede tardar unos minutos. <strong>No cierres esta pestaña</strong> hasta que ponga <strong>Terminado</strong>. Si el navegador te pregunta dónde guardar el archivo, elige una carpeta.</p>` +
+      `<p>La página descarga el paquete, lo comprueba, compila los shaders y, si añadiste el disco PAL, crea la Mansión oculta. Puede tardar unos minutos. <strong>No cierres esta pestaña</strong> hasta que ponga <strong>Terminado</strong>. Si el navegador te pregunta dónde guardar el archivo, elige una carpeta.</p>` +
       `<h3>3. Cópialo a la Switch</h3><p>Descomprime el <code>.zip</code> y copia la carpeta <code>LM-NX</code> que hay dentro en <code>sdmc:/switch/</code> de tu tarjeta SD. Debe quedar <code>sdmc:/switch/LM-NX/LM-NX.nro</code>.</p>` +
       `<h3>4. Inicia el juego</h3><p>Mantén pulsado <strong>R</strong> mientras abres cualquier juego: se abrirá el Homebrew Menu. Elige <strong>LM-NX</strong>. También puedes crear un forwarder con ${SPHAIRA}. No lo abras desde el Álbum: no tiene memoria suficiente.</p>` +
-      `<h3>5. Cambia el idioma del juego</h3><p>La versión USA está en inglés. Para jugar en español, alemán, francés o italiano, añade el disco europeo al crear el paquete. Lo más fácil es elegirlo en <strong>Idioma del juego</strong>, en el paso 1 de esta página, antes de crear <code>lm-nx.zip</code>. Para cambiarlo después, durante la partida:</p><ol><li>Pulsa <strong>L3 + R3</strong> (los dos sticks a la vez) para abrir los ajustes y entra en la pestaña <strong>Game</strong>.</li><li>En <strong>Version to play</strong>, elige <strong>Europe</strong> y pulsa <strong>Exit to change version</strong>.</li><li>Vuelve a abrir LM-NX, abre los ajustes y elige tu idioma en <strong>Language (European version)</strong>.</li></ol><p>El idioma se aplica a una partida nueva. Una partida guardada mantiene su idioma, que puedes cambiar en las Opciones del juego.</p>` +
+      `<h3>5. Cambia el idioma del juego</h3><p>La versión USA está en inglés. Para jugar en español, alemán, francés o italiano, añade el disco PAL al crear el paquete. Lo más fácil es elegirlo en <strong>Idioma del juego</strong>, en el paso 1 de esta página, antes de crear <code>lm-nx.zip</code>. Para cambiarlo después, durante la partida:</p><ol><li>Pulsa <strong>L3 + R3</strong> (los dos sticks a la vez) para abrir los ajustes y entra en la pestaña <strong>Game</strong>.</li><li>En <strong>Version to play</strong>, elige <strong>Europe</strong> y pulsa <strong>Exit to change version</strong>.</li><li>Vuelve a abrir LM-NX, abre los ajustes y elige tu idioma en <strong>Language (European version)</strong>.</li></ol><p>El idioma se aplica a una partida nueva. Una partida guardada mantiene su idioma, que puedes cambiar en las Opciones del juego.</p>` +
       `<p>¿Sigues con problemas? Mira <a href="#troubleshooting">Solución de problemas</a> o <a href="#report">Informar de un fallo</a>.</p>`,
     pageRequirements:
       `<h3>Qué necesitas</h3><ul>` +
       `<li>Una Nintendo Switch que pueda ejecutar homebrew, con un firmware personalizado como <strong>Atmosphère</strong>.</li>` +
-      `<li>Tu propia copia de <strong>Luigi's Mansion (USA)</strong> para GameCube, sacada de tu disco. El disco ` +
-      `<strong>europeo</strong> (primera edición) es opcional: añade la Mansión Oculta y cuatro idiomas más.</li>` +
-      `<li>Espacio libre en la SD: unos <strong>1,7 GB</strong> con el disco USA y unos <strong>3,2 GB</strong> con los ` +
-      `dos discos. Tu ordenador necesita el mismo espacio para el zip.</li>` +
+      `<li>Tu propia copia de <strong>Luigi's Mansion</strong> para GameCube, sacada de tu disco: el disco <strong>USA</strong>, el <strong>PAL</strong> (primera edición) o los dos. El PAL tiene la Mansión oculta y cuatro idiomas más.</li>` +
+      `<li>Espacio libre en la SD: unos <strong>0,6 GB</strong> con un disco y alrededor de <strong>1 GB</strong> con los dos, con los discos reducidos (unos 1,7 GB y 3,2 GB con los discos enteros). Tu ordenador necesita el mismo espacio para el zip.</li>` +
       `<li>Un ordenador con un navegador actualizado para crear el paquete.</li></ul>` +
       `<h3>Cómo arrancarlo</h3><p>Abre <code>LM-NX.nro</code> en modo title takeover: mantén pulsado <strong>R</strong> ` +
       `mientras abres cualquier juego y el Homebrew Menu se abrirá con toda la memoria de la consola. Desde el Álbum el ` +
@@ -320,8 +317,7 @@ const TEXTS = {
     pageFaq:
       `<h3>¿Por qué necesito mi propio disco?</h3><p>Esta página no aloja ni envía ninguna parte del juego: crea el ` +
       `paquete a partir del disco que tienes, dentro de tu navegador.</p>` +
-      `<h3>¿Qué discos sirven?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, es obligatorio. El disco europeo, ` +
-      `GLMP01, es opcional y solo sirve su primera edición (revisión 0). Las demás ediciones no son compatibles.</p>` +
+      `<h3>¿Qué discos sirven?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, y <strong>Luigi's Mansion (PAL)</strong>, GLMP01, primera edición (revisión 0). Necesitas al menos uno; con los dos, la versión USA también tiene la Mansión oculta PAL. Las demás ediciones no son compatibles.</p>` +
       `<h3>¿Puedo usar imágenes .rvz, .wia, .gcz o .ciso?</h3><p>Sí: se convierten en el <code>.iso</code> completo ` +
       `mientras se crea el paquete. Las imágenes recortadas como <code>.nkit.iso</code> no sirven.</p>` +
       `<h3>¿Se sube algo?</h3><p>No. Tus discos se leen solo en tu navegador y el zip se guarda directamente en tu ` +
@@ -336,7 +332,7 @@ const TEXTS = {
       `<h3>¿Por qué mi consola está compilando shaders?</h3><p>Pasa una sola vez, con una barra de progreso, cuando ` +
       `falta la carpeta <code>cache/</code> o está dañada, o cuando actualizaste <code>LM-NX.nro</code> a mano en vez ` +
       `de con <code>lm-nx-update.zip</code>. Los shaders se guardan y los siguientes arranques los cargan en segundos.</p>` +
-      `<h3>¿Cómo cambio el idioma del juego?</h3><p>La versión USA está en inglés. Para jugar en español, alemán, francés o italiano, añade el disco europeo al crear el paquete. Lo más fácil es elegirlo en <strong>Idioma del juego</strong>, en el paso 1 de esta página, antes de crear <code>lm-nx.zip</code>. Para cambiarlo después, durante la partida:</p><ol><li>Pulsa <strong>L3 + R3</strong> (los dos sticks a la vez) para abrir los ajustes y entra en la pestaña <strong>Game</strong>.</li><li>En <strong>Version to play</strong>, elige <strong>Europe</strong> y pulsa <strong>Exit to change version</strong>.</li><li>Vuelve a abrir LM-NX, abre los ajustes y elige tu idioma en <strong>Language (European version)</strong>.</li></ol><p>El idioma se aplica a una partida nueva. Una partida guardada mantiene su idioma, que puedes cambiar en las Opciones del juego.</p>`,
+      `<h3>¿Cómo cambio el idioma del juego?</h3><p>La versión USA está en inglés. Para jugar en español, alemán, francés o italiano, añade el disco PAL al crear el paquete. Lo más fácil es elegirlo en <strong>Idioma del juego</strong>, en el paso 1 de esta página, antes de crear <code>lm-nx.zip</code>. Para cambiarlo después, durante la partida:</p><ol><li>Pulsa <strong>L3 + R3</strong> (los dos sticks a la vez) para abrir los ajustes y entra en la pestaña <strong>Game</strong>.</li><li>En <strong>Version to play</strong>, elige <strong>Europe</strong> y pulsa <strong>Exit to change version</strong>.</li><li>Vuelve a abrir LM-NX, abre los ajustes y elige tu idioma en <strong>Language (European version)</strong>.</li></ol><p>El idioma se aplica a una partida nueva. Una partida guardada mantiene su idioma, que puedes cambiar en las Opciones del juego.</p>`,
     pageTrouble:
       `<h3>El juego se cierra o la pantalla se queda en negro al arrancar</h3><p>Comprueba que la carpeta es ` +
       `<code>sdmc:/switch/LM-NX/</code> con <code>LM-NX.nro</code> dentro, y ábrelo en modo title takeover (mantén ` +
@@ -344,7 +340,7 @@ const TEXTS = {
       `<h3>El juego no encuentra el disco</h3><p>La carpeta <code>LM-NX</code> tiene que tener dentro ` +
       `<code>orig/GLME01.iso</code>. Si falta, vuelve a crear <code>lm-nx.zip</code> y copia la carpeta entera.</p>` +
       `<h3>La página no acepta mi disco</h3><p>Necesita un volcado completo o un <code>.rvz</code>, <code>.wia</code>, ` +
-      `<code>.gcz</code> o <code>.ciso</code> hecho a partir de uno. Las imágenes recortadas y la revisión 1 europea no ` +
+      `<code>.gcz</code> o <code>.ciso</code> hecho a partir de uno. Las imágenes recortadas y la revisión 1 PAL no ` +
       `sirven.</p>` +
       `<h3>El primer arranque tarda mucho</h3><p>Los shaders vienen listos en el paquete. Si faltan, la consola los ` +
       `compila en el primer arranque, que solo esa vez tarda más.</p>` +
@@ -358,9 +354,10 @@ const TEXTS = {
       `<li>Los archivos de <code>sdmc:/switch/LM-NX/logs/</code>.</li>` +
       `<li>Una foto o un vídeo, si es algo que se ve o se oye.</li></ul>`,
     pageNews:
+      `<h3>1.0.1</h3><ul><li>Instalar solo con el disco PAL: el disco USA ya no es obligatorio.</li><li>Discos más pequeños: la página guarda solo los archivos del juego, unos 190 MB (USA) y 275 MB (PAL) en vez de 1,36 GB cada uno.</li><li>Elige el idioma del juego en esta página antes de crear el paquete.</li><li>Arreglado: los colores claros de la ropa de Luigi (el amarillo de Wario) ya no se vuelven blancos, y la gorra de Fire Luigi conserva la L verde.</li><li>Nueva guía: Cómo usar el instalador, con un botón de Ayuda.</li></ul>` +
       `<h3>1.0.0</h3><ul><li>Primera versión.</li>` +
       `<li>Port nativo de <strong>Luigi's Mansion (USA)</strong> a Nintendo Switch, basado en ${RECOMP}.</li>` +
-      `<li>Con el disco europeo: la Mansión Oculta y los idiomas español, alemán, francés e italiano.</li>` +
+      `<li>Con el disco PAL: la Mansión Oculta y los idiomas español, alemán, francés e italiano.</li>` +
       `<li>1080p con la consola en el dock.</li>` +
       `<li>Menú de ajustes con opciones de gráficos, sonido, controles y juego.</li>` +
       `<li>Esta página crea el paquete completo en tu navegador, shaders incluidos, y lee imágenes de disco ` +
@@ -407,18 +404,19 @@ const TEXTS = {
     languageBar: 'Idioma',
     step1: '1. Elige tus imágenes de disco',
     chooseIso: 'Elegir imágenes de disco',
-    hintBoth: 'Puedes elegir los dos discos a la vez o uno detrás de otro.',
-    usaName: 'Luigi\'s Mansion (USA) · GLME01 · Obligatorio',
-    palName: 'Luigi\'s Mansion (Europa) · GLMP01 (Rev 0) ÚNICAMENTE · Opcional',
+    hintBoth: 'Elige un disco o los dos, a la vez o uno detrás de otro.',
+    shrinkDiscs: `Reducir los discos (recomendado): 190-275 MB cada uno en vez de 1,36 GB`,
+    usaName: 'Luigi\'s Mansion (USA) · GLME01',
+    palName: 'Luigi\'s Mansion (PAL) · GLMP01 (Rev 0) ÚNICAMENTE',
     usaNotChosen: 'Todavía sin elegir.',
     palNotChosen:
       'Sin elegir. Solo sirve la primera edición (revisión 0). Con él, el juego también tiene la ' +
-      '<strong>Mansión oculta</strong> europea y los demás idiomas: <strong>español, alemán, francés e italiano</strong>.',
+      '<strong>Mansión oculta</strong> PAL y los demás idiomas: <strong>español, alemán, francés e italiano</strong>.',
     ownCopy:
       '<strong>Importante:</strong> necesitas tu propia copia del juego, sacada de tu disco: una imagen completa ' +
       '(<code>.iso</code>, 1,36 GB), <code>.rvz</code>, <code>.gcz</code> o <code>.ciso</code>. ' +
       'Las imágenes comprimidas pasan a <code>.iso</code> al crear el paquete. ' +
-      'El disco europeo <strong>debe ser la primera edición (revisión 0)</strong>.',
+      'El disco PAL <strong>debe ser la primera edición (revisión 0)</strong>.',
     step2: '2. Crea el paquete',
     step2First: 'Si instalas el juego por primera vez, usa:',
     create: 'Crear lm-nx.zip',
@@ -443,7 +441,7 @@ const TEXTS = {
       'dentro de tu navegador, nunca se suben y se copian directamente al zip que se guarda en tu ordenador; los shaders ' +
       'se compilan en tu ordenador. Necesitas tu propia copia del juego obtenida legalmente. Fuente del título: Delfino, de PFRA.',
     discReady: '{name} ({size}): encontrado, listo para usar.',
-    palRev1: 'Es la revisión 1 europea (GLMP01, revisión 1). El port necesita la primera edición (revisión 0).',
+    palRev1: 'Es la revisión 1 PAL (GLMP01, revisión 1). El port necesita la primera edición (revisión 0).',
     otherDisc: 'No es un disco de Luigi\'s Mansion compatible, o la copia está modificada.',
     notFullSize: '{name}: es una imagen recortada, no el disco completo. Usa una .iso completa (1.459.978.240 bytes), o un .rvz, .gcz o .ciso.',
     unsupportedCompression: '{name}: esta imagen usa una compresión que esta página no sabe leer. Vuelve a convertirla con Dolphin, a RVZ o a .iso.',
@@ -463,7 +461,7 @@ const TEXTS = {
     compilerMismatch: 'el compilador de shaders ({forge}) no corresponde al juego ({game}): recarga la página',
     compiled: '{count} shaders compilados en {seconds} s.',
     buildingHM: 'Creando la Mansión oculta…',
-    builtHM: 'Mansión oculta europea: creada a partir de tus dos discos.',
+    builtHM: 'Mansión oculta PAL: creada a partir de tus dos discos.',
     saving: 'Guardando {name} ({size}). Si el navegador pregunta dónde guardarlo, elige una carpeta.',
     writing: 'Escribiendo {name}…',
     ready: '{name} está listo.',
@@ -496,7 +494,7 @@ const TEXTS = {
     navHowto: 'Comment utiliser l\'installateur',
     helpButton: 'Aide',
     gameLanguage: `Langue du jeu`,
-    gameLanguageHint: `Le français, l'espagnol, l'allemand et l'italien nécessitent le disque européen${NB}: le jeu démarre alors dans la version européenne, dans cette langue. Recréer lm-nx.zip avec une langue remplace vos réglages.`,
+    gameLanguageHint: `Le français, l'espagnol, l'allemand et l'italien nécessitent le disque PAL.`,
     navRequirements: 'Configuration requise',
     navControls: 'Commandes',
     navFaq: 'FAQ',
@@ -507,23 +505,21 @@ const TEXTS = {
     pageHowto:
       `<h3>Avant de commencer</h3><ul>` +
       `<li>Utilisez un ordinateur avec un navigateur à jour${NB}: le paquet est créé sur votre ordinateur et il est volumineux.</li>` +
-      `<li>Votre propre copie de <strong>Luigi's Mansion (USA)</strong>, extraite de votre disque, est <strong>obligatoire</strong>. Le disque <strong>européen</strong> (première édition) est facultatif${NB}: il ajoute le Manoir caché et d'autres langues.</li>` +
+      `<li>Votre propre copie de <strong>Luigi's Mansion</strong>, extraite de votre disque${NB}: le disque <strong>USA</strong>, le disque <strong>PAL</strong> (première édition) ou les deux. Il en faut au moins un.</li>` +
       `<li>Vérifiez l'espace libre nécessaire dans <a href="#requirements">Configuration requise</a>.</li></ul>` +
       `<h3>1. Choisissez vos disques</h3><p>Appuyez sur <strong>Choisir les images disque</strong> et sélectionnez votre <code>.iso</code>, <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> ou <code>.ciso</code>. La page convertit les images <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> et <code>.ciso</code> en <code>.iso</code> complet en créant le paquet. Vous pouvez choisir les deux disques en même temps ou l'un après l'autre. Un disque accepté indique <strong>trouvé, prêt à l'emploi</strong>. Sinon, le message en dessous en explique la raison.</p>` +
       `<h3>2. Créez le paquet</h3><p>Première installation${NB}? Appuyez sur <strong>Créer lm-nx.zip</strong>. Déjà installé${NB}? Appuyez sur <strong>Créer lm-nx-update.zip</strong>${NB}: vos disques et vos sauvegardes restent intacts.</p>` +
-      `<p>La page télécharge le paquet, le vérifie, compile les shaders et, avec le disque européen, construit le Manoir caché. Cela peut prendre quelques minutes. <strong>Gardez cet onglet ouvert</strong> jusqu'à ce qu'il affiche <strong>Terminé</strong>. Si le navigateur demande où enregistrer le fichier, choisissez un dossier.</p>` +
+      `<p>La page télécharge le paquet, le vérifie, compile les shaders et, avec le disque PAL, construit le Manoir caché. Cela peut prendre quelques minutes. <strong>Gardez cet onglet ouvert</strong> jusqu'à ce qu'il affiche <strong>Terminé</strong>. Si le navigateur demande où enregistrer le fichier, choisissez un dossier.</p>` +
       `<h3>3. Copiez-le sur la Switch</h3><p>Extrayez le <code>.zip</code> et copiez le dossier <code>LM-NX</code> qu'il contient dans <code>sdmc:/switch/</code> sur votre carte SD. Vous devez obtenir <code>sdmc:/switch/LM-NX/LM-NX.nro</code>.</p>` +
       `<h3>4. Lancez le jeu</h3><p>Maintenez <strong>R</strong> en lançant n'importe quel jeu${NB}: le Homebrew Menu s'ouvre. Choisissez <strong>LM-NX</strong>. Vous pouvez aussi créer un forwarder avec ${SPHAIRA}. Ne le lancez pas depuis l'Album${NB}: il n'a pas assez de mémoire.</p>` +
-      `<h3>5. Changez la langue du jeu</h3><p>La version USA est en anglais. Pour jouer en français, espagnol, allemand ou italien, ajoutez le disque européen en créant le paquet. Le plus simple est de la choisir dans <strong>Langue du jeu</strong>, à l'étape 1 de cette page, avant de créer <code>lm-nx.zip</code>. Pour la changer plus tard, en jeu${NB}:</p><ol><li>Appuyez sur <strong>L3 + R3</strong> (les deux sticks en même temps) pour ouvrir les réglages et allez dans l'onglet <strong>Game</strong>.</li><li>Dans <strong>Version to play</strong>, choisissez <strong>Europe</strong> et appuyez sur <strong>Exit to change version</strong>.</li><li>Relancez LM-NX, ouvrez les réglages et choisissez votre langue dans <strong>Language (European version)</strong>.</li></ol><p>La langue s'applique à une nouvelle sauvegarde. Une sauvegarde existante garde sa langue, que vous pouvez changer dans les Options du jeu.</p>` +
+      `<h3>5. Changez la langue du jeu</h3><p>La version USA est en anglais. Pour jouer en français, espagnol, allemand ou italien, ajoutez le disque PAL en créant le paquet. Le plus simple est de la choisir dans <strong>Langue du jeu</strong>, à l'étape 1 de cette page, avant de créer <code>lm-nx.zip</code>. Pour la changer plus tard, en jeu${NB}:</p><ol><li>Appuyez sur <strong>L3 + R3</strong> (les deux sticks en même temps) pour ouvrir les réglages et allez dans l'onglet <strong>Game</strong>.</li><li>Dans <strong>Version to play</strong>, choisissez <strong>Europe</strong> et appuyez sur <strong>Exit to change version</strong>.</li><li>Relancez LM-NX, ouvrez les réglages et choisissez votre langue dans <strong>Language (European version)</strong>.</li></ol><p>La langue s'applique à une nouvelle sauvegarde. Une sauvegarde existante garde sa langue, que vous pouvez changer dans les Options du jeu.</p>` +
       `<p>Toujours bloqué${NB}? Consultez <a href="#troubleshooting">Dépannage</a> ou <a href="#report">Signaler un bug</a>.</p>`,
     pageRequirements:
       `<h3>Ce qu'il vous faut</h3><ul>` +
       `<li>Une Nintendo Switch capable de lancer des homebrews, avec un firmware personnalisé comme ` +
       `<strong>Atmosphère</strong>.</li>` +
-      `<li>Votre propre copie de <strong>Luigi's Mansion (USA)</strong> pour GameCube, extraite de votre disque. Le disque ` +
-      `<strong>européen</strong> (première édition) est facultatif${NB}: il ajoute le Manoir caché et quatre autres langues.</li>` +
-      `<li>De l'espace libre sur la carte SD${NB}: environ <strong>1,7 Go</strong> avec le disque USA, environ ` +
-      `<strong>3,2 Go</strong> avec les deux disques. Votre ordinateur a besoin du même espace pour le zip.</li>` +
+      `<li>Votre propre copie de <strong>Luigi's Mansion</strong> pour GameCube, extraite de votre disque${NB}: le disque <strong>USA</strong>, le disque <strong>PAL</strong> (première édition) ou les deux. Le disque PAL a le Manoir caché et quatre autres langues.</li>` +
+      `<li>De l'espace libre sur la carte SD${NB}: environ <strong>0,6 Go</strong> avec un disque et environ <strong>1 Go</strong> avec les deux, avec les disques réduits (environ 1,7 Go et 3,2 Go avec les disques entiers). Votre ordinateur a besoin du même espace pour le zip.</li>` +
       `<li>Un ordinateur avec un navigateur à jour pour créer le paquet.</li></ul>` +
       `<h3>Comment le lancer</h3><p>Lancez <code>LM-NX.nro</code> en mode title takeover${NB}: maintenez <strong>R</strong> ` +
       `en lançant n'importe quel jeu et le Homebrew Menu s'ouvre avec toute la mémoire de la console. Depuis l'Album, le ` +
@@ -542,9 +538,7 @@ const TEXTS = {
     pageFaq:
       `<h3>Pourquoi ai-je besoin de mon propre disque${NB}?</h3><p>Cette page n'héberge ni n'envoie aucune partie du ` +
       `jeu${NB}: elle crée le paquet à partir du disque que vous possédez, dans votre navigateur.</p>` +
-      `<h3>Quels disques fonctionnent${NB}?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, est obligatoire. Le ` +
-      `disque européen, GLMP01, est facultatif et seule sa première édition (révision 0) fonctionne. Les autres éditions ` +
-      `ne sont pas prises en charge.</p>` +
+      `<h3>Quels disques fonctionnent${NB}?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, et <strong>Luigi's Mansion (PAL)</strong>, GLMP01, première édition (révision 0). Il en faut au moins un${NB}; avec les deux, la version USA obtient aussi le Manoir caché PAL. Les autres éditions ne sont pas prises en charge.</p>` +
       `<h3>Puis-je utiliser des images .rvz, .wia, .gcz ou .ciso${NB}?</h3><p>Oui${NB}: elles deviennent l'<code>.iso</code> ` +
       `complet pendant la création du paquet. Les images réduites comme <code>.nkit.iso</code> ne fonctionnent pas.</p>` +
       `<h3>Quelque chose est-il envoyé${NB}?</h3><p>Non. Vos disques sont lus uniquement dans votre navigateur et le zip ` +
@@ -560,7 +554,7 @@ const TEXTS = {
       `progression, quand le dossier <code>cache/</code> manque ou est endommagé, ou quand vous avez mis à jour ` +
       `<code>LM-NX.nro</code> à la main au lieu d'utiliser <code>lm-nx-update.zip</code>. Les shaders sont enregistrés ` +
       `et les démarrages suivants les chargent en quelques secondes.</p>` +
-      `<h3>Comment changer la langue du jeu${NB}?</h3><p>La version USA est en anglais. Pour jouer en français, espagnol, allemand ou italien, ajoutez le disque européen en créant le paquet. Le plus simple est de la choisir dans <strong>Langue du jeu</strong>, à l'étape 1 de cette page, avant de créer <code>lm-nx.zip</code>. Pour la changer plus tard, en jeu${NB}:</p><ol><li>Appuyez sur <strong>L3 + R3</strong> (les deux sticks en même temps) pour ouvrir les réglages et allez dans l'onglet <strong>Game</strong>.</li><li>Dans <strong>Version to play</strong>, choisissez <strong>Europe</strong> et appuyez sur <strong>Exit to change version</strong>.</li><li>Relancez LM-NX, ouvrez les réglages et choisissez votre langue dans <strong>Language (European version)</strong>.</li></ol><p>La langue s'applique à une nouvelle sauvegarde. Une sauvegarde existante garde sa langue, que vous pouvez changer dans les Options du jeu.</p>`,
+      `<h3>Comment changer la langue du jeu${NB}?</h3><p>La version USA est en anglais. Pour jouer en français, espagnol, allemand ou italien, ajoutez le disque PAL en créant le paquet. Le plus simple est de la choisir dans <strong>Langue du jeu</strong>, à l'étape 1 de cette page, avant de créer <code>lm-nx.zip</code>. Pour la changer plus tard, en jeu${NB}:</p><ol><li>Appuyez sur <strong>L3 + R3</strong> (les deux sticks en même temps) pour ouvrir les réglages et allez dans l'onglet <strong>Game</strong>.</li><li>Dans <strong>Version to play</strong>, choisissez <strong>Europe</strong> et appuyez sur <strong>Exit to change version</strong>.</li><li>Relancez LM-NX, ouvrez les réglages et choisissez votre langue dans <strong>Language (European version)</strong>.</li></ol><p>La langue s'applique à une nouvelle sauvegarde. Une sauvegarde existante garde sa langue, que vous pouvez changer dans les Options du jeu.</p>`,
     pageTrouble:
       `<h3>Le jeu se ferme ou l'écran reste noir au démarrage</h3><p>Vérifiez que le dossier est ` +
       `<code>sdmc:/switch/LM-NX/</code> avec <code>LM-NX.nro</code> dedans, et lancez-le en mode title takeover ` +
@@ -569,7 +563,7 @@ const TEXTS = {
       `<code>orig/GLME01.iso</code>. S'il manque, recréez <code>lm-nx.zip</code> et copiez le dossier entier.</p>` +
       `<h3>La page refuse mon disque</h3><p>Il faut une copie complète ou un <code>.rvz</code>, <code>.wia</code>, ` +
       `<code>.gcz</code> ou <code>.ciso</code> créé à partir de celle-ci. Les images réduites et la révision 1 ` +
-      `européenne ne fonctionnent pas.</p>` +
+      `PAL ne fonctionnent pas.</p>` +
       `<h3>Le premier démarrage est long</h3><p>Les shaders sont prêts dans le paquet. S'ils manquent, la console les ` +
       `compile au premier démarrage, qui n'est plus long que cette fois-là.</p>` +
       `<p>Autre chose${NB}? Consultez <a href="#report">Signaler un bug</a>.</p>`,
@@ -582,9 +576,10 @@ const TEXTS = {
       `<li>Les fichiers de <code>sdmc:/switch/LM-NX/logs/</code>.</li>` +
       `<li>Une photo ou une vidéo, si c'est quelque chose qui se voit ou s'entend.</li></ul>`,
     pageNews:
+      `<h3>1.0.1</h3><ul><li>Installation avec le seul disque PAL${NB}: le disque USA n'est plus obligatoire.</li><li>Disques plus petits${NB}: la page ne garde que les fichiers du jeu, environ 190 Mo (USA) et 275 Mo (PAL) au lieu de 1,36 Go chacun.</li><li>Choisissez la langue du jeu sur cette page avant de créer le paquet.</li><li>Corrigé${NB}: les couleurs claires des vêtements de Luigi (le jaune de Wario) ne deviennent plus blanches, et la casquette de Luigi de feu garde son L vert.</li><li>Nouveau guide${NB}: Comment utiliser l'installateur, avec un bouton Aide.</li></ul>` +
       `<h3>1.0.0</h3><ul><li>Première version.</li>` +
       `<li>Portage natif de <strong>Luigi's Mansion (USA)</strong> sur Nintendo Switch, basé sur ${RECOMP}.</li>` +
-      `<li>Avec le disque européen${NB}: le Manoir caché et l'espagnol, l'allemand, le français et l'italien.</li>` +
+      `<li>Avec le disque PAL${NB}: le Manoir caché et l'espagnol, l'allemand, le français et l'italien.</li>` +
       `<li>1080p sur le dock.</li>` +
       `<li>Menu des réglages avec des options de graphismes, de son, de commandes et de jeu.</li>` +
       `<li>Cette page crée le paquet complet dans votre navigateur, shaders compris, et lit les images disque ` +
@@ -632,18 +627,19 @@ const TEXTS = {
     languageBar: 'Langue',
     step1: '1. Choisissez vos images disque',
     chooseIso: 'Choisir les images disque',
-    hintBoth: 'Vous pouvez choisir les deux disques en même temps, ou l\'un après l\'autre.',
-    usaName: 'Luigi\'s Mansion (USA) · GLME01 · Obligatoire',
-    palName: 'Luigi\'s Mansion (Europe) · GLMP01 (Rev 0) UNIQUEMENT · Facultatif',
+    hintBoth: 'Choisissez un disque ou les deux, ensemble ou l\'un après l\'autre.',
+    shrinkDiscs: `Réduire les disques (recommandé)${NB}: 190-275 Mo chacun au lieu de 1,36 Go`,
+    usaName: 'Luigi\'s Mansion (USA) · GLME01',
+    palName: 'Luigi\'s Mansion (PAL) · GLMP01 (Rev 0) UNIQUEMENT',
     usaNotChosen: 'Pas encore choisi.',
     palNotChosen:
       'Non choisi. Seule la première édition (révision 0) fonctionne. Avec lui, le jeu obtient aussi le ' +
-      `<strong>Manoir caché</strong> européen et les autres langues${NB}: <strong>espagnol, allemand, français et italien</strong>.`,
+      `<strong>Manoir caché</strong> PAL et les autres langues${NB}: <strong>espagnol, allemand, français et italien</strong>.`,
     ownCopy:
       `<strong>Important${NB}:</strong> il vous faut votre copie du jeu, extraite de votre disque${NB}: ` +
       'une image complète (<code>.iso</code>, 1,36 Go), <code>.rvz</code>, <code>.gcz</code> ou ' +
       `<code>.ciso</code>. Les images compressées passent en <code>.iso</code> en créant le paquet. ` +
-      'Le disque européen <strong>doit être la première édition (révision 0)</strong>.',
+      'Le disque PAL <strong>doit être la première édition (révision 0)</strong>.',
     step2: '2. Créez le paquet',
     step2First: `Si vous installez le jeu pour la première fois, utilisez${NB}:`,
     create: 'Créer lm-nx.zip',
@@ -670,7 +666,7 @@ const TEXTS = {
       `votre ordinateur${NB}; les shaders sont compilés sur votre ordinateur. Vous devez posséder votre propre copie du jeu ` +
       `obtenue légalement. Police du titre${NB}: Delfino, de PFRA.`,
     discReady: `{name} ({size})${NB}: trouvé, prêt à l'emploi.`,
-    palRev1: 'C\'est la révision 1 européenne (GLMP01, révision 1). Le portage a besoin de la première édition (révision 0).',
+    palRev1: 'C\'est la révision 1 PAL (GLMP01, révision 1). Le portage a besoin de la première édition (révision 0).',
     otherDisc: 'Ce n\'est pas un disque de Luigi\'s Mansion pris en charge, ou la copie a été modifiée.',
     notFullSize: `{name}${NB}: c'est une image réduite, pas le disque complet. Utilisez un .iso complet (1${NB}459${NB}978${NB}240 octets), ou un .rvz, .gcz ou .ciso.`,
     unsupportedCompression: `{name}${NB}: cette image utilise une compression que cette page ne sait pas lire. Reconvertissez-la avec Dolphin, en RVZ ou en .iso.`,
@@ -690,7 +686,7 @@ const TEXTS = {
     compilerMismatch: `le compilateur de shaders ({forge}) ne correspond pas au jeu ({game})${NB}: rechargez la page`,
     compiled: '{count} shaders compilés en {seconds} s.',
     buildingHM: 'Création du Manoir caché…',
-    builtHM: `Manoir caché européen${NB}: créé à partir de vos deux disques.`,
+    builtHM: `Manoir caché PAL${NB}: créé à partir de vos deux disques.`,
     saving: 'Enregistrement de {name} ({size}). Si le navigateur demande où l\'enregistrer, choisissez un dossier.',
     writing: 'Écriture de {name}…',
     ready: '{name} est prêt.',
@@ -723,7 +719,7 @@ const TEXTS = {
     navHowto: 'So benutzt du den Installer',
     helpButton: 'Hilfe',
     gameLanguage: `Sprache des Spiels`,
-    gameLanguageHint: `Deutsch, Spanisch, Französisch und Italienisch brauchen die europäische Disc: Das Spiel startet dann in der europäischen Version in dieser Sprache. Wenn du lm-nx.zip mit einer Sprache neu erstellst, werden deine Einstellungen ersetzt.`,
+    gameLanguageHint: `Deutsch, Spanisch, Französisch und Italienisch brauchen die PAL-Disc.`,
     navRequirements: 'Voraussetzungen',
     navControls: 'Steuerung',
     navFaq: 'FAQ',
@@ -734,23 +730,20 @@ const TEXTS = {
     pageHowto:
       `<h3>Bevor du anfängst</h3><ul>` +
       `<li>Nutze einen Computer mit einem aktuellen Browser: Das Paket wird auf deinem Computer erstellt und ist groß.</li>` +
-      `<li>Deine eigene Kopie von <strong>Luigi's Mansion (USA)</strong>, von deiner Disc ausgelesen, ist <strong>erforderlich</strong>. Die <strong>europäische</strong> Disc (erste Auflage) ist optional: Sie bringt die Versteckte Villa und weitere Sprachen.</li>` +
+      `<li>Deine eigene Kopie von <strong>Luigi's Mansion</strong>, von deiner Disc ausgelesen: die <strong>US</strong>-Disc, die <strong>PAL</strong>-Disc (erste Auflage) oder beide. Du brauchst mindestens eine.</li>` +
       `<li>Den nötigen freien Speicher findest du unter <a href="#requirements">Voraussetzungen</a>.</li></ul>` +
       `<h3>1. Wähle deine Discs</h3><p>Drücke <strong>Disc-Images wählen</strong> und wähle deine <code>.iso</code>, <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> oder <code>.ciso</code>. Die Seite wandelt <code>.rvz</code>-, <code>.wia</code>-, <code>.gcz</code>- und <code>.ciso</code>-Images beim Erstellen des Pakets in eine vollständige <code>.iso</code> um. Du kannst beide Discs zusammen oder nacheinander wählen. Eine passende Disc zeigt <strong>gefunden, bereit</strong>. Wenn nicht, steht darunter der Grund.</p>` +
       `<h3>2. Erstelle das Paket</h3><p>Erste Installation? Drücke <strong>lm-nx.zip erstellen</strong>. Schon installiert? Drücke <strong>lm-nx-update.zip erstellen</strong>: Deine Discs und Spielstände bleiben, wie sie sind.</p>` +
-      `<p>Die Seite lädt das Paket herunter, prüft es, kompiliert die Shader und baut mit der europäischen Disc die Versteckte Villa. Das kann ein paar Minuten dauern. <strong>Lass diesen Tab offen</strong>, bis <strong>Fertig</strong> erscheint. Fragt der Browser, wo die Datei gespeichert werden soll, wähle einen Ordner.</p>` +
+      `<p>Die Seite lädt das Paket herunter, prüft es, kompiliert die Shader und baut mit der PAL-Disc die Versteckte Villa. Das kann ein paar Minuten dauern. <strong>Lass diesen Tab offen</strong>, bis <strong>Fertig</strong> erscheint. Fragt der Browser, wo die Datei gespeichert werden soll, wähle einen Ordner.</p>` +
       `<h3>3. Auf die Switch kopieren</h3><p>Entpacke die <code>.zip</code> und kopiere den Ordner <code>LM-NX</code> darin nach <code>sdmc:/switch/</code> auf deiner SD-Karte. Am Ende gibt es <code>sdmc:/switch/LM-NX/LM-NX.nro</code>.</p>` +
       `<h3>4. Spiel starten</h3><p>Halte <strong>R</strong> gedrückt, während du ein beliebiges Spiel startest: Das Homebrew Menu öffnet sich. Wähle dort <strong>LM-NX</strong>. Du kannst auch einen Forwarder mit ${SPHAIRA} erstellen. Starte es nicht über das Album: Dort reicht der Speicher nicht.</p>` +
-      `<h3>5. Sprache des Spiels ändern</h3><p>Die USA-Version ist auf Englisch. Für Deutsch, Spanisch, Französisch oder Italienisch füge beim Erstellen des Pakets die europäische Disc hinzu. Am einfachsten wählst du sie unter <strong>Sprache des Spiels</strong> in Schritt 1 dieser Seite, bevor du <code>lm-nx.zip</code> erstellst. Um sie später zu ändern, im Spiel:</p><ol><li>Drücke <strong>L3 + R3</strong> (beide Sticks gleichzeitig), um die Einstellungen zu öffnen, und gehe zum Reiter <strong>Game</strong>.</li><li>Wähle bei <strong>Version to play</strong> die Option <strong>Europe</strong> und drücke <strong>Exit to change version</strong>.</li><li>Starte LM-NX erneut, öffne die Einstellungen und wähle deine Sprache bei <strong>Language (European version)</strong>.</li></ol><p>Die Sprache gilt für einen neuen Spielstand. Ein vorhandener Spielstand behält seine Sprache, die du in den Optionen des Spiels ändern kannst.</p>` +
+      `<h3>5. Sprache des Spiels ändern</h3><p>Die USA-Version ist auf Englisch. Für Deutsch, Spanisch, Französisch oder Italienisch füge beim Erstellen des Pakets die PAL-Disc hinzu. Am einfachsten wählst du sie unter <strong>Sprache des Spiels</strong> in Schritt 1 dieser Seite, bevor du <code>lm-nx.zip</code> erstellst. Um sie später zu ändern, im Spiel:</p><ol><li>Drücke <strong>L3 + R3</strong> (beide Sticks gleichzeitig), um die Einstellungen zu öffnen, und gehe zum Reiter <strong>Game</strong>.</li><li>Wähle bei <strong>Version to play</strong> die Option <strong>Europe</strong> und drücke <strong>Exit to change version</strong>.</li><li>Starte LM-NX erneut, öffne die Einstellungen und wähle deine Sprache bei <strong>Language (European version)</strong>.</li></ol><p>Die Sprache gilt für einen neuen Spielstand. Ein vorhandener Spielstand behält seine Sprache, die du in den Optionen des Spiels ändern kannst.</p>` +
       `<p>Klappt es noch nicht? Sieh unter <a href="#troubleshooting">Fehlerbehebung</a> nach oder <a href="#report">melde einen Fehler</a>.</p>`,
     pageRequirements:
       `<h3>Was du brauchst</h3><ul>` +
       `<li>Eine Nintendo Switch, die Homebrew ausführen kann, mit einer Custom Firmware wie <strong>Atmosphère</strong>.</li>` +
-      `<li>Deine eigene Kopie von <strong>Luigi's Mansion (USA)</strong> für GameCube, von deiner Disc ausgelesen. Die ` +
-      `<strong>europäische</strong> Disc (erste Auflage) ist optional: Sie bringt die Versteckte Villa und vier weitere ` +
-      `Sprachen.</li>` +
-      `<li>Freier Platz auf der SD-Karte: etwa <strong>1,7 GB</strong> mit der US-Disc, etwa <strong>3,2 GB</strong> mit ` +
-      `beiden Discs. Dein Computer braucht denselben Platz für das Zip.</li>` +
+      `<li>Deine eigene Kopie von <strong>Luigi's Mansion</strong> für GameCube, von deiner Disc ausgelesen: die <strong>US</strong>-Disc, die <strong>PAL</strong>-Disc (erste Auflage) oder beide. Die PAL-Disc hat die Versteckte Villa und vier weitere Sprachen.</li>` +
+      `<li>Freier Platz auf der SD-Karte: etwa <strong>0,6 GB</strong> mit einer Disc und etwa <strong>1 GB</strong> mit beiden, mit verkleinerten Discs (etwa 1,7 GB und 3,2 GB mit ganzen Discs). Dein Computer braucht denselben Platz für das Zip.</li>` +
       `<li>Einen Computer mit einem aktuellen Browser, um das Paket zu erstellen.</li></ul>` +
       `<h3>So startest du es</h3><p>Starte <code>LM-NX.nro</code> im Title-Takeover-Modus: Halte <strong>R</strong> ` +
       `gedrückt, während du ein beliebiges Spiel startest, dann öffnet sich das Homebrew-Menü mit dem ganzen Speicher ` +
@@ -769,9 +762,7 @@ const TEXTS = {
     pageFaq:
       `<h3>Warum brauche ich meine eigene Disc?</h3><p>Diese Seite stellt keinen Teil des Spiels bereit und verschickt ` +
       `auch keinen: Sie erstellt das Paket aus der Disc, die du besitzt, in deinem Browser.</p>` +
-      `<h3>Welche Discs funktionieren?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, ist nötig. Die europäische ` +
-      `Disc, GLMP01, ist optional, und nur ihre erste Auflage (Revision 0) funktioniert. Andere Auflagen werden nicht ` +
-      `unterstützt.</p>` +
+      `<h3>Welche Discs funktionieren?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, und <strong>Luigi's Mansion (PAL)</strong>, GLMP01, erste Auflage (Revision 0). Du brauchst mindestens eine; mit beiden bekommt die US-Version auch die Versteckte Villa der PAL-Version. Andere Auflagen werden nicht unterstützt.</p>` +
       `<h3>Kann ich .rvz-, .wia-, .gcz- oder .ciso-Images nutzen?</h3><p>Ja: Sie werden beim Erstellen des Pakets zur ` +
       `vollständigen <code>.iso</code>. Gekürzte Images wie <code>.nkit.iso</code> funktionieren nicht.</p>` +
       `<h3>Wird etwas hochgeladen?</h3><p>Nein. Deine Discs werden nur in deinem Browser gelesen, und das Zip wird direkt ` +
@@ -787,7 +778,7 @@ const TEXTS = {
       `der Ordner <code>cache/</code> fehlt oder beschädigt ist oder wenn du <code>LM-NX.nro</code> von Hand statt mit ` +
       `<code>lm-nx-update.zip</code> aktualisiert hast. Die Shader werden gespeichert und spätere Starts laden sie in ` +
       `Sekunden.</p>` +
-      `<h3>Wie ändere ich die Sprache des Spiels?</h3><p>Die USA-Version ist auf Englisch. Für Deutsch, Spanisch, Französisch oder Italienisch füge beim Erstellen des Pakets die europäische Disc hinzu. Am einfachsten wählst du sie unter <strong>Sprache des Spiels</strong> in Schritt 1 dieser Seite, bevor du <code>lm-nx.zip</code> erstellst. Um sie später zu ändern, im Spiel:</p><ol><li>Drücke <strong>L3 + R3</strong> (beide Sticks gleichzeitig), um die Einstellungen zu öffnen, und gehe zum Reiter <strong>Game</strong>.</li><li>Wähle bei <strong>Version to play</strong> die Option <strong>Europe</strong> und drücke <strong>Exit to change version</strong>.</li><li>Starte LM-NX erneut, öffne die Einstellungen und wähle deine Sprache bei <strong>Language (European version)</strong>.</li></ol><p>Die Sprache gilt für einen neuen Spielstand. Ein vorhandener Spielstand behält seine Sprache, die du in den Optionen des Spiels ändern kannst.</p>`,
+      `<h3>Wie ändere ich die Sprache des Spiels?</h3><p>Die USA-Version ist auf Englisch. Für Deutsch, Spanisch, Französisch oder Italienisch füge beim Erstellen des Pakets die PAL-Disc hinzu. Am einfachsten wählst du sie unter <strong>Sprache des Spiels</strong> in Schritt 1 dieser Seite, bevor du <code>lm-nx.zip</code> erstellst. Um sie später zu ändern, im Spiel:</p><ol><li>Drücke <strong>L3 + R3</strong> (beide Sticks gleichzeitig), um die Einstellungen zu öffnen, und gehe zum Reiter <strong>Game</strong>.</li><li>Wähle bei <strong>Version to play</strong> die Option <strong>Europe</strong> und drücke <strong>Exit to change version</strong>.</li><li>Starte LM-NX erneut, öffne die Einstellungen und wähle deine Sprache bei <strong>Language (European version)</strong>.</li></ol><p>Die Sprache gilt für einen neuen Spielstand. Ein vorhandener Spielstand behält seine Sprache, die du in den Optionen des Spiels ändern kannst.</p>`,
     pageTrouble:
       `<h3>Das Spiel schließt sich oder der Bildschirm bleibt beim Start schwarz</h3><p>Prüfe, dass der Ordner ` +
       `<code>sdmc:/switch/LM-NX/</code> ist und <code>LM-NX.nro</code> enthält, und starte es im Title-Takeover-Modus ` +
@@ -796,7 +787,7 @@ const TEXTS = {
       `Fehlt sie, erstelle <code>lm-nx.zip</code> neu und kopiere den ganzen Ordner.</p>` +
       `<h3>Die Seite nimmt meine Disc nicht an</h3><p>Sie braucht ein vollständiges Abbild oder eine daraus erstellte ` +
       `<code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> oder <code>.ciso</code>. Gekürzte Images und die ` +
-      `europäische Revision 1 funktionieren nicht.</p>` +
+      `PAL-Revision 1 funktionieren nicht.</p>` +
       `<h3>Der erste Start dauert lange</h3><p>Die Shader liegen fertig im Paket. Fehlen sie, kompiliert die Konsole sie ` +
       `beim ersten Start, der nur dieses eine Mal länger dauert.</p>` +
       `<p>Etwas anderes? Siehe <a href="#report">Fehler melden</a>.</p>`,
@@ -809,9 +800,10 @@ const TEXTS = {
       `<li>Die Dateien aus <code>sdmc:/switch/LM-NX/logs/</code>.</li>` +
       `<li>Ein Foto oder Video, wenn man das Problem sehen oder hören kann.</li></ul>`,
     pageNews:
+      `<h3>1.0.1</h3><ul><li>Installation nur mit der PAL-Disc: Die US-Disc ist nicht mehr nötig.</li><li>Kleinere Discs: Die Seite behält nur die Dateien des Spiels, etwa 190 MB (USA) und 275 MB (PAL) statt je 1,36 GB.</li><li>Wähle die Sprache des Spiels auf dieser Seite, bevor du das Paket erstellst.</li><li>Behoben: Helle Farben für Luigis Kleidung (Warios Gelb) werden nicht mehr weiß, und Feuer-Luigis Mütze behält das grüne L.</li><li>Neue Anleitung: So benutzt du den Installer, mit einem Hilfe-Knopf.</li></ul>` +
       `<h3>1.0.0</h3><ul><li>Erste Version.</li>` +
       `<li>Native Portierung von <strong>Luigi's Mansion (USA)</strong> für die Nintendo Switch, basierend auf ${RECOMP}.</li>` +
-      `<li>Mit der europäischen Disc: die Versteckte Villa sowie Spanisch, Deutsch, Französisch und Italienisch.</li>` +
+      `<li>Mit der PAL-Disc: die Versteckte Villa sowie Spanisch, Deutsch, Französisch und Italienisch.</li>` +
       `<li>1080p im Dock.</li>` +
       `<li>Einstellungsmenü mit Optionen für Grafik, Ton, Steuerung und Spiel.</li>` +
       `<li>Diese Seite erstellt das ganze Paket in deinem Browser, Shader inklusive, und liest die Disc-Images ` +
@@ -859,18 +851,19 @@ const TEXTS = {
     languageBar: 'Sprache',
     step1: '1. Wähle deine Disc-Images',
     chooseIso: 'Disc-Images wählen',
-    hintBoth: 'Du kannst beide Discs auf einmal oder nacheinander wählen.',
-    usaName: 'Luigi\'s Mansion (USA) · GLME01 · Erforderlich',
-    palName: 'Luigi\'s Mansion (Europa) · GLMP01 (Rev 0) NUR · Optional',
+    hintBoth: 'Wähle eine Disc oder beide, auf einmal oder nacheinander.',
+    shrinkDiscs: `Discs verkleinern (empfohlen): je 190-275 MB statt 1,36 GB`,
+    usaName: 'Luigi\'s Mansion (USA) · GLME01',
+    palName: 'Luigi\'s Mansion (PAL) · GLMP01 (Rev 0) NUR',
     usaNotChosen: 'Noch nicht gewählt.',
     palNotChosen:
-      'Nicht gewählt. Nur die erste Auflage (Revision 0) funktioniert. Damit bekommt das Spiel auch die europäische ' +
-      '<strong>Versteckte Villa</strong> und die anderen Sprachen: <strong>Spanisch, Deutsch, Französisch und Italienisch</strong>.',
+      'Nicht gewählt. Nur die erste Auflage (Revision 0) funktioniert. Damit bekommt das Spiel auch die ' +
+      '<strong>Versteckte Villa</strong> der PAL-Version und die anderen Sprachen: <strong>Spanisch, Deutsch, Französisch und Italienisch</strong>.',
     ownCopy:
       '<strong>Wichtig:</strong> Du brauchst deine eigene Kopie des Spiels von deiner Disc: ein vollständiges Image ' +
       '(<code>.iso</code>, 1,36 GB), <code>.rvz</code>, <code>.gcz</code> oder <code>.ciso</code>. ' +
       'Komprimierte Images werden beim Erstellen zur <code>.iso</code>. ' +
-      'Die europäische Disc <strong>muss die erste Auflage (Revision 0) sein</strong>.',
+      'Die PAL-Disc <strong>muss die erste Auflage (Revision 0) sein</strong>.',
     step2: '2. Erstelle das Paket',
     step2First: 'Wenn du das Spiel zum ersten Mal installierst, nimm:',
     create: 'lm-nx.zip erstellen',
@@ -895,7 +888,7 @@ const TEXTS = {
       'werden nur in deinem Browser gelesen, nie hochgeladen und direkt in die ZIP-Datei auf deinem Computer kopiert; die ' +
       'Shader werden auf deinem Computer kompiliert. Du brauchst deine eigene, legal erworbene Kopie des Spiels. Schriftart des Titels: Delfino von PFRA.',
     discReady: '{name} ({size}): gefunden, bereit.',
-    palRev1: 'Das ist die europäische Revision 1 (GLMP01, Revision 1). Der Port braucht die erste Auflage (Revision 0).',
+    palRev1: 'Das ist die PAL-Revision 1 (GLMP01, Revision 1). Der Port braucht die erste Auflage (Revision 0).',
     otherDisc: 'Das ist keine unterstützte Luigi\'s-Mansion-Disc, oder die Kopie wurde verändert.',
     notFullSize: '{name}: Das ist ein gekürztes Image, nicht die ganze Disc. Nimm eine vollständige .iso (1.459.978.240 Bytes) oder eine .rvz, .gcz oder .ciso.',
     unsupportedCompression: '{name}: Dieses Image nutzt eine Kompression, die diese Seite nicht lesen kann. Wandle es mit Dolphin erneut um, in RVZ oder in eine .iso.',
@@ -915,7 +908,7 @@ const TEXTS = {
     compilerMismatch: 'Der Shader-Compiler ({forge}) passt nicht zum Spiel ({game}): Lade die Seite neu',
     compiled: '{count} Shader in {seconds} s kompiliert.',
     buildingHM: 'Die Versteckte Villa wird erstellt…',
-    builtHM: 'Europäische Versteckte Villa: aus deinen beiden Discs erstellt.',
+    builtHM: 'Versteckte Villa (PAL): aus deinen beiden Discs erstellt.',
     saving: '{name} wird gespeichert ({size}). Wenn der Browser fragt, wo es gespeichert werden soll, wähle einen Ordner.',
     writing: '{name} wird geschrieben…',
     ready: '{name} ist fertig.',
@@ -949,7 +942,7 @@ const TEXTS = {
     navHowto: 'Come usare l\'installer',
     helpButton: 'Aiuto',
     gameLanguage: `Lingua del gioco`,
-    gameLanguageHint: `Italiano, spagnolo, tedesco e francese richiedono il disco europeo: il gioco si avvia allora nella versione europea, in quella lingua. Se ricrei lm-nx.zip con una lingua, le tue impostazioni vengono sostituite.`,
+    gameLanguageHint: `Italiano, spagnolo, tedesco e francese richiedono il disco PAL.`,
     navRequirements: 'Requisiti',
     navControls: 'Comandi',
     navFaq: 'Domande frequenti',
@@ -960,22 +953,20 @@ const TEXTS = {
     pageHowto:
       `<h3>Prima di iniziare</h3><ul>` +
       `<li>Usa un computer con un browser aggiornato: il pacchetto viene creato sul tuo computer ed è grande.</li>` +
-      `<li>La tua copia di <strong>Luigi's Mansion (USA)</strong>, estratta dal tuo disco, è <strong>obbligatoria</strong>. Il disco <strong>europeo</strong> (prima edizione) è facoltativo: aggiunge la Villa Nascosta e altre lingue.</li>` +
+      `<li>La tua copia di <strong>Luigi's Mansion</strong>, estratta dal tuo disco: il disco <strong>USA</strong>, quello <strong>PAL</strong> (prima edizione) o entrambi. Ne serve almeno uno.</li>` +
       `<li>Controlla lo spazio libero necessario in <a href="#requirements">Requisiti</a>.</li></ul>` +
       `<h3>1. Scegli i dischi</h3><p>Premi <strong>Scegli le immagini disco</strong> e seleziona il tuo <code>.iso</code>, <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> o <code>.ciso</code>. La pagina converte le immagini <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> e <code>.ciso</code> in un <code>.iso</code> completo mentre crea il pacchetto. Puoi scegliere entrambi i dischi insieme o uno dopo l'altro. Un disco accettato mostra <strong>trovato, pronto all'uso</strong>. Altrimenti il messaggio sotto spiega il motivo.</p>` +
       `<h3>2. Crea il pacchetto</h3><p>Prima installazione? Premi <strong>Crea lm-nx.zip</strong>. Già installato? Premi <strong>Crea lm-nx-update.zip</strong>: i tuoi dischi e i salvataggi restano come sono.</p>` +
-      `<p>La pagina scarica il pacchetto, lo controlla, compila gli shader e, con il disco europeo, costruisce la Villa Nascosta. Può richiedere qualche minuto. <strong>Tieni aperta questa scheda</strong> finché non compare <strong>Fatto</strong>. Se il browser chiede dove salvare il file, scegli una cartella.</p>` +
+      `<p>La pagina scarica il pacchetto, lo controlla, compila gli shader e, con il disco PAL, costruisce la Villa Nascosta. Può richiedere qualche minuto. <strong>Tieni aperta questa scheda</strong> finché non compare <strong>Fatto</strong>. Se il browser chiede dove salvare il file, scegli una cartella.</p>` +
       `<h3>3. Copialo sulla Switch</h3><p>Estrai il <code>.zip</code> e copia la cartella <code>LM-NX</code> al suo interno in <code>sdmc:/switch/</code> sulla scheda SD. Alla fine deve esserci <code>sdmc:/switch/LM-NX/LM-NX.nro</code>.</p>` +
       `<h3>4. Avvia il gioco</h3><p>Tieni premuto <strong>R</strong> mentre avvii un gioco qualsiasi: si apre l'Homebrew Menu. Scegli <strong>LM-NX</strong>. Puoi anche creare un forwarder con ${SPHAIRA}. Non avviarlo dall'Album: non ha memoria sufficiente.</p>` +
-      `<h3>5. Cambia la lingua del gioco</h3><p>La versione USA è in inglese. Per giocare in italiano, spagnolo, tedesco o francese, aggiungi il disco europeo quando crei il pacchetto. Il modo più semplice è sceglierla in <strong>Lingua del gioco</strong>, al passo 1 di questa pagina, prima di creare <code>lm-nx.zip</code>. Per cambiarla dopo, durante il gioco:</p><ol><li>Premi <strong>L3 + R3</strong> (entrambe le levette insieme) per aprire le impostazioni e vai alla scheda <strong>Game</strong>.</li><li>In <strong>Version to play</strong>, scegli <strong>Europe</strong> e premi <strong>Exit to change version</strong>.</li><li>Riavvia LM-NX, apri le impostazioni e scegli la lingua in <strong>Language (European version)</strong>.</li></ol><p>La lingua vale per un nuovo salvataggio. Un salvataggio esistente mantiene la sua lingua, che puoi cambiare nelle Opzioni del gioco.</p>` +
+      `<h3>5. Cambia la lingua del gioco</h3><p>La versione USA è in inglese. Per giocare in italiano, spagnolo, tedesco o francese, aggiungi il disco PAL quando crei il pacchetto. Il modo più semplice è sceglierla in <strong>Lingua del gioco</strong>, al passo 1 di questa pagina, prima di creare <code>lm-nx.zip</code>. Per cambiarla dopo, durante il gioco:</p><ol><li>Premi <strong>L3 + R3</strong> (entrambe le levette insieme) per aprire le impostazioni e vai alla scheda <strong>Game</strong>.</li><li>In <strong>Version to play</strong>, scegli <strong>Europe</strong> e premi <strong>Exit to change version</strong>.</li><li>Riavvia LM-NX, apri le impostazioni e scegli la lingua in <strong>Language (European version)</strong>.</li></ol><p>La lingua vale per un nuovo salvataggio. Un salvataggio esistente mantiene la sua lingua, che puoi cambiare nelle Opzioni del gioco.</p>` +
       `<p>Ancora problemi? Vedi <a href="#troubleshooting">Risoluzione dei problemi</a> o <a href="#report">Segnala un bug</a>.</p>`,
     pageRequirements:
       `<h3>Cosa ti serve</h3><ul>` +
       `<li>Una Nintendo Switch in grado di avviare homebrew, con un firmware personalizzato come <strong>Atmosphère</strong>.</li>` +
-      `<li>La tua copia di <strong>Luigi's Mansion (USA)</strong> per GameCube, estratta dal tuo disco. Il disco ` +
-      `<strong>europeo</strong> (prima edizione) è facoltativo: aggiunge la Villa Nascosta e altre quattro lingue.</li>` +
-      `<li>Spazio libero sulla scheda SD: circa <strong>1,7 GB</strong> con il disco USA, circa <strong>3,2 GB</strong> ` +
-      `con entrambi i dischi. Il tuo computer ha bisogno dello stesso spazio per lo zip.</li>` +
+      `<li>La tua copia di <strong>Luigi's Mansion</strong> per GameCube, estratta dal tuo disco: il disco <strong>USA</strong>, quello <strong>PAL</strong> (prima edizione) o entrambi. Il disco PAL ha la Villa Nascosta e altre quattro lingue.</li>` +
+      `<li>Spazio libero sulla scheda SD: circa <strong>0,6 GB</strong> con un disco e circa <strong>1 GB</strong> con entrambi, con i dischi ridotti (circa 1,7 GB e 3,2 GB con i dischi interi). Il tuo computer ha bisogno dello stesso spazio per lo zip.</li>` +
       `<li>Un computer con un browser aggiornato per creare il pacchetto.</li></ul>` +
       `<h3>Come avviarlo</h3><p>Avvia <code>LM-NX.nro</code> in modalità title takeover: tieni premuto <strong>R</strong> ` +
       `mentre avvii un gioco qualsiasi e l'Homebrew Menu si apre con tutta la memoria della console. Dall'Album il gioco ` +
@@ -994,9 +985,7 @@ const TEXTS = {
     pageFaq:
       `<h3>Perché mi serve il mio disco?</h3><p>Questa pagina non ospita né invia nessuna parte del gioco: crea il ` +
       `pacchetto dal disco che possiedi, nel tuo browser.</p>` +
-      `<h3>Quali dischi funzionano?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, è obbligatorio. Il disco ` +
-      `europeo, GLMP01, è facoltativo e funziona solo la sua prima edizione (revisione 0). Le altre edizioni non sono ` +
-      `supportate.</p>` +
+      `<h3>Quali dischi funzionano?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, e <strong>Luigi's Mansion (PAL)</strong>, GLMP01, prima edizione (revisione 0). Ne serve almeno uno; con entrambi, la versione USA ha anche la Villa Nascosta PAL. Le altre edizioni non sono supportate.</p>` +
       `<h3>Posso usare immagini .rvz, .wia, .gcz o .ciso?</h3><p>Sì: diventano la <code>.iso</code> completa mentre si ` +
       `crea il pacchetto. Le immagini ridotte come <code>.nkit.iso</code> non funzionano.</p>` +
       `<h3>Viene caricato qualcosa?</h3><p>No. I tuoi dischi vengono letti solo nel tuo browser e lo zip viene salvato ` +
@@ -1012,7 +1001,7 @@ const TEXTS = {
       `avanzamento, quando la cartella <code>cache/</code> manca o è danneggiata, oppure quando hai aggiornato ` +
       `<code>LM-NX.nro</code> a mano invece che con <code>lm-nx-update.zip</code>. Gli shader vengono salvati e gli ` +
       `avvii successivi li caricano in pochi secondi.</p>` +
-      `<h3>Come cambio la lingua del gioco?</h3><p>La versione USA è in inglese. Per giocare in italiano, spagnolo, tedesco o francese, aggiungi il disco europeo quando crei il pacchetto. Il modo più semplice è sceglierla in <strong>Lingua del gioco</strong>, al passo 1 di questa pagina, prima di creare <code>lm-nx.zip</code>. Per cambiarla dopo, durante il gioco:</p><ol><li>Premi <strong>L3 + R3</strong> (entrambe le levette insieme) per aprire le impostazioni e vai alla scheda <strong>Game</strong>.</li><li>In <strong>Version to play</strong>, scegli <strong>Europe</strong> e premi <strong>Exit to change version</strong>.</li><li>Riavvia LM-NX, apri le impostazioni e scegli la lingua in <strong>Language (European version)</strong>.</li></ol><p>La lingua vale per un nuovo salvataggio. Un salvataggio esistente mantiene la sua lingua, che puoi cambiare nelle Opzioni del gioco.</p>`,
+      `<h3>Come cambio la lingua del gioco?</h3><p>La versione USA è in inglese. Per giocare in italiano, spagnolo, tedesco o francese, aggiungi il disco PAL quando crei il pacchetto. Il modo più semplice è sceglierla in <strong>Lingua del gioco</strong>, al passo 1 di questa pagina, prima di creare <code>lm-nx.zip</code>. Per cambiarla dopo, durante il gioco:</p><ol><li>Premi <strong>L3 + R3</strong> (entrambe le levette insieme) per aprire le impostazioni e vai alla scheda <strong>Game</strong>.</li><li>In <strong>Version to play</strong>, scegli <strong>Europe</strong> e premi <strong>Exit to change version</strong>.</li><li>Riavvia LM-NX, apri le impostazioni e scegli la lingua in <strong>Language (European version)</strong>.</li></ol><p>La lingua vale per un nuovo salvataggio. Un salvataggio esistente mantiene la sua lingua, che puoi cambiare nelle Opzioni del gioco.</p>`,
     pageTrouble:
       `<h3>Il gioco si chiude o lo schermo resta nero all'avvio</h3><p>Controlla che la cartella sia ` +
       `<code>sdmc:/switch/LM-NX/</code> con dentro <code>LM-NX.nro</code>, e avvialo in modalità title takeover (tieni ` +
@@ -1020,7 +1009,7 @@ const TEXTS = {
       `<h3>Il gioco non trova il disco</h3><p>Nella cartella <code>LM-NX</code> deve esserci <code>orig/GLME01.iso</code>. ` +
       `Se manca, crea di nuovo <code>lm-nx.zip</code> e copia tutta la cartella.</p>` +
       `<h3>La pagina non accetta il mio disco</h3><p>Serve un dump completo oppure un <code>.rvz</code>, <code>.wia</code>, ` +
-      `<code>.gcz</code> o <code>.ciso</code> creato da esso. Le immagini ridotte e la revisione 1 europea non ` +
+      `<code>.gcz</code> o <code>.ciso</code> creato da esso. Le immagini ridotte e la revisione 1 PAL non ` +
       `funzionano.</p>` +
       `<h3>Il primo avvio è lento</h3><p>Gli shader sono già pronti nel pacchetto. Se mancano, la console li compila al ` +
       `primo avvio, che solo quella volta richiede più tempo.</p>` +
@@ -1034,9 +1023,10 @@ const TEXTS = {
       `<li>I file in <code>sdmc:/switch/LM-NX/logs/</code>.</li>` +
       `<li>Una foto o un video, se è qualcosa che si vede o si sente.</li></ul>`,
     pageNews:
+      `<h3>1.0.1</h3><ul><li>Installazione con il solo disco PAL: il disco USA non è più obbligatorio.</li><li>Dischi più piccoli: la pagina tiene solo i file del gioco, circa 190 MB (USA) e 275 MB (PAL) invece di 1,36 GB ciascuno.</li><li>Scegli la lingua del gioco in questa pagina prima di creare il pacchetto.</li><li>Corretto: i colori chiari dei vestiti di Luigi (il giallo di Wario) non diventano più bianchi, e il cappello di Luigi di fuoco mantiene la L verde.</li><li>Nuova guida: Come usare l'installer, con un pulsante Aiuto.</li></ul>` +
       `<h3>1.0.0</h3><ul><li>Prima versione.</li>` +
       `<li>Port nativo di <strong>Luigi's Mansion (USA)</strong> per Nintendo Switch, basato su ${RECOMP}.</li>` +
-      `<li>Con il disco europeo: la Villa Nascosta e spagnolo, tedesco, francese e italiano.</li>` +
+      `<li>Con il disco PAL: la Villa Nascosta e spagnolo, tedesco, francese e italiano.</li>` +
       `<li>1080p con la console nel dock.</li>` +
       `<li>Menu delle impostazioni con opzioni di grafica, audio, comandi e gioco.</li>` +
       `<li>Questa pagina crea il pacchetto completo nel tuo browser, shader compresi, e legge le immagini disco ` +
@@ -1082,18 +1072,19 @@ const TEXTS = {
     languageBar: 'Lingua',
     step1: '1. Scegli le tue immagini disco',
     chooseIso: 'Scegli le immagini disco',
-    hintBoth: 'Puoi scegliere entrambi i dischi insieme oppure uno dopo l\'altro.',
-    usaName: 'Luigi\'s Mansion (USA) · GLME01 · Obbligatorio',
-    palName: 'Luigi\'s Mansion (Europa) · GLMP01 (Rev 0) SOLTANTO · Facoltativo',
+    hintBoth: 'Scegli un disco o entrambi, insieme o uno dopo l\'altro.',
+    shrinkDiscs: `Riduci i dischi (consigliato): 190-275 MB ciascuno invece di 1,36 GB`,
+    usaName: 'Luigi\'s Mansion (USA) · GLME01',
+    palName: 'Luigi\'s Mansion (PAL) · GLMP01 (Rev 0) SOLO',
     usaNotChosen: 'Non ancora scelto.',
     palNotChosen:
       'Non scelto. Funziona solo la prima edizione (revisione 0). Con questo disco il gioco ha anche il ' +
-      '<strong>Palazzo Nascosto</strong> europeo e le altre lingue: <strong>spagnolo, tedesco, francese e italiano</strong>.',
+      '<strong>Palazzo Nascosto</strong> PAL e le altre lingue: <strong>spagnolo, tedesco, francese e italiano</strong>.',
     ownCopy:
       '<strong>Importante:</strong> ti serve la tua copia del gioco, estratta dal disco: un\'immagine completa ' +
       '(<code>.iso</code>, 1,36 GB), <code>.rvz</code>, <code>.gcz</code> o <code>.ciso</code>. ' +
       'Le immagini compresse diventano <code>.iso</code> creando il pacchetto. ' +
-      'Il disco europeo <strong>deve essere la prima edizione (revisione 0)</strong>.',
+      'Il disco PAL <strong>deve essere la prima edizione (revisione 0)</strong>.',
     step2: '2. Crea il pacchetto',
     step2First: 'Se installi il gioco per la prima volta, usa:',
     create: 'Crea lm-nx.zip',
@@ -1118,7 +1109,7 @@ const TEXTS = {
       'non vengono mai caricate e vengono copiate direttamente nello zip salvato sul tuo computer; gli shader vengono ' +
       'compilati sul tuo computer. Ti serve una copia del gioco ottenuta legalmente. Carattere del titolo: Delfino di PFRA.',
     discReady: '{name} ({size}): trovato, pronto all\'uso.',
-    palRev1: 'Questa è la revisione 1 europea (GLMP01, revisione 1). Il port ha bisogno della prima edizione (revisione 0).',
+    palRev1: 'Questa è la revisione 1 PAL (GLMP01, revisione 1). Il port ha bisogno della prima edizione (revisione 0).',
     otherDisc: 'Questo non è un disco di Luigi\'s Mansion supportato, oppure la copia è stata modificata.',
     notFullSize: '{name}: questa è un\'immagine ridotta, non il disco completo. Usa una .iso completa (1.459.978.240 byte), oppure un .rvz, .gcz o .ciso.',
     unsupportedCompression: '{name}: questa immagine usa una compressione che questa pagina non sa leggere. Riconvertila con Dolphin, in RVZ o in .iso.',
@@ -1138,7 +1129,7 @@ const TEXTS = {
     compilerMismatch: 'il compilatore di shader ({forge}) non corrisponde al gioco ({game}): ricarica la pagina',
     compiled: '{count} shader compilati in {seconds} s.',
     buildingHM: 'Creazione del Palazzo Nascosto…',
-    builtHM: 'Palazzo Nascosto europeo: creato dai tuoi due dischi.',
+    builtHM: 'Palazzo Nascosto PAL: creato dai tuoi due dischi.',
     saving: 'Salvataggio di {name} ({size}). Se il browser chiede dove salvarlo, scegli una cartella.',
     writing: 'Scrittura di {name}…',
     ready: '{name} è pronto.',

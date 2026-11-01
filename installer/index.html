@@ -150,7 +150,10 @@
       padding: .4em .8em; font: inherit; font-weight: 700; cursor: pointer; }
     .game-language select:focus-visible { outline: none; border-color: #8a91a3; }
     .game-language select:disabled { color: #7d828f; cursor: default; }
-    .game-language .hint { margin: 4px 0; }
+    .game-language .hint { margin: 4px 0 0; flex-basis: 100%; }
+    /* the option that leaves out the filler data of the discs */
+    .shrink { display: flex; align-items: center; gap: 6px; margin-left: 10px; cursor: pointer; }
+    .shrink input { margin: 0; accent-color: var(--accent); cursor: pointer; }
     /* the button and its hint on one line, so step 1 takes less height */
     .pick { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; }
     .pick label.button { margin: 0; }
@@ -443,22 +446,22 @@
     <div class="pick">
       <label class="button" for="discs" data-i18n="chooseIso">Choose disc images</label>
       <input id="discs" type="file" accept=".iso,.gcm,.rvz,.wia,.gcz,.ciso" multiple>
-      <p class="hint" data-i18n="hintBoth">You can choose both discs at once, or one after the other.</p>
+      <p class="hint" data-i18n="hintBoth">Choose one disc or both, at once or one after the other.</p>
     </div>
     <div class="discs">
       <div class="disc" id="usa">
         <div class="mark" aria-hidden="true">1</div>
         <div>
-          <div class="name" data-i18n="usaName">Luigi's Mansion (USA) &middot; GLME01 &middot; Required</div>
+          <div class="name" data-i18n="usaName">Luigi's Mansion (USA) &middot; GLME01</div>
           <div class="state">Not chosen yet.</div>
         </div>
       </div>
       <div class="disc" id="pal">
         <div class="mark" aria-hidden="true">2</div>
         <div>
-          <div class="name" data-i18n="palName">Luigi's Mansion (Europe) &middot; GLMP01 (Rev 0) ONLY &middot; Optional</div>
+          <div class="name" data-i18n="palName">Luigi's Mansion (PAL) &middot; GLMP01 (Rev 0) ONLY</div>
           <div class="state">Not chosen. Only the first release (revision 0) works. With it, the game also gets the
-            European <strong>Hidden Mansion</strong> and the other languages: <strong>Spanish, German, French and
+            PAL <strong>Hidden Mansion</strong> and the other languages: <strong>Spanish, German, French and
             Italian</strong>.</div>
         </div>
       </div>
@@ -466,12 +469,14 @@
     <div class="game-language">
       <label for="gameLanguage" data-i18n="gameLanguage">Game language</label>
       <select id="gameLanguage"></select>
-      <p class="hint" data-i18n="gameLanguageHint">Spanish, German, French and Italian need the European disc.</p>
+      <label class="shrink"><input type="checkbox" id="shrink" checked><span data-i18n="shrinkDiscs">Make the discs
+        smaller (recommended).</span></label>
+      <p class="hint" data-i18n="gameLanguageHint">Spanish, German, French and Italian need the PAL disc.</p>
     </div>
     <p class="note" data-i18n-html="ownCopy"><strong>Important:</strong> you need your own copy of the game, dumped from your disc: a full disc
       image (<code>.iso</code>, 1.36 GB), <code>.rvz</code>, <code>.gcz</code> or <code>.ciso</code>. Compressed
       images become <code>.iso</code> while the package is made.
-      The European disc <strong>must be the first release (revision 0)</strong>.</p>
+      The PAL disc <strong>must be the first release (revision 0)</strong>.</p>
   </section>
 
   <section id="step2">
@@ -535,7 +540,7 @@
   </section>
 
   <section id="requirements" class="page" hidden>
-    <div class="page-text" data-i18n-html="pageRequirements"><h3>What you need</h3><ul><li>A Nintendo Switch that can run homebrew, with custom firmware such as <strong>Atmosphère</strong>.</li><li>Your own copy of <strong>Luigi's Mansion (USA)</strong> for GameCube, dumped from your disc. The <strong>European</strong> disc (first release) is optional: it adds the Hidden Mansion and four more languages.</li><li>Free space on the SD card: about <strong>1.7 GB</strong> with the USA disc, about <strong>3.2 GB</strong> with both discs. Your computer needs the same space for the zip.</li><li>A computer with an up-to-date browser to make the package.</li></ul><h3>How to start it</h3><p>Start <code>LM-NX.nro</code> in title takeover mode: hold <strong>R</strong> while you launch any game and the Homebrew Menu opens with all the memory of the console. From the Album the game does not have enough memory.</p></div>
+    <div class="page-text" data-i18n-html="pageRequirements"><h3>What you need</h3><ul><li>A Nintendo Switch that can run homebrew, with custom firmware such as <strong>Atmosphère</strong>.</li><li>Your own copy of <strong>Luigi's Mansion (USA)</strong> for GameCube, dumped from your disc. The <strong>PAL</strong> disc (first release) is optional: it adds the Hidden Mansion and four more languages.</li><li>Free space on the SD card: about <strong>1.7 GB</strong> with the USA disc, about <strong>3.2 GB</strong> with both discs. Your computer needs the same space for the zip.</li><li>A computer with an up-to-date browser to make the package.</li></ul><h3>How to start it</h3><p>Start <code>LM-NX.nro</code> in title takeover mode: hold <strong>R</strong> while you launch any game and the Homebrew Menu opens with all the memory of the console. From the Album the game does not have enough memory.</p></div>
     <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
   </section>
 
@@ -545,12 +550,12 @@
   </section>
 
   <section id="faq" class="page" hidden>
-    <div class="page-text" data-i18n-html="pageFaq"><h3>Why do I need my own disc?</h3><p>This page does not host or send any part of the game: it builds the package from the disc you own, inside your browser.</p><h3>Which discs work?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, is required. The European disc, GLMP01, is optional and only its first release (revision 0) works. Other releases are not supported.</p><h3>Can I use .rvz, .wia, .gcz or .ciso images?</h3><p>Yes: they become the full <code>.iso</code> while the package is made. Trimmed images such as <code>.nkit.iso</code> do not work.</p><h3>Is anything uploaded?</h3><p>No. Your discs are read only in your browser and the zip is saved straight to your computer.</p><h3>Where are my saves?</h3><p>In <code>sdmc:/switch/LM-NX/guardados/</code>. Copy that folder to keep a backup.</p><h3>How do I update?</h3><p>Make <code>lm-nx-update.zip</code> on this page and copy its <code>LM-NX</code> folder over the old one. Your discs and your saves stay as they are.</p><h3>What are the shaders?</h3><p>The game needs about 2,000 shaders, small programs for the GPU. This page compiles them on your computer while it makes the package and puts them in <code>cache/</code>, so the first start only loads them, in a few seconds.</p><h3>Why is my console compiling shaders?</h3><p>It happens once, with a progress bar, when the <code>cache/</code> folder is missing or damaged, or when you updated <code>LM-NX.nro</code> by hand instead of with <code>lm-nx-update.zip</code>. The shaders are saved and later starts load them in seconds.</p></div>
+    <div class="page-text" data-i18n-html="pageFaq"><h3>Why do I need my own disc?</h3><p>This page does not host or send any part of the game: it builds the package from the disc you own, inside your browser.</p><h3>Which discs work?</h3><p><strong>Luigi's Mansion (USA)</strong>, GLME01, is required. The PAL disc, GLMP01, is optional and only its first release (revision 0) works. Other releases are not supported.</p><h3>Can I use .rvz, .wia, .gcz or .ciso images?</h3><p>Yes: they become the full <code>.iso</code> while the package is made. Trimmed images such as <code>.nkit.iso</code> do not work.</p><h3>Is anything uploaded?</h3><p>No. Your discs are read only in your browser and the zip is saved straight to your computer.</p><h3>Where are my saves?</h3><p>In <code>sdmc:/switch/LM-NX/guardados/</code>. Copy that folder to keep a backup.</p><h3>How do I update?</h3><p>Make <code>lm-nx-update.zip</code> on this page and copy its <code>LM-NX</code> folder over the old one. Your discs and your saves stay as they are.</p><h3>What are the shaders?</h3><p>The game needs about 2,000 shaders, small programs for the GPU. This page compiles them on your computer while it makes the package and puts them in <code>cache/</code>, so the first start only loads them, in a few seconds.</p><h3>Why is my console compiling shaders?</h3><p>It happens once, with a progress bar, when the <code>cache/</code> folder is missing or damaged, or when you updated <code>LM-NX.nro</code> by hand instead of with <code>lm-nx-update.zip</code>. The shaders are saved and later starts load them in seconds.</p></div>
     <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
   </section>
 
   <section id="troubleshooting" class="page" hidden>
-    <div class="page-text" data-i18n-html="pageTrouble"><h3>The game closes or the screen stays black when it starts</h3><p>Check that the folder is <code>sdmc:/switch/LM-NX/</code> with <code>LM-NX.nro</code> inside, and start it in title takeover mode (hold <strong>R</strong> while you launch a game), not from the Album.</p><h3>The game cannot find the disc</h3><p>The <code>LM-NX</code> folder must have <code>orig/GLME01.iso</code> inside. If it is missing, make <code>lm-nx.zip</code> again and copy the whole folder.</p><h3>The page does not accept my disc</h3><p>It needs a full dump or an <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> or <code>.ciso</code> made from one. Trimmed images and the European revision 1 do not work.</p><h3>The first start takes a long time</h3><p>The shaders come ready in the package. If they are missing, the console compiles them on the first start, which takes longer only that time.</p><p>Something else? See <a href="#report">Report a bug</a>.</p></div>
+    <div class="page-text" data-i18n-html="pageTrouble"><h3>The game closes or the screen stays black when it starts</h3><p>Check that the folder is <code>sdmc:/switch/LM-NX/</code> with <code>LM-NX.nro</code> inside, and start it in title takeover mode (hold <strong>R</strong> while you launch a game), not from the Album.</p><h3>The game cannot find the disc</h3><p>The <code>LM-NX</code> folder must have <code>orig/GLME01.iso</code> inside. If it is missing, make <code>lm-nx.zip</code> again and copy the whole folder.</p><h3>The page does not accept my disc</h3><p>It needs a full dump or an <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> or <code>.ciso</code> made from one. Trimmed images and the PAL revision 1 do not work.</p><h3>The first start takes a long time</h3><p>The shaders come ready in the package. If they are missing, the console compiles them on the first start, which takes longer only that time.</p><p>Something else? See <a href="#report">Report a bug</a>.</p></div>
     <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
   </section>
 
@@ -560,7 +565,7 @@
   </section>
 
   <section id="changelog" class="page" hidden>
-    <div class="page-text" data-i18n-html="pageNews"><h3>1.0.0</h3><ul><li>First release.</li><li>Native port of <strong>Luigi's Mansion (USA)</strong> to Nintendo Switch, based on <a href="https://github.com/rob646464/luigis-mansion-recompiled" target="_blank" rel="noopener">Luigi's Mansion Recompiled</a>.</li><li>With the European disc: the Hidden Mansion and Spanish, German, French and Italian.</li><li>1080p when docked.</li><li>Settings menu with graphics, sound, controls and game options.</li><li>This page makes the whole package in your browser, shaders included, and reads <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> and <code>.ciso</code> disc images.</li></ul></div>
+    <div class="page-text" data-i18n-html="pageNews"><h3>1.0.1</h3><ul><li>Install with only the PAL disc: the USA disc is no longer required.</li><li>Smaller discs: the page keeps only the game's files, about 190 MB (USA) and 275 MB (PAL) instead of 1.36 GB each.</li><li>Choose the game's language on this page before making the package.</li><li>Fixed: light colours for Luigi's clothes (Wario's yellow) no longer turn white, and Fire Luigi's cap keeps the green L.</li><li>New guide: How to use the installer, with a Help button.</li></ul><h3>1.0.0</h3><ul><li>First release.</li><li>Native port of <strong>Luigi's Mansion (USA)</strong> to Nintendo Switch, based on <a href="https://github.com/rob646464/luigis-mansion-recompiled" target="_blank" rel="noopener">Luigi's Mansion Recompiled</a>.</li><li>With the PAL disc: the Hidden Mansion and Spanish, German, French and Italian.</li><li>1080p when docked.</li><li>Settings menu with graphics, sound, controls and game options.</li><li>This page makes the whole package in your browser, shaders included, and reads <code>.rvz</code>, <code>.wia</code>, <code>.gcz</code> and <code>.ciso</code> disc images.</li></ul></div>
     <p class="discord-actions"><button type="button" class="back-to-steps" data-i18n="backToSteps">Back to the installer</button></p>
   </section>
 

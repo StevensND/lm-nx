@@ -577,12 +577,16 @@ int classify(Rgb c, Role role) {
     return -1;
 }
 
-// `c` re-tinted to `target` at its brightness relative to the piece's mean brightness `ref`.
-Rgb recolor(Rgb c, unsigned target, float ref) {
+// `c` re-tinted to `target` at its brightness relative to the piece's mean brightness `ref`. `peak` is the piece's
+// brightest relative brightness: the highlights are compressed into what the target colour can still brighten, so a
+// light colour (yellow) keeps its hue instead of turning white wherever the original texture is brighter than average.
+Rgb recolor(Rgb c, unsigned target, float ref, float peak) {
     Rgb t{float((target >> 16) & 0xFF), float((target >> 8) & 0xFF), float(target & 0xFF)};
     const float tl = luma(t);
     if (tl < 28.0f) t = {t.r + 28.0f - tl, t.g + 28.0f - tl, t.b + 28.0f - tl};  // black still shows shading
-    const float f = luma(c) / std::max(ref, 1.0f);
+    float f = luma(c) / std::max(ref, 1.0f);
+    const float headroom = 255.0f / std::max({t.r, t.g, t.b, 1.0f});
+    if (f > 1.0f && peak > headroom) f = 1.0f + (f - 1.0f) * std::max(headroom - 1.0f, 0.0f) / (peak - 1.0f);
     Rgb n{t.r * f, t.g * f, t.b * f};
     const float mx = std::max({n.r, n.g, n.b});
     if (mx > 255.0f) {
@@ -599,28 +603,50 @@ std::vector<u8> recolorTexture(const u8* src, const KnownTex& k, const port::Sil
     std::vector<u8> out(src, src + n);
     auto be16 = [](const u8* p) { return u16(p[0] << 8 | p[1]); };
     auto put16 = [](u8* p, u16 v) { p[0] = u8(v >> 8), p[1] = u8(v); };
+    // A light cap (Fire Luigi's white) would make the green "L" as light as its white badge, so the L keeps its green
+    // there: the blocks inside the badge are left as they are. The badge is a white ellipse in the 128x128 cap
+    // texture, centred at (64, 68.5), 28 x 23 texels (measured on the disc's texture, the same on USA and PAL).
+    auto light = [](unsigned rgb) {
+        const Rgb t{float((rgb >> 16) & 0xFF), float((rgb >> 8) & 0xFF), float(rgb & 0xFF)};
+        const float mx = std::max({t.r, t.g, t.b}), mn = std::min({t.r, t.g, t.b});
+        return luma(t) >= 190.0f && (mx - mn) < 0.3f * mx;
+    };
+    const bool keepBadge = k.role == Role::Hat && k.mdlFmt == 10 && k.w == 128 && k.h == 128 &&
+                           s.colorOn[port::kSillyHat] && light(s.colorRgb[port::kSillyHat]);
+    auto inBadge = [](u32 block) {
+        // CMPR: 8x8 tiles in rows, each tile four 4x4 blocks in rows
+        const u32 tile = block / 4, sub = block % 4;
+        const float x = float((tile % 16) * 8 + (sub % 2) * 4) + 2.0f, y = float((tile / 16) * 8 + (sub / 2) * 4) + 2.0f;
+        // a little inside the badge's edge, so the blocks on the edge (white badge and green cap) take the cap colour
+        const float dx = (x - 64.0f) / 11.0f, dy = (y - 68.5f) / 8.5f;
+        return dx * dx + dy * dy <= 1.0f;
+    };
     // Mean brightness of each piece's colours (CMPR: block endpoints).
-    float sum[port::kSillyPieceCount] = {}, cnt[port::kSillyPieceCount] = {};
+    float sum[port::kSillyPieceCount] = {}, cnt[port::kSillyPieceCount] = {}, top[port::kSillyPieceCount] = {};
     const u32 step = k.mdlFmt == 10 ? 8 : 2;
     for (u32 o = 0; o < n; o += step)
         for (u32 e = 0; e < (k.mdlFmt == 10 ? 2u : 1u); e++) {
             const Rgb c = from565(be16(src + o + 2 * e));
             const int p = classify(c, k.role);
-            if (p >= 0) sum[p] += luma(c), cnt[p] += 1.0f;
+            if (p >= 0) sum[p] += luma(c), cnt[p] += 1.0f, top[p] = std::max(top[p], luma(c));
         }
-    float ref[port::kSillyPieceCount];
-    for (int p = 0; p < port::kSillyPieceCount; p++) ref[p] = cnt[p] > 0 ? sum[p] / cnt[p] : 128.0f;
+    float ref[port::kSillyPieceCount], peak[port::kSillyPieceCount];
+    for (int p = 0; p < port::kSillyPieceCount; p++) {
+        ref[p] = cnt[p] > 0 ? sum[p] / cnt[p] : 128.0f;
+        peak[p] = top[p] / std::max(ref[p], 1.0f);
+    }
     auto apply = [&](u16 v) -> u16 {
         const Rgb c = from565(v);
         const int p = classify(c, k.role);
         if (p < 0 || !s.colorOn[p]) return v;
-        return to565(recolor(c, s.colorRgb[p], ref[p]));
+        return to565(recolor(c, s.colorRgb[p], ref[p], peak[p]));
     };
     if (k.mdlFmt == 7) {
         for (u32 o = 0; o < n; o += 2) put16(&out[o], apply(be16(src + o)));
         return out;
     }
     for (u32 o = 0; o < n; o += 8) {
+        if (keepBadge && inBadge(o / 8)) continue;
         const u16 c0 = be16(src + o), c1 = be16(src + o + 2);
         u16 n0 = apply(c0), n1 = apply(c1);
         u32 idx = u32(src[o + 4]) << 24 | u32(src[o + 5]) << 16 | u32(src[o + 6]) << 8 | src[o + 7];

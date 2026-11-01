@@ -17,6 +17,7 @@ const PAGE_FILES = [
   'icons/apple-touch-icon.png',
   'lib/archive.js',
   'lib/codecs.wasm',
+  'lib/compact.js',
   'lib/disc.js',
   'lib/disc_image.js',
   'lib/flags.js',

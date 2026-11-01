@@ -330,7 +330,7 @@ def main():
             print("Game linkage failed; see enlace-runtime-completo.log. No replacement NRO was created.")
             return 1
         nacp_juego = salida / "juego.nacp"
-        if ejecutar([dkp / "tools/bin/nacptool.exe", "--create", "Luigi's Mansion", "StevensND", "1.0.0", nacp_juego], salida / "nacp-juego.log"):
+        if ejecutar([dkp / "tools/bin/nacptool.exe", "--create", "Luigi's Mansion", "StevensND", "1.0.1", nacp_juego], salida / "nacp-juego.log"):
             return 1
         if ejecutar([dkp / "tools/bin/elf2nro.exe", salida / "ProjectLM-NX.elf", salida / "ProjectLM-NX.nro", "--nacp=" + str(nacp_juego), "--icon=" + str(RAIZ / "platforms/switch/icon.jpg")], salida / "nro-juego.log"):
             return 1

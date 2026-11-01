@@ -1,5 +1,6 @@
 import { identifyDisc, openDisc } from './lib/disc.js';
 import { openDiscImage } from './lib/disc_image.js';
+import { compactDisc } from './lib/compact.js';
 import { buildHiddenMansion } from './lib/hidden_mansion.js';
 import { PAL_LANGUAGES, packageEntries, packageSize, writePackage } from './lib/package.js';
 import { buildShaderCaches } from './lib/shaders.js';
@@ -78,7 +79,7 @@ for (const button of document.querySelectorAll('.back-to-steps')) {
 showPage();
 
 // The page fits in the window when it can: when it is taller than the screen, it is scaled down evenly, but never
-// below 80 % so the text stays large (a 1080p screen fits); past that it scrolls. Recomputed when the window or the content changes size.
+// below 78 % so the text stays large (a 1080p screen fits); past that it scrolls. Recomputed when the window or the content changes size.
 // Phones just scroll.
 const page = document.querySelector('main');
 let zoom = 1;
@@ -98,7 +99,7 @@ function fitToWindow() {
     const height = page.getBoundingClientRect().height;
     page.style.minHeight = '';
     const room = window.innerHeight - 2;
-    const wanted = Math.max(0.8, Math.min(1, (zoom * room) / height));
+    const wanted = Math.max(0.78, Math.min(1, (zoom * room) / height));
     // shrink as soon as it does not fit; grow back to full size, or by a visible step, so it does not flicker
     const grow = wanted === 1 ? zoom < 1 : wanted - zoom > 0.005;
     if (height > room ? wanted >= zoom : !grow) return;
@@ -166,7 +167,8 @@ function renderDisc(slot) {
 }
 
 function setButtons() {
-  create.disabled = busy || !discs.usa;
+  create.disabled = busy || !(discs.usa || discs.pal);
+  shrink.disabled = busy;
   update.disabled = busy;
   renderGameLanguage();
 }
@@ -174,6 +176,7 @@ function setButtons() {
 // The language the game starts in. English is the USA version; the others are the European version, so they need
 // the European disc. Until the player picks one, it follows the language of this page once that disc is chosen.
 const gameLanguage = document.getElementById('gameLanguage');
+const shrink = document.getElementById('shrink');
 const GAME_LANGUAGES = [['en', 'English'], ['es', 'Español'], ['de', 'Deutsch'], ['fr', 'Français'], ['it', 'Italiano']];
 let gameLanguagePicked = false;
 for (const [code, name] of GAME_LANGUAGES) gameLanguage.add(new Option(name, code));
@@ -342,7 +345,7 @@ async function startDownload(controller, filename, size) {
 }
 
 async function makePackage(full) {
-  if (busy || (full && !discs.usa)) return;
+  if (busy || (full && !discs.usa && !discs.pal)) return;
   busy = true;
   setButtons();
   logBox.textContent = '';
@@ -377,17 +380,21 @@ async function makePackage(full) {
     log(t('compiled', { count: caches.stages, seconds: Math.round((Date.now() - shaderStart) / 1000) }));
 
     let hiddenMansion = [];
-    if (full && discs.pal) {
+    // the European Hidden Mansion for the USA version is made from both discs
+    if (full && discs.usa && discs.pal) {
       show(t('buildingHM'));
       hiddenMansion = await buildHiddenMansion(await openDisc(discs.usa.file), await openDisc(discs.pal.file));
       log(t('builtHM'));
     }
 
+    // the discs without their filler data, unless the player wants them whole
+    const disc = async (d) => (d ? (shrink.checked ? await compactDisc(d.file) : d.file) : null);
+    const packageDiscs = full ? { usa: await disc(discs.usa), pal: await disc(discs.pal) } : null;
     const entries = packageEntries(m, {
       nro,
       pipelines,
       shaders: caches.files,
-      discs: full ? { usa: discs.usa.file, pal: discs.pal?.file ?? null } : null,
+      discs: packageDiscs,
       hiddenMansion,
       gameLanguage: full && discs.pal ? gameLanguage.value : 'en',
     });

@@ -9,20 +9,23 @@ the program and public build tools, prepares the optional European content, comp
 
 ## Discs and output
 
-- **Required:** USA `GLME01`.
-- **Optional:** Europe `GLMP01`, first release, revision 0. With the USA disc, it provides the European Hidden
-  Mansion and Spanish, German, French and Italian. See [editions.md](editions.md).
+- **At least one of:** USA `GLME01`, or Europe `GLMP01`, first release, revision 0. With only the PAL disc, the
+  zip also gets `install.ini` with `base=PAL`, so the PAL version starts. With both, the USA version also gets the
+  European Hidden Mansion. See [editions.md](editions.md).
 - **Formats:** full ISO, RVZ, WIA, GCZ or CISO. Trimmed `.nkit.iso` images are not supported.
 
 The full GameCube image size is **1,459,978,240 bytes**. Compressed images are read as the full image they represent;
-the zip contains plain ISO files because that is what the Switch reads.
+the zip contains plain ISO files because that is what the Switch reads. By default the page makes them smaller
+(`lib/compact.js`): it keeps the system area and every file unchanged, one after the other on 32-byte boundaries,
+and rewrites only the file table. Most of a GameCube disc is filler data, so the USA disc becomes about 187 MB and
+the PAL disc about 273 MB. `main.dol` does not change, so the game still recognises the disc.
 
 ```text
 LM-NX/
   LM-NX.nro
   pipelines.bin
-  orig/GLME01.iso
-  orig/GLMP01.iso             optional
+  orig/GLME01.iso             if chosen
+  orig/GLMP01.iso             if chosen
   guardados/hidden_mansion/   when built from both discs
   cache/                     two matching shader packages
 ```

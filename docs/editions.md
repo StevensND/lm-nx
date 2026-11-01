@@ -1,12 +1,12 @@
 # Discs, languages and the Hidden Mansion
 
-LM-NX uses **one NRO**. The USA disc is required. A compatible European disc is optional and adds content and
-languages through the installer. You do not choose a separate language-specific Switch executable.
+LM-NX uses **one NRO**. It runs the USA disc, the European (PAL) disc or both; you need at least one. The PAL
+disc brings its Hidden Mansion and its languages. You do not choose a separate language-specific Switch executable.
 
 | Disc | Role |
 |---|---|
-| USA `GLME01` | Required; supplies the base game |
-| Europe `GLMP01`, first release, revision 0 | Optional; supplies European Hidden Mansion content and languages |
+| USA `GLME01` | Runs the USA version |
+| Europe `GLMP01`, first release, revision 0 | Runs the PAL version, with its Hidden Mansion and languages; with the USA disc too, it also gives the USA version the PAL Hidden Mansion |
 
 The added languages are **Spanish, German, French and Italian**. The compatibility check uses the SHA-1 of
 `main.dol`, the program inside the disc, as well as the disc ID. The hashes and input-format details are in

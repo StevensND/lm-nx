@@ -18,15 +18,15 @@ the game is drawn by a native [deko3d](https://github.com/devkitPro/deko3d) rend
 
 ## Supported editions
 
-One NRO for every edition: it runs the USA disc and the European disc adds content (the installer page checks your
-discs automatically):
+One NRO for every edition: it runs the USA disc, the PAL disc or both (the installer page checks your discs
+automatically). You need at least one of them:
 
 <div align="center">
 
 | Disc | Edition | |
 |---|---|---|
-| `GLME01` | Luigi's Mansion (USA) | **Required**: it is the game the port runs |
-| `GLMP01`, revision 0 | Luigi's Mansion (Europe), first release | Optional: adds the European **Hidden Mansion** and Spanish, German, French and Italian |
+| `GLME01` | Luigi's Mansion (USA) | Supported |
+| `GLMP01`, revision 0 | Luigi's Mansion (PAL), first release | Supported: the PAL **Hidden Mansion** and Spanish, German, French and Italian |
 
 </div>
 
@@ -44,9 +44,9 @@ Your `LM-NX` folder should look like this:
 /switch/LM-NX/
   LM-NX.nro
   pipelines.bin              (the list of graphics states the game prepares at start)
-  orig/GLME01.iso            (your USA disc)
-  orig/GLMP01.iso            (your European disc, optional)
-  guardados/hidden_mansion/  (the Hidden Mansion, made from both discs)
+  orig/GLME01.iso            (your USA disc, made smaller by the page)
+  orig/GLMP01.iso            (your PAL disc, made smaller by the page)
+  guardados/hidden_mansion/  (only with both discs: the PAL Hidden Mansion for the USA version)
   cache/                     (the shaders, compiled in your browser)
 ```
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(LuigisMansion VERSION 1.0.0 DESCRIPTION "Luigi's Mansion" LANGUAGES C CXX)
+project(LuigisMansion VERSION 1.0.1 DESCRIPTION "Luigi's Mansion" LANGUAGES C CXX)
 include(cmake/LocalDependencies.cmake)
 if(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     set(CMAKE_C_STANDARD 11)
