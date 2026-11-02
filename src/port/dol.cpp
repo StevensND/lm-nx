@@ -5,6 +5,7 @@
 
 #include <array>
 #include <bit>
+#include <cstdio>
 #include <cstring>
 
 namespace port::dol {
@@ -100,8 +101,13 @@ Version load() {
         sSections[i] = {read_be32(sDol + i * 4), read_be32(sDol + 0x48 + i * 4), read_be32(sDol + 0x90 + i * 4)};
     }
     sVersion = identify(sDol, sDolSize);
-    if (sVersion == Version::Unknown)
-        OSReport("[dol] main.dol does not match a supported retail build (GLME01/GLMP01 rev 0)\n");
+    if (sVersion == Version::Unknown) {
+        const auto digest = sha1(sDol, sDolSize);
+        char hex[41];
+        for (size_t i = 0; i < digest.size(); ++i) std::snprintf(hex + i * 2, 3, "%02x", digest[i]);
+        OSReport("[dol] warning: main.dol SHA-1 %s does not match retail GLME01 rev 0 "
+                 "(77d49225e7d28b9777916cdbe5809345c570ecbc). A modified main.dol may not work.\n", hex);
+    }
     return sVersion;
 }
 

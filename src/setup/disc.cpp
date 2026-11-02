@@ -2,6 +2,8 @@
 
 #include "port/dol.h"
 
+#include <cstdio>
+
 #include <nod.h>
 
 namespace setup {
@@ -44,6 +46,13 @@ bool Disc::open(const std::string& utf8Path, std::string& error) {
     }
     std::string id;
     if (meta.raw_boot.data && meta.raw_boot.size >= 6) id.assign(reinterpret_cast<const char*>(meta.raw_boot.data), 6);
+    // Known game ID with another main.dol (for example a translation): keep the release and warn.
+    if (id == "GLME01" || id == "GLMP01") {
+        std::printf("[setup] warning: main.dol SHA-1 %s does not match a retail %s build. "
+                    "A modified main.dol may not work.\n", dolSha1().c_str(), id.c_str());
+        version_ = id == "GLME01" ? port::GameVersion::USA : port::GameVersion::PAL;
+        return true;
+    }
     if (id.rfind("GLM", 0) == 0)
         error = "This Luigi's Mansion disc (" + id + ") is not a supported release. Supported: USA (GLME01) and "
                 "Europe (GLMP01), first printing.";
