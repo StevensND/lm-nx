@@ -29,10 +29,11 @@ The LLVM binaries are copied at install time, never committed. Toolchain lookup 
    `SDL_ShowOpenFileDialog` for browsing) has a slot for the USA disc (GLME01) and one for
    the European disc (GLMP01). Any image nod reads works (ISO/GCM, RVZ, WIA, GCZ, CISO,
    WBFS, NFS, TGC). Each pick is validated at once (`setup/disc.cpp`): the image is
-   opened with nod and its game ID must be GLME01 or GLMP01. The SHA-1 of its `main.dol` should match a
-   supported retail build (`port::dol::identify`, hashes from `decomp/config/*/build.sha1`). If it does not,
-   the disc is still used and a warning is printed: a modified `main.dol` (for example a translation) may not
-   work. A disc of another game gets a message.
+   opened with nod, its game ID must be GLME01 or GLMP01, and its revision must be 0. The `main.dol` must match
+   the retail build in code and section layout (`port::dol::identify`, constants in `src/port/dol_identify.cpp`).
+   Only data sections may differ, for example a translated font. The USA disc (GLME01) accepts such a
+   `main.dol`; the PAL disc (GLMP01) accepts only the exact retail `main.dol`. A disc in the wrong slot,
+   another game or another revision gets a message. A changed code or section layout is refused.
    One disc is enough; with both, the user picks the version to play (default USA).
 2. **Install** (worker thread, progress bar, cancellable):
    - For each disc whose game module is missing or stale: recompile its `main.dol`

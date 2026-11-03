@@ -444,12 +444,20 @@ int main(int argc, char* argv[]) {
         aurora_shutdown();
         return 1;
     }
+    // Disc header: game ID (bytes 0-5) and revision (byte 7). Then main.dol: code and layout must be retail.
+    const DVDDiskID* diskId = DVDGetCurrentDiskID();
+    const std::string discId = std::string(diskId->gameName, 4) + std::string(diskId->company, 2);
+    if (discId != wantId || diskId->gameVersion != 0) {
+        std::fprintf(stderr, "The game was recompiled from Luigi's Mansion %s rev 0; the disc is %s rev %d.\n", wantId,
+                     discId.c_str(), diskId->gameVersion);
+        aurora_shutdown();
+        return 1;
+    }
     const port::dol::Version discVersion = port::dol::load();
-    const char* discId = discVersion == port::dol::Version::GLME01   ? "GLME01"
-                         : discVersion == port::dol::Version::GLMP01 ? "GLMP01"
-                                                                     : "unknown";
-    if (std::strcmp(discId, wantId) != 0) {
-        std::fprintf(stderr, "The game was recompiled from Luigi's Mansion %s; the disc is %s.\n", wantId, discId);
+    const port::dol::Version wantVersion =
+        std::strcmp(wantId, "GLMP01") == 0 ? port::dol::Version::GLMP01 : port::dol::Version::GLME01;
+    if (discVersion != wantVersion) {
+        std::fprintf(stderr, "The disc's main.dol changes code or section layout. Only data sections may change.\n");
         aurora_shutdown();
         return 1;
     }
@@ -479,7 +487,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 #endif
-    std::printf("Opened %s (%s)\n", disc.c_str(), discId);
+    std::printf("Opened %s (%s)\n", disc.c_str(), discId.c_str());
 
     frame::start(&boot);
     if (std::getenv("LM_WATCHDOG")) {

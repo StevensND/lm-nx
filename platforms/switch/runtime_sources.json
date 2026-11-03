@@ -53,6 +53,7 @@
     "src/port/recovery.cpp",
     "src/port/options.cpp",
     "src/port/dol.cpp",
+    "src/port/dol_identify.cpp",
     "src/port/settings.cpp",
     "src/port/install.cpp",
     "src/recomp/controls.cpp",

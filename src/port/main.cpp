@@ -4,7 +4,6 @@
 #include <aurora/dvd.h>
 #include <aurora/event.h>
 #include <aurora/main.h>
-#include <dolphin/dvd.h>
 
 #include "port/crash_handler.h"
 #include "port/dol.h"
@@ -68,11 +67,7 @@ int main(int argc, char* argv[]) {
         aurora_shutdown();
         return 1;
     }
-    // A USA disc with a changed main.dol still runs; dol::load() logs the warning.
-    const port::dol::Version dolVersion = port::dol::load();
-    const DVDDiskID* diskId = DVDGetCurrentDiskID();
-    const bool usaDisc = std::memcmp(diskId->gameName, "GLME", 4) == 0 && std::memcmp(diskId->company, "01", 2) == 0;
-    if (dolVersion != port::dol::Version::GLME01 && !(dolVersion == port::dol::Version::Unknown && usaDisc)) {
+    if (port::dol::load() != port::dol::Version::GLME01) {
         std::fprintf(stderr, "Unsupported disc: the port is based on Luigi's Mansion USA (GLME01) rev 0.\n");
         aurora_shutdown();
         return 1;
