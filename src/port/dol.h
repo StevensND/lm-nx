@@ -16,7 +16,8 @@ namespace port::dol {
 
 enum class Version { Unknown, GLME01, GLMP01 };
 
-// Identifies a main.dol image by SHA-1 (Unknown if it is not a supported retail build).
+// GLME01: section table, bss, entry point and text sections equal the retail USA rev 0 build (data sections may
+// differ, e.g. a translated font). GLMP01: byte-identical to the retail PAL rev 0 build. Otherwise Unknown.
 Version identify(const uint8_t* dol, size_t size);
 std::array<uint8_t, 20> sha1(const uint8_t* data, size_t len);
 

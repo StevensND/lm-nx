@@ -37,13 +37,26 @@ bool Disc::open(const std::string& utf8Path, std::string& error) {
         return false;
     }
     dol_.assign(meta.raw_dol.data, meta.raw_dol.data + meta.raw_dol.size);
-    switch (port::dol::identify(dol_.data(), dol_.size())) {
-    case port::dol::Version::GLME01: version_ = port::GameVersion::USA; return true;
-    case port::dol::Version::GLMP01: version_ = port::GameVersion::PAL; return true;
-    default: break;
-    }
     std::string id;
-    if (meta.raw_boot.data && meta.raw_boot.size >= 6) id.assign(reinterpret_cast<const char*>(meta.raw_boot.data), 6);
+    int revision = -1;
+    if (meta.raw_boot.data && meta.raw_boot.size >= 8) {
+        id.assign(reinterpret_cast<const char*>(meta.raw_boot.data), 6);
+        revision = meta.raw_boot.data[7];
+    }
+    if (id == "GLME01" || id == "GLMP01") {
+        if (revision != 0) {
+            error = "This Luigi's Mansion disc (" + id + ") revision " + std::to_string(revision) +
+                    " is not supported. Supported: revision 0 of USA (GLME01) and Europe (GLMP01).";
+            return false;
+        }
+        const port::dol::Version want = id == "GLME01" ? port::dol::Version::GLME01 : port::dol::Version::GLMP01;
+        if (port::dol::identify(dol_.data(), dol_.size()) != want) {
+            error = "The disc's main.dol changes code or section layout. Only data sections may change.";
+            return false;
+        }
+        version_ = id == "GLME01" ? port::GameVersion::USA : port::GameVersion::PAL;
+        return true;
+    }
     if (id.rfind("GLM", 0) == 0)
         error = "This Luigi's Mansion disc (" + id + ") is not a supported release. Supported: USA (GLME01) and "
                 "Europe (GLMP01), first printing.";
